@@ -326,6 +326,14 @@
     [
       "a3442e80-7eef-4b96-92a1-138eb3b79ccb",
       ""
+    ],
+    [
+      "8e650c05-dd54-49be-bef9-e4584b0e9ca3",
+      "AD2S1205"
+    ],
+    [
+      "f1ae356f-f4c2-44e4-afec-64a3e833d39a",
+      "PWM_DRIVER"
     ]
   ],
   "text_variables": {}
