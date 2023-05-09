@@ -1807,6 +1807,10 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 41ed433e-285b-4291-b27b-31a883ee721a)
   )
+  (text "BEWARE OF CROSSOVER " (at 186.69 78.74 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid 96e7e43e-84d9-43d0-a345-96c31b0c49cc)
+  )
 
   (label "Vcc{slash}2" (at 196.85 67.31 0) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify left bottom))
