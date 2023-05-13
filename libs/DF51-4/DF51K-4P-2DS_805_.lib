@@ -1,0 +1,25 @@
+EESchema-LIBRARY Version 2.3
+#encoding utf-8
+#SamacSys ECAD Model DF51K-4P-2DS_805_
+#/12892104/305162/2.50/4/3/Connector
+DEF DF51K-4P-2DS_805_ J 0 30 Y Y 1 F N
+F0 "J" 650 300 50 H V L CNN
+F1 "DF51K-4P-2DS_805_" 650 200 50 H V L CNN
+F2 "DF51K4P2DS805" 650 100 50 H I L CNN
+F3 "https://www.hirose.com/product/document?clcode=CL0550-0444-0-00&productname=HT801%2fDF51K-30S(A)&series=DF51K&documenttype=Catalog&lang=en&documentid=D176369_en" 650 0 50 H I L CNN
+F4 "Pin Header, R/A, Wire-to-Board, 2 mm, 1 Rows, 4 Contacts, Through Hole Right Angle" 650 -100 50 H I L CNN "Description"
+F5 "6.3" 650 -200 50 H I L CNN "Height"
+F6 "798-DF51K-4P-2DS805" 650 -300 50 H I L CNN "Mouser Part Number"
+F7 "https://www.mouser.co.uk/ProductDetail/Hirose-Connector/DF51K-4P-2DS805?qs=T3oQrply3y9mwzpVKK8SRQ%3D%3D" 650 -400 50 H I L CNN "Mouser Price/Stock"
+F8 "Hirose" 650 -500 50 H I L CNN "Manufacturer_Name"
+F9 "DF51K-4P-2DS(805)" 650 -600 50 H I L CNN "Manufacturer_Part_Number"
+DRAW
+X 1 1 0 0 200 R 50 50 0 0 P
+X 2 2 0 -100 200 R 50 50 0 0 P
+X 3 3 0 -200 200 R 50 50 0 0 P
+X 4 4 0 -300 200 R 50 50 0 0 P
+P 5 0 1 6 200 100 600 100 600 -400 200 -400 200 100 N
+ENDDRAW
+ENDDEF
+#
+#End Library

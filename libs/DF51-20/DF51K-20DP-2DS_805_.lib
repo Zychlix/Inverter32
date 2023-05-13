@@ -1,0 +1,41 @@
+EESchema-LIBRARY Version 2.3
+#encoding utf-8
+#SamacSys ECAD Model DF51K-20DP-2DS_805_
+#/9937121/305162/2.50/20/4/Connector
+DEF DF51K-20DP-2DS_805_ J 0 30 Y Y 1 F N
+F0 "J" 750 300 50 H V L CNN
+F1 "DF51K-20DP-2DS_805_" 750 200 50 H V L CNN
+F2 "DF51K20DP2DS805" 750 100 50 H I L CNN
+F3 "https://datasheet.datasheetarchive.com/originals/distributors/Datasheets_SAMA/b88f126ffe47bcdf3ba57a1a8deadba0.pdf" 750 0 50 H I L CNN
+F4 "Conn Shrouded HDR 20 POS 2mm Solder RA Through Hole Tray" 750 -100 50 H I L CNN "Description"
+F5 "8.75" 750 -200 50 H I L CNN "Height"
+F6 "798-DF51K-20DP2DS805" 750 -300 50 H I L CNN "Mouser Part Number"
+F7 "https://www.mouser.co.uk/ProductDetail/Hirose-Connector/DF51K-20DP-2DS805?qs=T3oQrply3y%2Flrn%252B0UffFVQ%3D%3D" 750 -400 50 H I L CNN "Mouser Price/Stock"
+F8 "Hirose" 750 -500 50 H I L CNN "Manufacturer_Name"
+F9 "DF51K-20DP-2DS(805)" 750 -600 50 H I L CNN "Manufacturer_Part_Number"
+DRAW
+X 1 1 900 0 200 L 50 50 0 0 P
+X 2 2 0 0 200 R 50 50 0 0 P
+X 3 3 900 -100 200 L 50 50 0 0 P
+X 4 4 0 -100 200 R 50 50 0 0 P
+X 5 5 900 -200 200 L 50 50 0 0 P
+X 6 6 0 -200 200 R 50 50 0 0 P
+X 7 7 900 -300 200 L 50 50 0 0 P
+X 8 8 0 -300 200 R 50 50 0 0 P
+X 9 9 900 -400 200 L 50 50 0 0 P
+X 10 10 0 -400 200 R 50 50 0 0 P
+X 11 11 900 -500 200 L 50 50 0 0 P
+X 12 12 0 -500 200 R 50 50 0 0 P
+X 13 13 900 -600 200 L 50 50 0 0 P
+X 14 14 0 -600 200 R 50 50 0 0 P
+X 15 15 900 -700 200 L 50 50 0 0 P
+X 16 16 0 -700 200 R 50 50 0 0 P
+X 17 17 900 -800 200 L 50 50 0 0 P
+X 18 18 0 -800 200 R 50 50 0 0 P
+X 19 19 900 -900 200 L 50 50 0 0 P
+X 20 20 0 -900 200 R 50 50 0 0 P
+P 5 0 1 6 200 100 700 100 700 -1000 200 -1000 200 100 N
+ENDDRAW
+ENDDEF
+#
+#End Library
