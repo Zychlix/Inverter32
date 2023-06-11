@@ -3521,7 +3521,7 @@
   )
 
   (symbol (lib_id "Device:Q_PNP_BCE") (at 237.49 76.2 0) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
+    (in_bom yes) (on_board yes) (dnp no)
     (uuid 8d2c3d23-48bd-43c0-90b3-78e910111505)
     (property "Reference" "Q6" (at 242.57 75.565 0)
       (effects (font (size 1.27 1.27)) (justify left))
@@ -3898,7 +3898,7 @@
   )
 
   (symbol (lib_id "Device:Q_PNP_BCE") (at 237.49 151.13 0) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
+    (in_bom yes) (on_board yes) (dnp no)
     (uuid d0538394-f137-432b-b3cf-97ef4d689554)
     (property "Reference" "Q2" (at 242.57 150.495 0)
       (effects (font (size 1.27 1.27)) (justify left))
