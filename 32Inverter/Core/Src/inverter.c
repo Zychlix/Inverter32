@@ -7,28 +7,23 @@
 
 void inv_init(inverter_t * inverter)
 {
+    TIM_OC_InitTypeDef oc_config;
+
     inverter->oc_config.OCMode       = TIM_OCMODE_PWM1;
     inverter->oc_config.OCPolarity   = TIM_OCPOLARITY_HIGH;
     inverter->oc_config.OCFastMode   = TIM_OCFAST_DISABLE;
     inverter->oc_config.OCNPolarity  = TIM_OCNPOLARITY_HIGH;
     inverter->oc_config.OCNIdleState = TIM_OCNIDLESTATE_RESET;
-
     inverter->oc_config.OCIdleState  = TIM_OCIDLESTATE_RESET;
 
-    /* Set the pulse value for channel 1 */
     HAL_TIM_Base_Start_IT(inverter->poles[0].timer_handler);
     for(int i = 0 ; i< 3; i++)
     {
         HAL_TIM_PWM_ConfigChannel(inverter->poles[i].timer_handler, &inverter->oc_config, inverter->poles[i].channel);
         HAL_TIM_PWM_Start(inverter->poles[i].timer_handler, inverter->poles[i].channel);
         HAL_TIMEx_PWMN_Start(inverter->poles[i].timer_handler, inverter->poles[i].channel);
-
     }
-
-
 }
-
-
 
 void res_read_position(resolver_t * res)
 {
@@ -68,4 +63,10 @@ void inv_clear_fault(){
     HAL_GPIO_WritePin(FAULT_RST_GPIO_Port, FAULT_RST_Pin, true);
     HAL_Delay(1);
     HAL_GPIO_WritePin(FAULT_RST_GPIO_Port, FAULT_RST_Pin, false);
+}
+
+void inv_set_pwm(inverter_t *inverter, float u, float v, float w){
+    inverter->timer->Instance->CCR1 = INV_MAX_PWM_PULSE_VAL * (0.5 + u / 2.0);
+    inverter->timer->Instance->CCR2 = INV_MAX_PWM_PULSE_VAL * (0.5 + v / 2.0);
+    inverter->timer->Instance->CCR3 = INV_MAX_PWM_PULSE_VAL * (0.5 + w / 2.0);
 }

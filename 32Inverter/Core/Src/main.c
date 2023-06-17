@@ -736,13 +736,6 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 
-
-void set_pwm(float u, float v, float w){
-    TIM1->CCR1 = INV_MAX_PWM_PULSE_VAL * (0.5 + u / 2.0);
-    TIM1->CCR2 = INV_MAX_PWM_PULSE_VAL * (0.5 + v / 2.0);
-    TIM1->CCR3 = INV_MAX_PWM_PULSE_VAL * (0.5 + w / 2.0);
-}
-
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
     HAL_GPIO_WritePin(RD_GPIO_Port,RD_Pin,1);
     HAL_GPIO_WritePin(RDVEL_GPIO_Port,RDVEL_Pin,1);
