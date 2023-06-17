@@ -4,9 +4,7 @@
 #include "math.h"
 #include "stdbool.h"
 
-#define INV_PRESCALER 0
 #define INV_MAX_PWM_PULSE_VAL 5000
-#define INV_DT                0.001
 
 typedef struct
 {
@@ -19,9 +17,6 @@ typedef struct
 typedef struct
 {
     TIM_HandleTypeDef * timer;
-
-    vector_t voltage_vector;
-    vector_t rotor_vector;
     resolver_t resolver;
     bool voltage_vector_advance;
 } inverter_t;
@@ -35,4 +30,7 @@ bool inv_get_fault();
 
 void inv_clear_fault();
 
-void inv_set_pwm(float u, float v, float w);
+void inv_set_pwm(inverter_t *inverter, float u, float v, float w);
+
+void inv_tick(inverter_t *inverter);
+

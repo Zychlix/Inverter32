@@ -38,8 +38,7 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-volatile inverter_t inv={0};
-volatile int i=0;
+inverter_t inv={0};
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -120,16 +119,8 @@ int main(void)
 
   printf("Hello World \r\n");
 
-    inv.poles[0].timer_handler = &htim1;
-    inv.poles[0].channel = TIM_CHANNEL_1;
-
-    inv.poles[1].timer_handler = &htim1;
-    inv.poles[1].channel = TIM_CHANNEL_2;
-
-    inv.poles[2].timer_handler = &htim1;
-    inv.poles[2].channel = TIM_CHANNEL_3;
-
     inv.resolver.spi_handler = &hspi1;
+    inv.timer = &htim1;
     inv_init(&inv);
 
     // enable AD2S1205 resolver
@@ -737,36 +728,9 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-    HAL_GPIO_WritePin(RD_GPIO_Port,RD_Pin,1);
-    HAL_GPIO_WritePin(RDVEL_GPIO_Port,RDVEL_Pin,1);
-    HAL_GPIO_WritePin(SAMPLE_GPIO_Port,SAMPLE_Pin,1);
-
-//    static float fi = 0;
-//    const float omega = 3;
-//   fi += omega / 1000.0;
-//    fi = fmod(fi, 2*M_PI);
-
-    res_read_position(&inv.resolver);
-
-    float fi = inv.resolver.fi + M_PI / 2;
-
-
-    const float amplitude = 1;
-
-    float u = amplitude * sinf(fi);
-    float v = amplitude * sinf(fi + 2.0f / 3.0 * M_PI);
-    float w = amplitude * sinf(fi + 4.0f / 3.0 * M_PI);
-
-    set_pwm(u, v, w);
-
-
-
-    printf("%f\r\n", inv.resolver.fi);
-
-
-
-
-    i++;
+    if(htim->Instance == TIM1){
+        inv_tick(&inv);
+    }
 }
 
 int _write(int file, char *data, int len)
