@@ -3,6 +3,7 @@
 #include "stm32f3xx_hal.h"
 #include "math.h"
 #include "stdbool.h"
+#include "vectors.h"
 
 #define INV_MAX_PWM_PULSE_VAL 5000
 
@@ -19,6 +20,8 @@ typedef struct
     TIM_HandleTypeDef * timer;
     resolver_t resolver;
     bool voltage_vector_advance;
+    ADC_HandleTypeDef *current_adc;
+    volatile uint16_t raw_current_adc[2];
 } inverter_t;
 
 
@@ -33,4 +36,6 @@ void inv_clear_fault();
 void inv_set_pwm(inverter_t *inverter, float u, float v, float w);
 
 void inv_tick(inverter_t *inverter);
+
+abc_t inv_read_current(inverter_t *inverter);
 

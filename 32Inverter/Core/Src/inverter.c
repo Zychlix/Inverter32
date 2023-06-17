@@ -32,7 +32,12 @@ void inv_init(inverter_t * inverter)
     HAL_TIM_PWM_Start(inverter->timer, TIM_CHANNEL_3);
     HAL_TIMEx_PWMN_Start(inverter->timer, TIM_CHANNEL_3);
 
+
+    // ADC
+    HAL_ADC_Start_DMA(inverter->current_adc, (uint32_t *) &inverter->raw_current_adc, 2);
+    HAL_ADC_Start(inverter->current_adc);
 }
+
 
 void res_read_position(resolver_t * res)
 {
@@ -41,7 +46,7 @@ void res_read_position(resolver_t * res)
     HAL_GPIO_WritePin(RDVEL_GPIO_Port,RDVEL_Pin,1);
     HAL_GPIO_WritePin(SAMPLE_GPIO_Port,SAMPLE_Pin,1);
 
-    const float resolver_offset = -3 * (float)M_PI / 4;
+    const float resolver_offset = 2.90f;
 
     HAL_GPIO_WritePin(RD_GPIO_Port,RD_Pin,0);
     HAL_GPIO_WritePin(SAMPLE_GPIO_Port,SAMPLE_Pin,0);
@@ -50,7 +55,7 @@ void res_read_position(resolver_t * res)
     HAL_SPI_Receive(res->spi_handler,data,1,10);
     HAL_GPIO_WritePin(RD_GPIO_Port,RD_Pin,1);
     uint16_t pos = ((data[1]<<8) | (data[0]))>>4;
-    res->fi = (float)pos / 4096.f * 2 * (float)M_PI + resolver_offset;
+    res->fi = - (float)pos / 4096.f * 2 * (float)M_PI + resolver_offset;
 
     HAL_GPIO_WritePin(RD_GPIO_Port,RD_Pin,0);
     HAL_SPI_Receive(res->spi_handler,data,1,10);
@@ -84,12 +89,20 @@ void inv_set_pwm(inverter_t *inverter, float u, float v, float w){
 }
 
 void inv_tick(inverter_t *inverter){
+    static int i = 0;
+    i++;
+    if(i % 4 != 0) return;
+
+//    HAL_ADC_Start(inverter->current_adc);
+
     res_read_position(&inverter->resolver);
 
+    static float t = 0;
     vec_t phi = angle(inverter->resolver.fi + (float)M_PI / 2);
 //    vec_t phi = angle(0);
+    t += 0.02f;
 
-    const float amplitude = 0.1f;
+    const float amplitude = 0.5f;
 
     vec_t pwm = {
             amplitude,
@@ -97,8 +110,25 @@ void inv_tick(inverter_t *inverter){
     };
 
     pwm = parkTransform(pwm, phi);
-    abc_t pwmABC = inverseClarkeTransform(pwm);
+//    abc_t pwmABC = inverseClarkeTransform(pwm);
+    abc_t pwmABC = {
+            0.2,
+            0,
+            -0.2
+    };
+
 
     inv_set_pwm(inverter, pwmABC.a, pwmABC.b, pwmABC.c);
-    printf("A %.3f B %.3f C %.3f fi %6.3f\r\n", pwmABC.a, pwmABC.b, pwmABC.c, inverter->resolver.fi);
+//    printf("A %6.3f B %6.3f C %6.3f fi %6.3f\r\n", pwmABC.a, pwmABC.b, pwmABC.c, inverter->resolver.fi);
+}
+
+abc_t inv_read_current(inverter_t *inverter){
+    const int16_t adc_offset = 2041; // TODO: add autocal
+    const float amps_per_bit = 0.1342f;
+    abc_t result;
+    result.c = (float)(inverter->raw_current_adc[1] - adc_offset) * amps_per_bit;
+    result.b = (float)(inverter->raw_current_adc[0] - adc_offset) * amps_per_bit;
+    result.a = -result.b - result.c;
+
+    return result;
 }
