@@ -93,14 +93,10 @@ void inv_tick(inverter_t *inverter){
     i++;
     if(i % 4 != 0) return;
 
-//    HAL_ADC_Start(inverter->current_adc);
-
     res_read_position(&inverter->resolver);
-
-    static float t = 0;
     vec_t phi = angle(inverter->resolver.fi + (float)M_PI / 2);
-//    vec_t phi = angle(0);
-    t += 0.02f;
+
+    vec_t current = clarkeTransform(inv_read_current(inverter));
 
     const float amplitude = 0.5f;
 
@@ -110,12 +106,8 @@ void inv_tick(inverter_t *inverter){
     };
 
     pwm = parkTransform(pwm, phi);
-//    abc_t pwmABC = inverseClarkeTransform(pwm);
-    abc_t pwmABC = {
-            0.2,
-            0,
-            -0.2
-    };
+    abc_t pwmABC = inverseClarkeTransform(pwm);
+
 
 
     inv_set_pwm(inverter, pwmABC.a, pwmABC.b, pwmABC.c);

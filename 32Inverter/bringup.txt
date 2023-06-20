@@ -1,0 +1,5 @@
+1. NPN -> PNP i kolejność EBC przy AD2S1205
+2. Dzielnik referencyjny Halla ma być 3:1, a nie 1:1
+3. Złącze na halla ma być 1x4 a nie 2x2
+4. Dobrać rezystance dolnych rezystorów do NTC
+5. Poprawić offset na opampach resolvera

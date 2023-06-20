@@ -22,6 +22,7 @@ typedef struct
     bool voltage_vector_advance;
     ADC_HandleTypeDef *current_adc;
     volatile uint16_t raw_current_adc[2];
+    float vbus;
 } inverter_t;
 
 
@@ -38,4 +39,6 @@ void inv_set_pwm(inverter_t *inverter, float u, float v, float w);
 void inv_tick(inverter_t *inverter);
 
 abc_t inv_read_current(inverter_t *inverter);
+
+void inv_read_vbus();
 

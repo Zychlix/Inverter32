@@ -23,6 +23,7 @@
 /* USER CODE BEGIN Includes */
 #include "inverter.h"
 #include "vectors.h"
+#include "adc.h"
 #include <sys/unistd.h>
 #include <stdio.h>
 /* USER CODE END Includes */
@@ -40,6 +41,8 @@
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
 inverter_t inv={0};
+adcs_t adcs = {0};
+
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -48,6 +51,7 @@ ADC_HandleTypeDef hadc2;
 ADC_HandleTypeDef hadc3;
 ADC_HandleTypeDef hadc4;
 DMA_HandleTypeDef hdma_adc1;
+DMA_HandleTypeDef hdma_adc4;
 
 CAN_HandleTypeDef hcan;
 
@@ -122,10 +126,16 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   printf("Hello World \r\n");
+
+
+
     inv_clear_fault();
 
     // enable AD2S1205 resolver
     HAL_GPIO_WritePin(RESET_RES_GPIO_Port, RESET_RES_Pin, true);
+
+    adcs.adc4 = &hadc4;
+    adcs.adc2 = &hadc2;
 
     inv.resolver.spi_handler = &hspi1;
     inv.timer = &htim1;
@@ -147,8 +157,9 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    abc_t current = inv_read_current(&inv);
-    printf("A % 5.2f B % 5.2f C % 5.2f \r\n", current.a, current.b, current.c);
+  adc4_read(&adcs);
+      adc2_read(&adcs);
+  printf("T %4.1fC VBUS %4.1fV IN %4.1fV TRAN %f \r\n", adcs.motor_temp2, adcs.vbus, adcs.input12V, adcs.transistor1);
     HAL_Delay(200);
   }
   /* USER CODE END 3 */
@@ -424,15 +435,15 @@ static void MX_ADC4_Init(void)
   hadc4.Instance = ADC4;
   hadc4.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV1;
   hadc4.Init.Resolution = ADC_RESOLUTION_12B;
-  hadc4.Init.ScanConvMode = ADC_SCAN_DISABLE;
+  hadc4.Init.ScanConvMode = ADC_SCAN_ENABLE;
   hadc4.Init.ContinuousConvMode = DISABLE;
   hadc4.Init.DiscontinuousConvMode = DISABLE;
   hadc4.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
   hadc4.Init.ExternalTrigConv = ADC_SOFTWARE_START;
   hadc4.Init.DataAlign = ADC_DATAALIGN_RIGHT;
-  hadc4.Init.NbrOfConversion = 1;
+  hadc4.Init.NbrOfConversion = 5;
   hadc4.Init.DMAContinuousRequests = DISABLE;
-  hadc4.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
+  hadc4.Init.EOCSelection = ADC_EOC_SEQ_CONV;
   hadc4.Init.LowPowerAutoWait = DISABLE;
   hadc4.Init.Overrun = ADC_OVR_DATA_OVERWRITTEN;
   if (HAL_ADC_Init(&hadc4) != HAL_OK)
@@ -445,9 +456,45 @@ static void MX_ADC4_Init(void)
   sConfig.Channel = ADC_CHANNEL_1;
   sConfig.Rank = ADC_REGULAR_RANK_1;
   sConfig.SingleDiff = ADC_SINGLE_ENDED;
-  sConfig.SamplingTime = ADC_SAMPLETIME_1CYCLE_5;
+  sConfig.SamplingTime = ADC_SAMPLETIME_601CYCLES_5;
   sConfig.OffsetNumber = ADC_OFFSET_NONE;
   sConfig.Offset = 0;
+  if (HAL_ADC_ConfigChannel(&hadc4, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure Regular Channel
+  */
+  sConfig.Channel = ADC_CHANNEL_4;
+  sConfig.Rank = ADC_REGULAR_RANK_2;
+  if (HAL_ADC_ConfigChannel(&hadc4, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure Regular Channel
+  */
+  sConfig.Channel = ADC_CHANNEL_5;
+  sConfig.Rank = ADC_REGULAR_RANK_3;
+  if (HAL_ADC_ConfigChannel(&hadc4, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure Regular Channel
+  */
+  sConfig.Channel = ADC_CHANNEL_12;
+  sConfig.Rank = ADC_REGULAR_RANK_4;
+  if (HAL_ADC_ConfigChannel(&hadc4, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure Regular Channel
+  */
+  sConfig.Channel = ADC_CHANNEL_13;
+  sConfig.Rank = ADC_REGULAR_RANK_5;
   if (HAL_ADC_ConfigChannel(&hadc4, &sConfig) != HAL_OK)
   {
     Error_Handler();
@@ -657,11 +704,15 @@ static void MX_DMA_Init(void)
 
   /* DMA controller clock enable */
   __HAL_RCC_DMA1_CLK_ENABLE();
+  __HAL_RCC_DMA2_CLK_ENABLE();
 
   /* DMA interrupt init */
   /* DMA1_Channel1_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA1_Channel1_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA1_Channel1_IRQn);
+  /* DMA2_Channel2_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA2_Channel2_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA2_Channel2_IRQn);
 
 }
 

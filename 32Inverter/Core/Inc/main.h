@@ -101,6 +101,8 @@ void Error_Handler(void);
 #define ADC_IN_A_GPIO_Port GPIOB
 #define VBUS_Pin GPIO_PIN_8
 #define VBUS_GPIO_Port GPIOD
+#define ADC_12V_Pin GPIO_PIN_9
+#define ADC_12V_GPIO_Port GPIOD
 #define GPIO_D_Pin GPIO_PIN_9
 #define GPIO_D_GPIO_Port GPIOC
 #define GPIO_C_Pin GPIO_PIN_8
