@@ -8,7 +8,7 @@
 
 const float VREF = 3.3f;
 const float NTC_V_HIGH = 5.0f;
-const float NTC_BETA = 4000; // TODO: CZY MOŻE 3300?
+const float NTC_BETA = 3500; // TODO: CZY MOŻE 3300?
 const float NTC_R0 = 10e3;
 const float NTC_R_LOWSIDE = 4.7e3;
 const float T_ABSOLUTE_ZERO = 273;
@@ -33,10 +33,12 @@ void adc4_read(adcs_t *adcs){
     adcs->throttleA = (float)data[1] / 4095.0f;
     adcs->throttleB = (float)data[2] / 4095.0f;
 
-    const float VBUS_VOLTS_PER_BIT = 1;
-    adcs->vbus = (float)data[3] * VBUS_VOLTS_PER_BIT;
+    const float VBUS_VOLTS_PER_BIT = 1.0f/7.0f;
+    const uint16_t VBUS_OFFSET = 240;
 
-    const float INPUT_12V_VOLTS_PER_BIT = VREF / 4095.f / 0.635f;
+    adcs->vbus = (float)(data[3] - VBUS_OFFSET) * VBUS_VOLTS_PER_BIT;
+
+    const float INPUT_12V_VOLTS_PER_BIT = VREF / 4095.f * 11;
     adcs->input12V = (float)data[4] * INPUT_12V_VOLTS_PER_BIT;
 }
 

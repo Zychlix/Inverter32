@@ -3,3 +3,5 @@
 3. Złącze na halla ma być 1x4 a nie 2x2
 4. Dobrać rezystance dolnych rezystorów do NTC
 5. Poprawić offset na opampach resolvera
+6. Kondensator filtrujący 100nF na R36 (VBUS)
+7. Zmiana dzielnika R29 na 47k (+12V)
