@@ -9,8 +9,8 @@
 
 #define INV_MAX_PWM_PULSE_VAL 5000
 #define INV_FEEDBACK_CYCLE_DIVISION 4
-#define INV_DQ_KP 1
-#define INV_DQ_KI 0
+#define INV_DQ_KP 2
+#define INV_DQ_KI 0.5
 
 typedef struct {
     SPI_HandleTypeDef *spi_handler;
@@ -25,14 +25,18 @@ typedef struct {
     bool voltage_vector_advance;
     ADC_HandleTypeDef *current_adc;
     volatile uint16_t raw_current_adc[2];
+    uint16_t current_adc_offset[2];
     float vbus;
     pi_t pid_d;
     pi_t pid_q;
     vec_t current;
+    bool active;
 } inverter_t;
 
 
 void inv_init(inverter_t *inverter);
+
+void inv_enable(inverter_t *inv, bool status);
 
 void res_read_position(resolver_t *res);
 
@@ -48,3 +52,4 @@ abc_t inv_read_current(inverter_t *inverter);
 
 void inv_read_vbus();
 
+int32_t inv_calibrate_current(inverter_t *inverter);

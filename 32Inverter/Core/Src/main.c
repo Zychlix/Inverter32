@@ -149,11 +149,16 @@ int main(void) {
     inv.resolver.spi_handler = &hspi1;
     inv.timer = &htim1;
     inv.current_adc = &hadc1;
+    inv.active = 0;
     inv_init(&inv);
+    inv_enable(&inv, false);
 
 
-    htim1.Instance->CNT = 0;
-
+    if (inv_calibrate_current(&inv)) {
+        printf("Current calibration failed\r\n");
+        //Error_Handler();
+    }
+    inv_enable(&inv, true);
 
     /* USER CODE END 2 */
 
@@ -166,15 +171,19 @@ int main(void) {
         adc4_read(&adcs);
         adc2_read(&adcs);
 
-//        if (adcs.vbus < 5) Error_Handler();
-        inv.vbus = adcs.vbus;
+//        inv.vbus = adcs.vbus;
+        inv.vbus = 24;
+
+        if (adcs.transistor1 >= 60) {
+            Error_Handler();
+        }
 //        printf("T %4.1fC VBUS %4.1fV IN %4.1fV TRAN %f \r\n", adcs.motor_temp2, adcs.vbus, adcs.input12V,
 //               adcs.transistor1);
 //        printf("fi %6.3f\r\n", inv.resolver.fi);
 //        printf("Id: % 5.3f Iq % 5.3f\r\n", inv.current.d, inv.current.q);
         oscilloscope_check_and_send();
+        printf("T%f\r\n", adcs.transistor1);
 //        printf("a %d b %d\r\n", inv.raw_current_adc[0], inv.raw_current_adc[1]);
-        HAL_Delay(200);
     }
     /* USER CODE END 3 */
 }
@@ -813,6 +822,8 @@ void Error_Handler(void) {
     /* USER CODE BEGIN Error_Handler_Debug */
     /* User can add his own implementation to report the HAL error return state */
     __disable_irq();
+    inv_enable(&inv, false);
+
     while (1) {
     }
     /* USER CODE END Error_Handler_Debug */
