@@ -42,8 +42,9 @@ while True:
     data2 = np.array(data2)
     # data3 = -data1 - data2
 
-    d1_std = np.std(data1)
-    d2_std = np.std(data2)
+    d1_mean = np.mean(data1)
+    d2_mean = np.mean(data2)
+    print(f"mean: {d1_mean} {d2_mean}")
 
     aline.set_ydata(data1)
     bline.set_ydata(data2)

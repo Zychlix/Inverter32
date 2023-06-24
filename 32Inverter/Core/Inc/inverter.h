@@ -8,9 +8,9 @@
 #include "PID.h"
 
 #define INV_MAX_PWM_PULSE_VAL 5000
-#define INV_FEEDBACK_CYCLE_DIVISION 4
-#define INV_DQ_KP 2
-#define INV_DQ_KI 0.5
+#define INV_FEEDBACK_CYCLE_DIVISION 2
+#define INV_DQ_KP 1
+#define INV_DQ_KI 50
 
 typedef struct {
     SPI_HandleTypeDef *spi_handler;

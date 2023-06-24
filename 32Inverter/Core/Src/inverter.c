@@ -44,31 +44,30 @@ void inv_init(inverter_t *inverter) {
 
 void res_read_position(resolver_t *res) {
     // TODO: simplify GPIO toggling
-    HAL_GPIO_WritePin(RD_GPIO_Port, RD_Pin, 1);
-    HAL_GPIO_WritePin(RDVEL_GPIO_Port, RDVEL_Pin, 1);
+
+    HAL_GPIO_WritePin(SAMPLE_GPIO_Port, SAMPLE_Pin, 0);
     HAL_GPIO_WritePin(SAMPLE_GPIO_Port, SAMPLE_Pin, 1);
+
+    HAL_GPIO_WritePin(RDVEL_GPIO_Port, RDVEL_Pin, 1);
+    HAL_GPIO_WritePin(RD_GPIO_Port, RD_Pin, 1);
+    HAL_GPIO_WritePin(RD_GPIO_Port, RD_Pin, 0);
+
 
     const float resolver_offset = -2.90f;
 
-    HAL_GPIO_WritePin(RD_GPIO_Port, RD_Pin, 0);
-    HAL_GPIO_WritePin(SAMPLE_GPIO_Port, SAMPLE_Pin, 0);
 
     uint8_t data[2];
     HAL_SPI_Receive(res->spi_handler, data, 1, 10);
-    HAL_GPIO_WritePin(RD_GPIO_Port, RD_Pin, 1);
     uint16_t pos = ((data[1] << 8) | (data[0])) >> 4;
     res->fi = (float) pos / 4096.f * 2 * (float) M_PI + resolver_offset;
 
+
+    HAL_GPIO_WritePin(RDVEL_GPIO_Port, RDVEL_Pin, 0);
+    HAL_GPIO_WritePin(RD_GPIO_Port, RD_Pin, 1);
     HAL_GPIO_WritePin(RD_GPIO_Port, RD_Pin, 0);
     HAL_SPI_Receive(res->spi_handler, data, 1, 10);
-    HAL_GPIO_WritePin(RDVEL_GPIO_Port, RDVEL_Pin, 0);
-
-    int16_t speed = ((data[1] << 8) | (data[0])) >> 4;  // TODO: simplify
-//    if((data[1]<<8)&1<<5)
-//    {
-//        speed = - speed;
-//    }
-    res->velocity = speed;
+    int16_t speed = (int16_t) (((data[1] << 8) | (data[0])) & 0xfff0) / 16;
+    res->velocity = speed * 4; // rad/s, find a better factor
 
     HAL_GPIO_WritePin(RD_GPIO_Port, RD_Pin, 1);
     HAL_GPIO_WritePin(SAMPLE_GPIO_Port, SAMPLE_Pin, 1);
@@ -116,7 +115,7 @@ void inv_tick(inverter_t *inverter) {
 
     vec_t set_current = {
             0,
-            1.5,
+            0.2,
     };
 
 
@@ -125,14 +124,17 @@ void inv_tick(inverter_t *inverter) {
             pid_calc(&inverter->pid_q, inverter->current.q, set_current.q),
     };
 
+    const float flux_linkage = 0.05;
+    voltage.q += flux_linkage * inverter->resolver.velocity;
+
     oscilloscope_push(inverter->current.d, inverter->current.q);
 //    oscilloscope_push(current_2.x, current_2.y);
 //    oscilloscope_push(current_3.c, current_3.b);
 
 
 //    vec_t voltage = {
-//            1,
-//            15,
+//            0,
+//            10,
 //    };
 
     vec_t pwm = {

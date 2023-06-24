@@ -183,6 +183,7 @@ int main(void) {
 //        printf("Id: % 5.3f Iq % 5.3f\r\n", inv.current.d, inv.current.q);
         oscilloscope_check_and_send();
         printf("T%f\r\n", adcs.transistor1);
+        printf("V%f\r\n", inv.resolver.velocity);
 //        printf("a %d b %d\r\n", inv.raw_current_adc[0], inv.raw_current_adc[1]);
     }
     /* USER CODE END 3 */
