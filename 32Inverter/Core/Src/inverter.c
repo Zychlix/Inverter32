@@ -6,6 +6,8 @@
 #include "inverter.h"
 #include "resolver.h"
 #include "vectors.h"
+#include "PID.h"
+#include "oscilloscope.h"
 
 void inv_init(inverter_t *inverter) {
     TIM_OC_InitTypeDef oc_config;
@@ -35,6 +37,19 @@ void inv_init(inverter_t *inverter) {
     // ADC
     HAL_ADC_Start_DMA(inverter->current_adc, (uint32_t *) &inverter->raw_current_adc, 2);
     HAL_ADC_Start(inverter->current_adc);
+
+
+    // current PI
+    inverter->pid_d.kp = INV_DQ_KP;
+    inverter->pid_d.ki = INV_DQ_KI;
+    inverter->pid_d.dt = (float) INV_MAX_PWM_PULSE_VAL * INV_FEEDBACK_CYCLE_DIVISION / (float) SystemCoreClock;
+    inverter->pid_d.integrated = 0;
+
+
+    inverter->pid_q.kp = INV_DQ_KP;
+    inverter->pid_q.ki = INV_DQ_KI;
+    inverter->pid_q.dt = (float) INV_MAX_PWM_PULSE_VAL * INV_FEEDBACK_CYCLE_DIVISION / (float) SystemCoreClock;
+    inverter->pid_q.integrated = 0;
 }
 
 
@@ -44,7 +59,7 @@ void res_read_position(resolver_t *res) {
     HAL_GPIO_WritePin(RDVEL_GPIO_Port, RDVEL_Pin, 1);
     HAL_GPIO_WritePin(SAMPLE_GPIO_Port, SAMPLE_Pin, 1);
 
-    const float resolver_offset = 2.90f;
+    const float resolver_offset = -2.90f;
 
     HAL_GPIO_WritePin(RD_GPIO_Port, RD_Pin, 0);
     HAL_GPIO_WritePin(SAMPLE_GPIO_Port, SAMPLE_Pin, 0);
@@ -53,7 +68,7 @@ void res_read_position(resolver_t *res) {
     HAL_SPI_Receive(res->spi_handler, data, 1, 10);
     HAL_GPIO_WritePin(RD_GPIO_Port, RD_Pin, 1);
     uint16_t pos = ((data[1] << 8) | (data[0])) >> 4;
-    res->fi = -(float) pos / 4096.f * 2 * (float) M_PI + resolver_offset;
+    res->fi = (float) pos / 4096.f * 2 * (float) M_PI + resolver_offset;
 
     HAL_GPIO_WritePin(RD_GPIO_Port, RD_Pin, 0);
     HAL_SPI_Receive(res->spi_handler, data, 1, 10);
@@ -80,6 +95,12 @@ void inv_clear_fault() {
     HAL_GPIO_WritePin(FAULT_RST_GPIO_Port, FAULT_RST_Pin, false);
 }
 
+inline float constrain(float x, const float min, const float max) {
+    if (x > max) return max;
+    if (x < min) return min;
+    return x;
+}
+
 void inv_set_pwm(inverter_t *inverter, float u, float v, float w) {
     inverter->timer->Instance->CCR1 = INV_MAX_PWM_PULSE_VAL * (0.5 + u / 2.0);
     inverter->timer->Instance->CCR2 = INV_MAX_PWM_PULSE_VAL * (0.5 + v / 2.0);
@@ -89,22 +110,44 @@ void inv_set_pwm(inverter_t *inverter, float u, float v, float w) {
 void inv_tick(inverter_t *inverter) {
     static int i = 0;
     i++;
-    if (i % 4 != 0) return;
+    if (i % INV_FEEDBACK_CYCLE_DIVISION != 0) return;
+
 
     res_read_position(&inverter->resolver);
-    vec_t phi = angle(inverter->resolver.fi + (float) M_PI / 2);
+    vec_t phi = angle(inverter->resolver.fi);
+    if (fmod(inverter->resolver.fi, 2 * M_PI) < 0.01) oscilloscope_trig();
 
-    vec_t current = clarkeTransform(inv_read_current(inverter));
-//    vec_t current_park = inverseParkTransform()
+    abc_t current_3 = inv_read_current(inverter);
+    vec_t current_2 = clarkeTransform(current_3);
+    inverter->current = parkTransform(current_2, rotate180(phi));
+    oscilloscope_push(current_2.x, current_2.y);
 
-    const float amplitude = 0.5f;
 
-    vec_t pwm = {
-            amplitude,
-            0,
+    vec_t set_current = {
+            0.0,
+            3.0,
     };
 
-    pwm = parkTransform(pwm, phi);
+
+//    vec_t voltage = {
+//            pid_calc(&inverter->pid_d, current.d, set_current.d),
+//            pid_calc(&inverter->pid_q, current.q, set_current.q),
+//    };
+
+    vec_t voltage = {
+            0,
+            15,
+    };
+
+    vec_t pwm = {
+            voltage.x / inverter->vbus,
+            voltage.y / inverter->vbus,
+    };
+
+    pwm = limit_amplitude(pwm, 1);
+
+
+    pwm = inverseParkTransform(pwm, phi);
     abc_t pwmABC = inverseClarkeTransform(pwm);
 
 
@@ -113,7 +156,7 @@ void inv_tick(inverter_t *inverter) {
 }
 
 abc_t inv_read_current(inverter_t *inverter) {
-    const int16_t adc_offset = 2041; // TODO: add autocal
+    const int16_t adc_offset = 1988; // TODO: add autocal
     const float amps_per_bit = 0.1342f;
     abc_t result;
     result.c = (float) (inverter->raw_current_adc[1] - adc_offset) * amps_per_bit;

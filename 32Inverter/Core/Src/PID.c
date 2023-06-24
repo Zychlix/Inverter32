@@ -1,10 +1,9 @@
 #include "PID.h"
 
-void pid_recalculate(pid_t * pid)
-{
-    double error = pid->setpoint - pid->input;
+float pid_calc(pi_t *pid, float input, float setpoint) {
+    float error = setpoint - input;
 
-    pid->integrated += error * pid->ki * DELTA_T;
+    pid->integrated += error * pid->ki * pid->dt;
 
-    pid->output = error * pid->kp + pid->integrated;
+    return error * pid->kp + pid->integrated;
 }

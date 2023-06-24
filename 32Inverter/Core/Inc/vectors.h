@@ -1,8 +1,14 @@
 #pragma once
 
 typedef struct {
-    float x;
-    float y;
+    union {
+        float x;
+        float d;
+    };
+    union {
+        float y;
+        float q;
+    };
 } vec_t;
 
 typedef struct {
@@ -13,11 +19,15 @@ typedef struct {
 
 vec_t normalize(vec_t a);
 
+vec_t limit_amplitude(vec_t a, float max_amplitude);
+
 vec_t rotate90(vec_t a);
 
 vec_t rotate90neg(vec_t a);
 
 vec_t rotate120(vec_t a);
+
+vec_t rotate180(vec_t a);
 
 vec_t angle(float phi);
 

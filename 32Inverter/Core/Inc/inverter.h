@@ -1,34 +1,40 @@
 #pragma once
+
 #include "stdint.h"
 #include "stm32f3xx_hal.h"
 #include "math.h"
 #include "stdbool.h"
 #include "vectors.h"
+#include "PID.h"
 
 #define INV_MAX_PWM_PULSE_VAL 5000
+#define INV_FEEDBACK_CYCLE_DIVISION 4
+#define INV_DQ_KP 1
+#define INV_DQ_KI 0
 
-typedef struct
-{
+typedef struct {
     SPI_HandleTypeDef *spi_handler;
-    float  fi;
-    float  velocity;
+    float fi;
+    float velocity;
 
 } resolver_t;
 
-typedef struct
-{
-    TIM_HandleTypeDef * timer;
+typedef struct {
+    TIM_HandleTypeDef *timer;
     resolver_t resolver;
     bool voltage_vector_advance;
     ADC_HandleTypeDef *current_adc;
     volatile uint16_t raw_current_adc[2];
     float vbus;
+    pi_t pid_d;
+    pi_t pid_q;
+    vec_t current;
 } inverter_t;
 
 
-void inv_init(inverter_t * inverter);
+void inv_init(inverter_t *inverter);
 
-void res_read_position(resolver_t * res);
+void res_read_position(resolver_t *res);
 
 bool inv_get_fault();
 

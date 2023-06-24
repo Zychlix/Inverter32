@@ -24,6 +24,7 @@
 #include "inverter.h"
 #include "vectors.h"
 #include "adc.h"
+#include "oscilloscope.h"
 #include <sys/unistd.h>
 #include <stdio.h>
 /* USER CODE END Includes */
@@ -164,8 +165,15 @@ int main(void) {
         /* USER CODE BEGIN 3 */
         adc4_read(&adcs);
         adc2_read(&adcs);
-        printf("T %4.1fC VBUS %4.1fV IN %4.1fV TRAN %f \r\n", adcs.motor_temp2, adcs.vbus, adcs.input12V,
-               adcs.transistor1);
+
+//        if (adcs.vbus < 5) Error_Handler();
+        inv.vbus = adcs.vbus;
+//        printf("T %4.1fC VBUS %4.1fV IN %4.1fV TRAN %f \r\n", adcs.motor_temp2, adcs.vbus, adcs.input12V,
+//               adcs.transistor1);
+//        printf("fi %6.3f\r\n", inv.resolver.fi);
+//        printf("Id: % 5.3f Iq % 5.3f\r\n", inv.current.d, inv.current.q);
+        oscilloscope_check_and_send();
+//        printf("a %d b %d\r\n", inv.raw_current_adc[0], inv.raw_current_adc[1]);
         HAL_Delay(200);
     }
     /* USER CODE END 3 */

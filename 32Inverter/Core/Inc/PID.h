@@ -1,18 +1,11 @@
 #pragma once
 
-#define DELTA_T 0.001   //1ms
+typedef struct PID {
+    float kp;
+    float ki;
+    float dt;
 
-typedef struct PID
-{
+    float integrated;
+} pi_t;
 
-    double kp;
-    double ki;
-
-    double integrated;
-    double input;
-    double output;
-    double setpoint;
-
-}pid_t;
-
-void pid_recalculate(pid_t * pid);
+float pid_calc(pi_t *pid, float input, float setpoint);
