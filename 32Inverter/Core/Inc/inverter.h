@@ -11,6 +11,7 @@
 #define INV_FEEDBACK_CYCLE_DIVISION 2
 #define INV_DQ_KP 1
 #define INV_DQ_KI 50
+#define INV_PID_MAX_OUT 50 // TODO: change this when increasing battey voltage
 
 typedef struct {
     SPI_HandleTypeDef *spi_handler;

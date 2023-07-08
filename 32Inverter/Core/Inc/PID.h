@@ -4,6 +4,7 @@ typedef struct PID {
     float kp;
     float ki;
     float dt;
+    float max_out;
 
     float integrated;
 } pi_t;

@@ -174,11 +174,13 @@ int main(void) {
         adc4_read(&adcs);
         adc2_read(&adcs);
 
-        const float maxCurrent = 1;
-
-        inv.vbus = 24;
-        inv.current_setpoint = adcs.throttleB * maxCurrent;
-//        inv.current_setpoint = 1;
+        const float maxCurrent = 30;
+        inv.vbus = 54;
+        if(adcs.throttleB > 0.1){
+            inv.current_setpoint = adcs.throttleB * maxCurrent;
+        } else {
+            inv.current_setpoint = 0;
+        }
 
         if (adcs.transistor1 >= 60) {
             Error_Handler();

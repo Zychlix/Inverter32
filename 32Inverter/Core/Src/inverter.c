@@ -33,12 +33,15 @@ void inv_init(inverter_t *inverter) {
     inverter->pid_d.ki = INV_DQ_KI;
     inverter->pid_d.dt = (float) INV_MAX_PWM_PULSE_VAL * INV_FEEDBACK_CYCLE_DIVISION / (float) SystemCoreClock;
     inverter->pid_d.integrated = 0;
+    inverter->pid_d.max_out = INV_PID_MAX_OUT;
 
 
     inverter->pid_q.kp = INV_DQ_KP;
     inverter->pid_q.ki = INV_DQ_KI;
     inverter->pid_q.dt = (float) INV_MAX_PWM_PULSE_VAL * INV_FEEDBACK_CYCLE_DIVISION / (float) SystemCoreClock;
     inverter->pid_q.integrated = 0;
+    inverter->pid_q.max_out = INV_PID_MAX_OUT;
+
 }
 
 
@@ -123,6 +126,7 @@ void inv_tick(inverter_t *inverter) {
             pid_calc(&inverter->pid_d, inverter->current.d, set_current.d),
             pid_calc(&inverter->pid_q, inverter->current.q, set_current.q),
     };
+
 
     const float flux_linkage = 0.05f;
     voltage.q += flux_linkage * inverter->resolver.velocity;
