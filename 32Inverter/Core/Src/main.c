@@ -174,22 +174,22 @@ int main(void) {
         adc4_read(&adcs);
         adc2_read(&adcs);
 
-        const float maxCurrent = 5;
+        const float maxCurrent = 1;
 
         inv.vbus = 24;
-//        inv.current_setpoint = adcs.throttleA * maxCurrent;
-        inv.current_setpoint = 1;
+        inv.current_setpoint = adcs.throttleB * maxCurrent;
+//        inv.current_setpoint = 1;
 
         if (adcs.transistor1 >= 60) {
             Error_Handler();
         }
-//        printf("T %4.1fC VBUS %4.1fV IN %4.1fV TRAN %f \r\n", adcs.motor_temp2, adcs.vbus, adcs.input12V,
-//               adcs.transistor1);
-//        printf("fi %6.3f\r\n", inv.resolver.fi);
+        printf("T %4.1fC VBUS %4.1fV IN %4.1fV TRAN %f \r\n", adcs.motor_temp2, adcs.vbus, adcs.input12V,
+               adcs.transistor1);
+        printf("thrA %6.3f\r\n", adcs.throttleB);
 //        printf("Id: % 5.3f Iq % 5.3f\r\n", inv.current.d, inv.current.q);
-        oscilloscope_check_and_send();
-        printf("T%f\r\n", adcs.transistor1);
-        printf("V%f\r\n", inv.resolver.velocity);
+//        oscilloscope_check_and_send();
+//        printf("T%f\r\n", adcs.transistor1);
+//        printf("V%f\r\n", inv.resolver.velocity);
 //        printf("a %d b %d\r\n", inv.raw_current_adc[0], inv.raw_current_adc[1]);
     }
     /* USER CODE END 3 */
