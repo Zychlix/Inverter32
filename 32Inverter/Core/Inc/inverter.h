@@ -31,6 +31,7 @@ typedef struct {
     pi_t pid_q;
     vec_t current;
     bool active;
+    float current_setpoint;
 } inverter_t;
 
 

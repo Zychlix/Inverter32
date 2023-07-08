@@ -5,3 +5,4 @@
 5. Poprawić offset na opampach resolvera
 6. Kondensator filtrujący 100nF na R36 (VBUS)
 7. Zmiana dzielnika R29 na 47k (+12V)
+8. Trzeba dodać pull-down na wszystkich wyjściach fazowych STMa, bo maja nieustalone stany na starcie

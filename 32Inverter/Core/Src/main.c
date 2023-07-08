@@ -135,6 +135,9 @@ int main(void) {
     MX_ADC2_Init();
     /* USER CODE BEGIN 2 */
 
+    HAL_GPIO_WritePin(X_OUT_GPIO_Port, X_OUT_Pin,
+                      false); // hack for enabling the inverter, control FAULT_DRV via ULN2003
+
     printf("Hello World \r\n");
 
 
@@ -171,8 +174,11 @@ int main(void) {
         adc4_read(&adcs);
         adc2_read(&adcs);
 
-//        inv.vbus = adcs.vbus;
+        const float maxCurrent = 5;
+
         inv.vbus = 24;
+//        inv.current_setpoint = adcs.throttleA * maxCurrent;
+        inv.current_setpoint = 1;
 
         if (adcs.transistor1 >= 60) {
             Error_Handler();
@@ -752,9 +758,9 @@ static void MX_GPIO_Init(void) {
     HAL_GPIO_Init(FAULT_RST_GPIO_Port, &GPIO_InitStruct);
 
     /*Configure GPIO pins : RD_Pin SAMPLE_Pin RDVEL_Pin CS_RES_Pin
-                             GPIO_C_Pin GPIO_B_Pin GPIO_A_Pin X_OUT_Pin */
+                             GPIO_C_Pin GPIO_B_Pin GPIO_A_Pin */
     GPIO_InitStruct.Pin = RD_Pin | SAMPLE_Pin | RDVEL_Pin | CS_RES_Pin
-                          | GPIO_C_Pin | GPIO_B_Pin | GPIO_A_Pin | X_OUT_Pin;
+                          | GPIO_C_Pin | GPIO_B_Pin | GPIO_A_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
@@ -781,6 +787,13 @@ static void MX_GPIO_Init(void) {
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
     HAL_GPIO_Init(LED_GPIO_Port, &GPIO_InitStruct);
+
+    /*Configure GPIO pin : X_OUT_Pin */
+    GPIO_InitStruct.Pin = X_OUT_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+    HAL_GPIO_Init(X_OUT_GPIO_Port, &GPIO_InitStruct);
 
     /*Configure GPIO pin : MAIN_OUT_Pin */
     GPIO_InitStruct.Pin = MAIN_OUT_Pin;

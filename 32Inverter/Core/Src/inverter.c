@@ -115,7 +115,7 @@ void inv_tick(inverter_t *inverter) {
 
     vec_t set_current = {
             0,
-            0.2,
+            inverter->current_setpoint,
     };
 
 
@@ -124,7 +124,7 @@ void inv_tick(inverter_t *inverter) {
             pid_calc(&inverter->pid_q, inverter->current.q, set_current.q),
     };
 
-    const float flux_linkage = 0.05;
+    const float flux_linkage = 0.05f;
     voltage.q += flux_linkage * inverter->resolver.velocity;
 
     oscilloscope_push(inverter->current.d, inverter->current.q);
