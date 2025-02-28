@@ -21,7 +21,7 @@ class SerialWrap(serial.Serial):
 
 class InverterAPI:
     def __init__(self, port='/dev/ttyACM0', baud=9600):
-        self.ser = SerialWrap(port, baud, timeout=2)
+        self.ser = serial.Serial(port, baud, timeout=2)
 
     def set_ab(self, current: float, fi: float):
         resp = self.query(f'ab {current:.1f} {fi:.3f}')
@@ -74,14 +74,26 @@ for i in range(5):
 
 fi_electrical = np.linspace(0, 2 * np.pi, 30)
 fi_mechanical = []
-current = 20
+current = 40
 
 for fi_ele in fi_electrical:
     inv.set_ab(current, fi_ele)
     time.sleep(1)
     fi_mech = inv.res_angle()
+    if fi_mech < 0:
+        fi_mech += 2*np.pi
+    if fi_mech > 2*np.pi:
+        fi_mech -= 2*np.pi
     fi_mechanical.append(fi_mech)
     print(f'{fi_ele:.3f} -> {fi_mech:.3f}')
 
+b, a = np.polyfit(fi_electrical, fi_mechanical, deg=1)
+print(a, b)
+
+
+
+inv.set_ab(0, 0)
+
+plt.plot(fi_electrical, a + b * fi_electrical, color="k", lw=2.5)
 plt.plot(fi_electrical, fi_mechanical, 'o')
 plt.show()

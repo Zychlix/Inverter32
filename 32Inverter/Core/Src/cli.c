@@ -32,7 +32,9 @@ static void parse_command(char* str)
 	} else if(strcmp(str, "curr_ab") == 0) {
 		vec_t current = clarkeTransform(inv_read_current(me.inverter));
 		printf("A %5.1f B %5.1f\n", current.x, current.y);
-	} else if (sscanf(str, "ab %f %f", &arg1, &arg2) == 2) {
+	} else if(strcmp(str, "curr_dq") == 0) {
+		printf("d %5.1f q %5.1f\n", me.inverter->current.d, me.inverter->current.q);
+	}else if (sscanf(str, "ab %f %f", &arg1, &arg2) == 2) {
 		/* Set current in alpha beta control mode
 		 * ab <current amplitude [A]> <phase [rad]> */
 
@@ -42,7 +44,15 @@ static void parse_command(char* str)
 
 		printf("A %f B %f\n", current.x, current.y);
 		inv_set_mode_and_current(me.inverter, MODE_AB, current);
-	} else if (sscanf(str, "pi %c %f %f", &c, &arg1, &arg2) == 3) {
+	} else if (sscanf(str, "dq %f %f", &arg1, &arg2) == 2) {
+		/* Set current in alpha beta control mode
+		 * dq <d current [A]> <q current [A]> */
+
+		vec_t current = {arg1, arg2};
+
+		printf("ok\n");
+		inv_set_mode_and_current(me.inverter, MODE_DQ, current);
+	}else if (sscanf(str, "pi %c %f %f", &c, &arg1, &arg2) == 3) {
 		/* Sets PI coefficients of current controllers
 		 * pi <controler name> <proportional> <integral>
 		 * controller name:

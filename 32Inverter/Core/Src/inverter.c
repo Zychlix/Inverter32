@@ -67,7 +67,7 @@ void res_read_position(resolver_t *res) {
     HAL_GPIO_WritePin(RD_GPIO_Port, RD_Pin, 0);
 
 
-    const float resolver_offset = 0.0f;
+    const float resolver_offset = -2.9f;
 
 
     uint8_t data[2];
