@@ -187,8 +187,8 @@ int32_t inv_calibrate_current(inverter_t *inverter) {
 
 
 abc_t inv_read_current(inverter_t *inverter) {
-    const float amps_per_bit = 0.1342f;
-    const float symmetry_compensation = 1.08f;
+    const float amps_per_bit = 1.15f;
+    const float symmetry_compensation = 1.00f;
     abc_t result;
     result.c = (float) (inverter->raw_current_adc[1] - inverter->current_adc_offset[1]) * amps_per_bit;
     result.b = symmetry_compensation * (float) (inverter->raw_current_adc[0] - inverter->current_adc_offset[0]) *

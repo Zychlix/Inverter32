@@ -142,7 +142,7 @@ int main(void) {
     printf("Hello World \r\n");
 
 
-    cli_init(&huart3);
+    cli_init(&huart3, &inv);
 
     inv_clear_fault();
 
@@ -161,8 +161,10 @@ int main(void) {
 
 
     if (inv_calibrate_current(&inv)) {
-        printf("Current calibration failed\r\n");
+        printf("Current calibration failed\n");
         //Error_Handler();
+    } else {
+        printf("Current calibration completed %d %d\n", inv.current_adc_offset[0], inv.current_adc_offset[1]);
     }
     inv_enable(&inv, true);
 
