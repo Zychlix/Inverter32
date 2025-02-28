@@ -17,8 +17,13 @@ typedef struct {
     SPI_HandleTypeDef *spi_handler;
     float fi;
     float velocity;
-
 } resolver_t;
+
+typedef enum
+{
+    MODE_AB = 0,
+    MODE_DQ,
+} inverter_mode_t;
 
 typedef struct {
     TIM_HandleTypeDef *timer;
@@ -30,9 +35,12 @@ typedef struct {
     float vbus;
     pi_t pid_d;
     pi_t pid_q;
+    pi_t pid_a;
+    pi_t pid_b;
     vec_t current;
     bool active;
-    float current_setpoint;
+    vec_t set_current; /**< Current requested by the module user, can be in alpha-beta or dq space*/
+    inverter_mode_t mode; /**< Control mode requested by user */
 } inverter_t;
 
 
@@ -55,3 +63,5 @@ abc_t inv_read_current(inverter_t *inverter);
 void inv_read_vbus();
 
 int32_t inv_calibrate_current(inverter_t *inverter);
+
+void inv_set_mode_and_current(inverter_t *inverter, inverter_mode_t mode, vec_t current);

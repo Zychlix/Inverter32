@@ -182,16 +182,17 @@ int main(void) {
         cli_poll();
 
         const float maxCurrent = 30;
-        inv.vbus = 54;
-        if(adcs.throttleB > 0.1){
-            inv.current_setpoint = adcs.throttleB * maxCurrent;
-        } else {
-            inv.current_setpoint = 0;
-        }
+        inv.vbus = 60;
 
-        if (adcs.transistor1 >= 60) {
-            Error_Handler();
-        }
+        // if(adcs.throttleB > 0.1){
+        //     inv.current_setpoint = adcs.throttleB * maxCurrent;
+        // } else {
+        //     inv.current_setpoint = 0;
+        // }
+        //
+        // if (adcs.transistor1 >= 60) {
+        //     Error_Handler();
+        // }
         // printf("T %4.1fC VBUS %4.1fV IN %4.1fV TRAN %f \r\n", adcs.motor_temp2, adcs.vbus, adcs.input12V,
         //        adcs.transistor1);
         // printf("thrA %6.3f\r\n", adcs.throttleB);

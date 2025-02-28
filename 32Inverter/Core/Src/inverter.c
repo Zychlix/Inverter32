@@ -35,13 +35,24 @@ void inv_init(inverter_t *inverter) {
     inverter->pid_d.integrated = 0;
     inverter->pid_d.max_out = INV_PID_MAX_OUT;
 
-
     inverter->pid_q.kp = INV_DQ_KP;
     inverter->pid_q.ki = INV_DQ_KI;
     inverter->pid_q.dt = (float) INV_MAX_PWM_PULSE_VAL * INV_FEEDBACK_CYCLE_DIVISION / (float) SystemCoreClock;
     inverter->pid_q.integrated = 0;
     inverter->pid_q.max_out = INV_PID_MAX_OUT;
 
+
+    inverter->pid_a.kp = INV_DQ_KP;
+    inverter->pid_a.ki = INV_DQ_KI;
+    inverter->pid_a.dt = (float) INV_MAX_PWM_PULSE_VAL * INV_FEEDBACK_CYCLE_DIVISION / (float) SystemCoreClock;
+    inverter->pid_a.integrated = 0;
+    inverter->pid_a.max_out = INV_PID_MAX_OUT;
+
+    inverter->pid_b.kp = INV_DQ_KP;
+    inverter->pid_b.ki = INV_DQ_KI;
+    inverter->pid_b.dt = (float) INV_MAX_PWM_PULSE_VAL * INV_FEEDBACK_CYCLE_DIVISION / (float) SystemCoreClock;
+    inverter->pid_b.integrated = 0;
+    inverter->pid_b.max_out = INV_PID_MAX_OUT;
 }
 
 
@@ -56,7 +67,7 @@ void res_read_position(resolver_t *res) {
     HAL_GPIO_WritePin(RD_GPIO_Port, RD_Pin, 0);
 
 
-    const float resolver_offset = -2.90f;
+    const float resolver_offset = 0.0f;
 
 
     uint8_t data[2];
@@ -116,22 +127,48 @@ void inv_tick(inverter_t *inverter) {
     inverter->current = parkTransform(current_2, phi);
 
 
-    vec_t set_current = {
-            0,
-            inverter->current_setpoint,
-    };
 
 
-    vec_t voltage = {
-            pid_calc(&inverter->pid_d, inverter->current.d, set_current.d),
-            pid_calc(&inverter->pid_q, inverter->current.q, set_current.q),
-    };
+    if (inverter->mode == MODE_DQ)
+    {
+        vec_t voltage = {
+            pid_calc(&inverter->pid_d, inverter->current.d, inverter->set_current.d),
+            pid_calc(&inverter->pid_q, inverter->current.q, inverter->set_current.q),
+        };
+
+        vec_t pwm = {
+            voltage.x / inverter->vbus,
+            voltage.y / inverter->vbus,
+        };
+
+        pwm = limit_amplitude(pwm, 1);
 
 
-    const float flux_linkage = 0.05f;
-    voltage.q += flux_linkage * inverter->resolver.velocity;
+        pwm = inverseParkTransform(pwm, phi);
+        abc_t pwmABC = inverseClarkeTransform(pwm);
+        inv_set_pwm(inverter, pwmABC.a, pwmABC.b, pwmABC.c);
+    } else if (inverter->mode == MODE_AB) {
+        vec_t voltage = {
+            pid_calc(&inverter->pid_a, current_2.x, inverter->set_current.x),
+            pid_calc(&inverter->pid_b, current_2.y, inverter->set_current.y),
+        };
 
-    oscilloscope_push(inverter->current.d, inverter->current.q);
+        vec_t pwm = {
+            voltage.x / inverter->vbus,
+            voltage.y / inverter->vbus,
+        };
+
+        pwm = limit_amplitude(pwm, 1);
+        abc_t pwmABC = inverseClarkeTransform(pwm);
+        inv_set_pwm(inverter, pwmABC.a, pwmABC.b, pwmABC.c);
+    }
+
+
+
+    // const float flux_linkage = 0.05f;
+    // voltage.q += flux_linkage * inverter->resolver.velocity;
+
+    // oscilloscope_push(inverter->current.d, inverter->current.q);
 //    oscilloscope_push(current_2.x, current_2.y);
 //    oscilloscope_push(current_3.c, current_3.b);
 
@@ -141,19 +178,7 @@ void inv_tick(inverter_t *inverter) {
 //            10,
 //    };
 
-    vec_t pwm = {
-            voltage.x / inverter->vbus,
-            voltage.y / inverter->vbus,
-    };
 
-    pwm = limit_amplitude(pwm, 1);
-
-
-    pwm = inverseParkTransform(pwm, phi);
-    abc_t pwmABC = inverseClarkeTransform(pwm);
-
-
-    inv_set_pwm(inverter, pwmABC.a, pwmABC.b, pwmABC.c);
 //    printf("A %6.3f B %6.3f C %6.3f fi %6.3f\r\n", pwmABC.a, pwmABC.b, pwmABC.c, inverter->resolver.fi);
 }
 
@@ -214,4 +239,12 @@ void inv_enable(inverter_t *inv, bool status) {
         HAL_TIM_PWM_Stop(inv->timer, TIM_CHANNEL_3);
     }
     inv->active = status;
+}
+
+void inv_set_mode_and_current(inverter_t *inverter, inverter_mode_t mode, vec_t current)
+{
+    inverter->mode = mode;
+    inverter->set_current = current;
+
+
 }
