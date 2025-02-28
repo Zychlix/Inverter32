@@ -27,6 +27,7 @@
 #include "oscilloscope.h"
 #include <sys/unistd.h>
 #include <stdio.h>
+#include <cli.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -141,6 +142,8 @@ int main(void) {
     printf("Hello World \r\n");
 
 
+    cli_init(&huart3);
+
     inv_clear_fault();
 
     // enable AD2S1205 resolver
@@ -174,6 +177,8 @@ int main(void) {
         adc4_read(&adcs);
         adc2_read(&adcs);
 
+        cli_poll();
+
         const float maxCurrent = 30;
         inv.vbus = 54;
         if(adcs.throttleB > 0.1){
@@ -185,9 +190,9 @@ int main(void) {
         if (adcs.transistor1 >= 60) {
             Error_Handler();
         }
-        printf("T %4.1fC VBUS %4.1fV IN %4.1fV TRAN %f \r\n", adcs.motor_temp2, adcs.vbus, adcs.input12V,
-               adcs.transistor1);
-        printf("thrA %6.3f\r\n", adcs.throttleB);
+        // printf("T %4.1fC VBUS %4.1fV IN %4.1fV TRAN %f \r\n", adcs.motor_temp2, adcs.vbus, adcs.input12V,
+        //        adcs.transistor1);
+        // printf("thrA %6.3f\r\n", adcs.throttleB);
 //        printf("Id: % 5.3f Iq % 5.3f\r\n", inv.current.d, inv.current.q);
 //        oscilloscope_check_and_send();
 //        printf("T%f\r\n", adcs.transistor1);
@@ -674,7 +679,7 @@ static void MX_USART3_UART_Init(void) {
 
     /* USER CODE END USART3_Init 1 */
     huart3.Instance = USART3;
-    huart3.Init.BaudRate = 115200;
+    huart3.Init.BaudRate = 9600;
     huart3.Init.WordLength = UART_WORDLENGTH_8B;
     huart3.Init.StopBits = UART_STOPBITS_1;
     huart3.Init.Parity = UART_PARITY_NONE;
@@ -687,7 +692,8 @@ static void MX_USART3_UART_Init(void) {
         Error_Handler();
     }
     /* USER CODE BEGIN USART3_Init 2 */
-
+    NVIC_EnableIRQ(USART3_IRQn);
+    NVIC_SetPriority(USART3_IRQn, 2);
     /* USER CODE END USART3_Init 2 */
 
 }
@@ -827,6 +833,8 @@ int _write(int file, char *data, int len) {
     // return # of bytes written - as best we can tell
     return (status == HAL_OK ? len : 0);
 }
+
+
 
 /* USER CODE END 4 */
 
