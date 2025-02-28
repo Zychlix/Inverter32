@@ -56,11 +56,13 @@ static void parse_command(char* str)
 			me.inverter->pid_a.ki = arg2;
 			me.inverter->pid_b.kp = arg1;
 			me.inverter->pid_b.ki = arg2;
+			printf("ok\n");
 		} else if (c == 'd') {
 			me.inverter->pid_d.kp = arg1;
 			me.inverter->pid_d.ki = arg2;
 			me.inverter->pid_q.kp = arg1;
 			me.inverter->pid_q.ki = arg2;
+			printf("ok\n");
 		} else {
 			printf("Unknown controller %c\n", c);
 		}
