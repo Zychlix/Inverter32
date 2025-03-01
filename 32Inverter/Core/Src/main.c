@@ -166,7 +166,11 @@ int main(void) {
     } else {
         printf("Current calibration completed %d %d\n", inv.current_adc_offset[0], inv.current_adc_offset[1]);
     }
+    inv.vbus = 40;
     inv_enable(&inv, true);
+
+    static volatile uint32_t cycle_period = 0;
+    static volatile float cycle_current = 0;
 
     /* USER CODE END 2 */
 
@@ -181,26 +185,18 @@ int main(void) {
 
         cli_poll();
 
-        const float maxCurrent = 30;
-        inv.vbus = 60;
+        if (cycle_period > 0 && cycle_current != 0.0f)
+        {
+            uint32_t phase = HAL_GetTick() % cycle_period;
+            if (phase < cycle_period / 2)
+            {
+                inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){0, cycle_current});
+            } else
+            {
+                inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){0, -cycle_current});
+            }
+        }
 
-        // if(adcs.throttleB > 0.1){
-        //     inv.current_setpoint = adcs.throttleB * maxCurrent;
-        // } else {
-        //     inv.current_setpoint = 0;
-        // }
-        //
-        // if (adcs.transistor1 >= 60) {
-        //     Error_Handler();
-        // }
-        // printf("T %4.1fC VBUS %4.1fV IN %4.1fV TRAN %f \r\n", adcs.motor_temp2, adcs.vbus, adcs.input12V,
-        //        adcs.transistor1);
-        // printf("thrA %6.3f\r\n", adcs.throttleB);
-//        printf("Id: % 5.3f Iq % 5.3f\r\n", inv.current.d, inv.current.q);
-//        oscilloscope_check_and_send();
-//        printf("T%f\r\n", adcs.transistor1);
-//        printf("V%f\r\n", inv.resolver.velocity);
-//        printf("a %d b %d\r\n", inv.raw_current_adc[0], inv.raw_current_adc[1]);
     }
     /* USER CODE END 3 */
 }

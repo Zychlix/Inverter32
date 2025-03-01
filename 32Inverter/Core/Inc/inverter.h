@@ -10,7 +10,7 @@
 #define INV_MAX_PWM_PULSE_VAL 5000
 #define INV_FEEDBACK_CYCLE_DIVISION 2
 #define INV_PID_MAX_OUT 10
-#define DEFAULT_CURRENT_FILTER_ALPHA 0.995
+#define DEFAULT_CURRENT_FILTER_ALPHA 0.1
 
 typedef struct {
     SPI_HandleTypeDef *spi_handler;
@@ -41,6 +41,7 @@ typedef struct {
     vec_t set_current; /**< Current requested by the module user, can be in alpha-beta or dq space*/
     inverter_mode_t mode; /**< Control mode requested by user */
     float current_filter_alpha;
+    vec_t voltage;
 } inverter_t;
 
 

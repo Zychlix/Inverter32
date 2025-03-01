@@ -25,8 +25,6 @@ void adc4_read(adcs_t *adcs){
     HAL_ADC_Start_DMA(adcs->adc4, (uint32_t *) data, 5);
     HAL_ADC_PollForConversion(adcs->adc4, 10);
 
-    HAL_Delay(10);
-
     adcs->motor_temp2 = convert_ntc(data[0]);
     adcs->throttleA = (float)data[1] / 4095.0f;
     adcs->throttleB = (float)data[2] / 4095.0f;

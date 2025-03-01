@@ -37,7 +37,7 @@ void inv_init(inverter_t *inverter) {
     inverter->pid_d.max_out = INV_PID_MAX_OUT;
 
     inverter->pid_q.kp = 0.2f;
-    inverter->pid_q.ki = 10;
+    inverter->pid_q.ki = 50.f;
     inverter->pid_q.dt = (float) INV_MAX_PWM_PULSE_VAL * INV_FEEDBACK_CYCLE_DIVISION / (float) SystemCoreClock;
     inverter->pid_q.integrated = 0;
     inverter->pid_q.max_out = INV_PID_MAX_OUT;
@@ -68,7 +68,7 @@ void res_read_position(resolver_t *res) {
     HAL_GPIO_WritePin(RD_GPIO_Port, RD_Pin, 0);
 
 
-    const float resolver_offset = -2.9f;
+    static volatile float resolver_offset = -2.9f;
 
 
     uint8_t data[2];
@@ -82,7 +82,7 @@ void res_read_position(resolver_t *res) {
     HAL_GPIO_WritePin(RD_GPIO_Port, RD_Pin, 0);
     HAL_SPI_Receive(res->spi_handler, data, 1, 10);
     int16_t speed = (int16_t) (((data[1] << 8) | (data[0])) & 0xfff0) / 16;
-    res->velocity = speed * 4; // rad/s, find a better factor
+    res->velocity = speed * 4; // TODO: rad/s, find a better factor
 
     HAL_GPIO_WritePin(RD_GPIO_Port, RD_Pin, 1);
     HAL_GPIO_WritePin(SAMPLE_GPIO_Port, SAMPLE_Pin, 1);
@@ -128,46 +128,38 @@ void inv_tick(inverter_t *inverter) {
     vec_t current_dq =  parkTransform(current_ab, phi);
 
 
-    inverter->current.x = (inverter->current_filter_alpha * inverter->current.x) + (1.0f - inverter->current_filter_alpha) * current_dq.x;
-    inverter->current.y = (inverter->current_filter_alpha * inverter->current.y) + (1.0f - inverter->current_filter_alpha) * current_dq.y;
-
-
-
+    inverter->current.x = (inverter->current_filter_alpha * current_dq.x) + (1.0f - inverter->current_filter_alpha) * inverter->current.x;
+    inverter->current.y = (inverter->current_filter_alpha * current_dq.y) + (1.0f - inverter->current_filter_alpha) * inverter->current.y;
 
     if (inverter->mode == MODE_DQ)
     {
-        vec_t voltage = {
+        static volatile float back_emf_coefficient = 0.041f; /* Volts / (rad / s) */
+
+        inverter->voltage = (vec_t){
             pid_calc(&inverter->pid_d, inverter->current.x, inverter->set_current.x),
-            pid_calc(&inverter->pid_q, inverter->current.y, inverter->set_current.y),
+            pid_calc(&inverter->pid_q, inverter->current.y, inverter->set_current.y) + back_emf_coefficient * inverter->resolver.velocity,
         };
 
         vec_t pwm = {
-            voltage.x / inverter->vbus,
-            voltage.y / inverter->vbus,
+            inverter->voltage.x / inverter->vbus,
+            inverter->voltage.y / inverter->vbus,
         };
 
         pwm = limit_amplitude(pwm, 1);
-
-
         pwm = inverseParkTransform(pwm, phi);
         abc_t pwmABC = inverseClarkeTransform(pwm);
         inv_set_pwm(inverter, pwmABC.a, pwmABC.b, pwmABC.c);
     } else if (inverter->mode == MODE_AB) {
-        vec_t voltage = {
+        inverter->voltage = (vec_t){
             pid_calc(&inverter->pid_a, current_ab.x, inverter->set_current.x),
             pid_calc(&inverter->pid_b, current_ab.y, inverter->set_current.y),
         };
 
-        /* Back-EMF compensation */
-        const float coef = 0.041f; /* Volts / (rad / s) */
-        voltage.y += coef * inverter->resolver.velocity;
-        // TODO: can velocity be negative?
 
         vec_t pwm = {
-            voltage.x / inverter->vbus,
-            voltage.y / inverter->vbus,
+            inverter->voltage.x / inverter->vbus,
+            inverter->voltage.y / inverter->vbus,
         };
-
         pwm = limit_amplitude(pwm, 1);
         abc_t pwmABC = inverseClarkeTransform(pwm);
         inv_set_pwm(inverter, pwmABC.a, pwmABC.b, pwmABC.c);
