@@ -27,29 +27,30 @@ void inv_init(inverter_t *inverter) {
     HAL_ADC_Start_DMA(inverter->current_adc, (uint32_t *) &inverter->raw_current_adc, 2);
     HAL_ADC_Start(inverter->current_adc);
 
+    inverter->current_filter_alpha = DEFAULT_CURRENT_FILTER_ALPHA;
 
     // current PI
-    inverter->pid_d.kp = INV_DQ_KP;
-    inverter->pid_d.ki = INV_DQ_KI;
+    inverter->pid_d.kp = 1;
+    inverter->pid_d.ki = 1;
     inverter->pid_d.dt = (float) INV_MAX_PWM_PULSE_VAL * INV_FEEDBACK_CYCLE_DIVISION / (float) SystemCoreClock;
     inverter->pid_d.integrated = 0;
     inverter->pid_d.max_out = INV_PID_MAX_OUT;
 
-    inverter->pid_q.kp = INV_DQ_KP;
-    inverter->pid_q.ki = INV_DQ_KI;
+    inverter->pid_q.kp = 0.2f;
+    inverter->pid_q.ki = 10;
     inverter->pid_q.dt = (float) INV_MAX_PWM_PULSE_VAL * INV_FEEDBACK_CYCLE_DIVISION / (float) SystemCoreClock;
     inverter->pid_q.integrated = 0;
     inverter->pid_q.max_out = INV_PID_MAX_OUT;
 
 
-    inverter->pid_a.kp = INV_DQ_KP;
-    inverter->pid_a.ki = INV_DQ_KI;
+    inverter->pid_a.kp = 0;
+    inverter->pid_a.ki = 1;
     inverter->pid_a.dt = (float) INV_MAX_PWM_PULSE_VAL * INV_FEEDBACK_CYCLE_DIVISION / (float) SystemCoreClock;
     inverter->pid_a.integrated = 0;
     inverter->pid_a.max_out = INV_PID_MAX_OUT;
 
-    inverter->pid_b.kp = INV_DQ_KP;
-    inverter->pid_b.ki = INV_DQ_KI;
+    inverter->pid_b.kp = 0;
+    inverter->pid_b.ki = 1;
     inverter->pid_b.dt = (float) INV_MAX_PWM_PULSE_VAL * INV_FEEDBACK_CYCLE_DIVISION / (float) SystemCoreClock;
     inverter->pid_b.integrated = 0;
     inverter->pid_b.max_out = INV_PID_MAX_OUT;
@@ -122,9 +123,13 @@ void inv_tick(inverter_t *inverter) {
     vec_t phi = angle(inverter->resolver.fi);
     if (fmod(inverter->resolver.fi, 2 * M_PI) < 0.01) oscilloscope_trig();
 
-    abc_t current_3 = inv_read_current(inverter);
-    vec_t current_2 = clarkeTransform(current_3);
-    inverter->current = parkTransform(current_2, phi);
+    abc_t current_abc = inv_read_current(inverter);
+    vec_t current_ab = clarkeTransform(current_abc);
+    vec_t current_dq =  parkTransform(current_ab, phi);
+
+
+    inverter->current.x = (inverter->current_filter_alpha * inverter->current.x) + (1.0f - inverter->current_filter_alpha) * current_dq.x;
+    inverter->current.y = (inverter->current_filter_alpha * inverter->current.y) + (1.0f - inverter->current_filter_alpha) * current_dq.y;
 
 
 
@@ -132,8 +137,8 @@ void inv_tick(inverter_t *inverter) {
     if (inverter->mode == MODE_DQ)
     {
         vec_t voltage = {
-            pid_calc(&inverter->pid_d, inverter->current.d, inverter->set_current.d),
-            pid_calc(&inverter->pid_q, inverter->current.q, inverter->set_current.q),
+            pid_calc(&inverter->pid_d, inverter->current.x, inverter->set_current.x),
+            pid_calc(&inverter->pid_q, inverter->current.y, inverter->set_current.y),
         };
 
         vec_t pwm = {
@@ -149,9 +154,14 @@ void inv_tick(inverter_t *inverter) {
         inv_set_pwm(inverter, pwmABC.a, pwmABC.b, pwmABC.c);
     } else if (inverter->mode == MODE_AB) {
         vec_t voltage = {
-            pid_calc(&inverter->pid_a, current_2.x, inverter->set_current.x),
-            pid_calc(&inverter->pid_b, current_2.y, inverter->set_current.y),
+            pid_calc(&inverter->pid_a, current_ab.x, inverter->set_current.x),
+            pid_calc(&inverter->pid_b, current_ab.y, inverter->set_current.y),
         };
+
+        /* Back-EMF compensation */
+        const float coef = 0.041f; /* Volts / (rad / s) */
+        voltage.y += coef * inverter->resolver.velocity;
+        // TODO: can velocity be negative?
 
         vec_t pwm = {
             voltage.x / inverter->vbus,
@@ -165,8 +175,6 @@ void inv_tick(inverter_t *inverter) {
 
 
 
-    // const float flux_linkage = 0.05f;
-    // voltage.q += flux_linkage * inverter->resolver.velocity;
 
     // oscilloscope_push(inverter->current.d, inverter->current.q);
 //    oscilloscope_push(current_2.x, current_2.y);

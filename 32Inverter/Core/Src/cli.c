@@ -33,7 +33,7 @@ static void parse_command(char* str)
 		vec_t current = clarkeTransform(inv_read_current(me.inverter));
 		printf("A %5.1f B %5.1f\n", current.x, current.y);
 	} else if(strcmp(str, "curr_dq") == 0) {
-		printf("d %5.1f q %5.1f\n", me.inverter->current.d, me.inverter->current.q);
+		printf("d %5.1f q %5.1f\n", me.inverter->current.x, me.inverter->current.y);
 	}else if (sscanf(str, "ab %f %f", &arg1, &arg2) == 2) {
 		/* Set current in alpha beta control mode
 		 * ab <current amplitude [A]> <phase [rad]> */

@@ -1,14 +1,8 @@
 #pragma once
 
 typedef struct {
-    union {
-        float x;
-        float d;
-    };
-    union {
-        float y;
-        float q;
-    };
+    float x;
+    float y;
 } vec_t;
 
 typedef struct {

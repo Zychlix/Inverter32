@@ -9,9 +9,8 @@
 
 #define INV_MAX_PWM_PULSE_VAL 5000
 #define INV_FEEDBACK_CYCLE_DIVISION 2
-#define INV_DQ_KP 1
-#define INV_DQ_KI 50
-#define INV_PID_MAX_OUT 50 // TODO: change this when increasing battey voltage
+#define INV_PID_MAX_OUT 10
+#define DEFAULT_CURRENT_FILTER_ALPHA 0.995
 
 typedef struct {
     SPI_HandleTypeDef *spi_handler;
@@ -41,6 +40,7 @@ typedef struct {
     bool active;
     vec_t set_current; /**< Current requested by the module user, can be in alpha-beta or dq space*/
     inverter_mode_t mode; /**< Control mode requested by user */
+    float current_filter_alpha;
 } inverter_t;
 
 
