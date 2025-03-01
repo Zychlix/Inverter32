@@ -30,14 +30,14 @@ void inv_init(inverter_t *inverter) {
     inverter->current_filter_alpha = DEFAULT_CURRENT_FILTER_ALPHA;
 
     // current PI
-    inverter->pid_d.kp = 0.2f;
-    inverter->pid_d.ki = 100.f;
+    inverter->pid_d.kp = 20.f;
+    inverter->pid_d.ki = 0.5f;
     inverter->pid_d.dt = (float) INV_MAX_PWM_PULSE_VAL * INV_FEEDBACK_CYCLE_DIVISION / (float) SystemCoreClock;
     inverter->pid_d.integrated = 0;
     inverter->pid_d.max_out = INV_PID_MAX_OUT;
 
-    inverter->pid_q.kp = 0.2f;
-    inverter->pid_q.ki = 50.f;
+    inverter->pid_q.kp = 0.5f;
+    inverter->pid_q.ki = 25.f;
     inverter->pid_q.dt = (float) INV_MAX_PWM_PULSE_VAL * INV_FEEDBACK_CYCLE_DIVISION / (float) SystemCoreClock;
     inverter->pid_q.integrated = 0;
     inverter->pid_q.max_out = INV_PID_MAX_OUT;

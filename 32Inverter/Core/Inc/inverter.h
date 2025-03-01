@@ -1,5 +1,6 @@
 #pragma once
 
+#include "iir_filter.h"
 #include "stdint.h"
 #include "stm32f3xx_hal.h"
 #include "math.h"
@@ -10,7 +11,7 @@
 #define INV_MAX_PWM_PULSE_VAL 5000
 #define INV_FEEDBACK_CYCLE_DIVISION 2
 #define INV_PID_MAX_OUT 10
-#define DEFAULT_CURRENT_FILTER_ALPHA 0.1
+#define DEFAULT_CURRENT_FILTER_ALPHA 0.01
 
 typedef struct {
     SPI_HandleTypeDef *spi_handler;
@@ -42,6 +43,8 @@ typedef struct {
     inverter_mode_t mode; /**< Control mode requested by user */
     float current_filter_alpha;
     vec_t voltage;
+    iir_filter_t filter_d;
+    iir_filter_t filter_q;
 } inverter_t;
 
 
