@@ -32,3 +32,7 @@ abc_t inverseClarkeTransform(vec_t in);
 vec_t parkTransform(vec_t in, vec_t phi);
 
 vec_t inverseParkTransform(vec_t in, vec_t phi);
+
+float sin_lut(float x);
+
+float cos_lut(float x);

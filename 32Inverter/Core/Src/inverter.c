@@ -112,16 +112,11 @@ void inv_set_pwm(inverter_t *inverter, float u, float v, float w) {
 
 void inv_tick(inverter_t *inverter) {
     static int i = 0;
-    static float t = 0;
     i++;
     if (i % INV_FEEDBACK_CYCLE_DIVISION != 0) return;
 
-    //        if (adcs.vbus < 5) Error_Handler();
-
-
     res_read_position(&inverter->resolver);
     vec_t phi = angle(inverter->resolver.fi);
-    if (fmod(inverter->resolver.fi, 2 * M_PI) < 0.01) oscilloscope_trig();
 
     abc_t current_abc = inv_read_current(inverter);
     vec_t current_ab = clarkeTransform(current_abc);
@@ -155,7 +150,6 @@ void inv_tick(inverter_t *inverter) {
             pid_calc(&inverter->pid_b, current_ab.y, inverter->set_current.y),
         };
 
-
         vec_t pwm = {
             inverter->voltage.x / inverter->vbus,
             inverter->voltage.y / inverter->vbus,
@@ -164,22 +158,6 @@ void inv_tick(inverter_t *inverter) {
         abc_t pwmABC = inverseClarkeTransform(pwm);
         inv_set_pwm(inverter, pwmABC.a, pwmABC.b, pwmABC.c);
     }
-
-
-
-
-    // oscilloscope_push(inverter->current.d, inverter->current.q);
-//    oscilloscope_push(current_2.x, current_2.y);
-//    oscilloscope_push(current_3.c, current_3.b);
-
-
-//    vec_t voltage = {
-//            0,
-//            10,
-//    };
-
-
-//    printf("A %6.3f B %6.3f C %6.3f fi %6.3f\r\n", pwmABC.a, pwmABC.b, pwmABC.c, inverter->resolver.fi);
 }
 
 int32_t inv_calibrate_current(inverter_t *inverter) {
