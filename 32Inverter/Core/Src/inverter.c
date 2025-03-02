@@ -144,11 +144,11 @@ void inv_tick(inverter_t *inverter) {
 
     if (inverter->mode == MODE_DQ)
     {
-        static volatile float back_emf_coefficient = 0.041f; /* Volts / (rad / s) */
+        static volatile float rotor_flux_linkage = 0.041f; /* Volts / (rad / s) */
 
         inverter->voltage = (vec_t){
             pid_calc(&inverter->pid_d, inverter->current.x, inverter->smooth_set_current.x),
-            pid_calc(&inverter->pid_q, inverter->current.y, inverter->smooth_set_current.y) + back_emf_coefficient * inverter->resolver.velocity,
+            pid_calc(&inverter->pid_q, inverter->current.y, inverter->smooth_set_current.y) + rotor_flux_linkage * inverter->resolver.velocity,
         };
 
         vec_t pwm = {
