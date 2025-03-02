@@ -29,6 +29,15 @@ void inv_init(inverter_t *inverter) {
 
     inverter->current_filter_alpha = DEFAULT_CURRENT_FILTER_ALPHA;
 
+    inverter->filter_d = (iir_filter_t){
+        .a = {1.f,    -1.85214649f,  0.86234863f},
+        .b = {0.00255054f, 0.00510107f, 0.00255054f},
+    };
+    inverter->filter_q = inverter->filter_d;
+
+    iir_filter_init(&inverter->filter_d);
+    iir_filter_init(&inverter->filter_q);
+
     // current PI
     inverter->pid_d.kp = 20.f;
     inverter->pid_d.ki = 0.5f;
@@ -123,16 +132,23 @@ void inv_tick(inverter_t *inverter) {
     vec_t current_dq =  parkTransform(current_ab, phi);
 
 
+    // inverter->current.x = iir_filter_calculate(&inverter->filter_d, current_dq.x);
+    // inverter->current.y = iir_filter_calculate(&inverter->filter_q, current_dq.y);
+
     inverter->current.x = (inverter->current_filter_alpha * current_dq.x) + (1.0f - inverter->current_filter_alpha) * inverter->current.x;
     inverter->current.y = (inverter->current_filter_alpha * current_dq.y) + (1.0f - inverter->current_filter_alpha) * inverter->current.y;
+
+    static volatile float setpoint_alpha = 0.001;
+    inverter->smooth_set_current.x = (setpoint_alpha * inverter->set_current.x) + (1.0f - setpoint_alpha) * inverter->smooth_set_current.x;
+    inverter->smooth_set_current.y = (setpoint_alpha * inverter->set_current.y) + (1.0f - setpoint_alpha) * inverter->smooth_set_current.y;
 
     if (inverter->mode == MODE_DQ)
     {
         static volatile float back_emf_coefficient = 0.041f; /* Volts / (rad / s) */
 
         inverter->voltage = (vec_t){
-            pid_calc(&inverter->pid_d, inverter->current.x, inverter->set_current.x),
-            pid_calc(&inverter->pid_q, inverter->current.y, inverter->set_current.y) + back_emf_coefficient * inverter->resolver.velocity,
+            pid_calc(&inverter->pid_d, inverter->current.x, inverter->smooth_set_current.x),
+            pid_calc(&inverter->pid_q, inverter->current.y, inverter->smooth_set_current.y) + back_emf_coefficient * inverter->resolver.velocity,
         };
 
         vec_t pwm = {

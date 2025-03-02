@@ -40,6 +40,7 @@ typedef struct {
     vec_t current;
     bool active;
     vec_t set_current; /**< Current requested by the module user, can be in alpha-beta or dq space*/
+    vec_t smooth_set_current;
     inverter_mode_t mode; /**< Control mode requested by user */
     float current_filter_alpha;
     vec_t voltage;
