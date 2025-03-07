@@ -120,7 +120,7 @@ int main(void) {
     SystemClock_Config();
 
     /* USER CODE BEGIN SysInit */
-
+    DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
     /* USER CODE END SysInit */
 
     /* Initialize all configured peripherals */
@@ -171,6 +171,7 @@ int main(void) {
 
     static volatile uint32_t cycle_period = 0;
     static volatile float cycle_current = 0;
+    static volatile float cycle_syf_current = 0;
 
     /* USER CODE END 2 */
 
@@ -188,12 +189,15 @@ int main(void) {
         if (cycle_period > 0 && cycle_current != 0.0f)
         {
             uint32_t phase = HAL_GetTick() % cycle_period;
-            if (phase < cycle_period / 2)
+            if (phase < cycle_period / 5)
             {
-                inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){0, cycle_current});
+                inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){cycle_syf_current, cycle_current});
+            } else if (inv.resolver.velocity < 0) {
+                inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){0, 0});
             } else
             {
-                inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){0, -cycle_current});
+                //inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){0, -cycle_current});
+                inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){0, -5});
             }
         }
 

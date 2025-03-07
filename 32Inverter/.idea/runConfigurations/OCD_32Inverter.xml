@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration name="OCD 32Inverter" type="com.jetbrains.cidr.embedded.openocd.conf.type" factoryName="com.jetbrains.cidr.embedded.openocd.conf.factory" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="32Inverter" TARGET_NAME="32Inverter.elf" version="1" RUN_TARGET_PROJECT_NAME="32Inverter" RUN_TARGET_NAME="32Inverter.elf">
+  <configuration default="false" name="OCD 32Inverter" type="com.jetbrains.cidr.embedded.openocd.conf.type" factoryName="com.jetbrains.cidr.embedded.openocd.conf.factory" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="32Inverter" TARGET_NAME="32Inverter.elf" CONFIG_NAME="Debug" version="1" RUN_TARGET_PROJECT_NAME="32Inverter" RUN_TARGET_NAME="32Inverter.elf">
     <openocd version="1" gdb-port="3333" telnet-port="4444" board-config="$PROJECT_DIR$/stm32f3discovery.cfg" reset-type="INIT" download-type="UPDATED_ONLY">
       <debugger kind="GDB" isBundled="true" />
     </openocd>
