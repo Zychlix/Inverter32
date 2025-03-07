@@ -39,14 +39,14 @@ void inv_init(inverter_t *inverter) {
     iir_filter_init(&inverter->filter_q);
 
     // current PI
-    inverter->pid_d.kp = 20.f;
-    inverter->pid_d.ki = 0.5f;
+    inverter->pid_d.kp = 1.f;
+    inverter->pid_d.ki = 20.f;
     inverter->pid_d.dt = (float) INV_MAX_PWM_PULSE_VAL * INV_FEEDBACK_CYCLE_DIVISION / (float) SystemCoreClock;
     inverter->pid_d.integrated = 0;
     inverter->pid_d.max_out = INV_PID_MAX_OUT;
 
-    inverter->pid_q.kp = 0.5f;
-    inverter->pid_q.ki = 25.f;
+    inverter->pid_q.kp = 1.f;
+    inverter->pid_q.ki = 20.f;
     inverter->pid_q.dt = (float) INV_MAX_PWM_PULSE_VAL * INV_FEEDBACK_CYCLE_DIVISION / (float) SystemCoreClock;
     inverter->pid_q.integrated = 0;
     inverter->pid_q.max_out = INV_PID_MAX_OUT;
@@ -77,7 +77,7 @@ void res_read_position(resolver_t *res) {
     HAL_GPIO_WritePin(RD_GPIO_Port, RD_Pin, 0);
 
 
-    static volatile float resolver_offset = -2.9f;
+    static volatile float resolver_offset = -3.141f;
 
 
     uint8_t data[2];
@@ -127,7 +127,8 @@ void inv_tick(inverter_t *inverter) {
     res_read_position(&inverter->resolver);
     vec_t phi = angle(inverter->resolver.fi);
 
-    abc_t current_abc = inv_read_current(inverter);
+    static volatile abc_t current_abc;
+    current_abc = inv_read_current(inverter);
     vec_t current_ab = clarkeTransform(current_abc);
     vec_t current_dq =  parkTransform(current_ab, phi);
 

@@ -129,7 +129,7 @@ int main(void) {
     MX_CAN_Init();
     MX_SPI1_Init();
     MX_TIM1_Init();
-    MX_USART3_UART_Init();
+    // MX_USART3_UART_Init();
     MX_ADC1_Init();
     MX_ADC3_Init();
     MX_ADC4_Init();
