@@ -1,3 +1,0 @@
-/home/zychlix/projekty/Inverter32/32Inverter/cmake-build-debug/CMakeFiles/32Inverter.elf.dir
-/home/zychlix/projekty/Inverter32/32Inverter/cmake-build-debug/CMakeFiles/edit_cache.dir
-/home/zychlix/projekty/Inverter32/32Inverter/cmake-build-debug/CMakeFiles/rebuild_cache.dir
