@@ -9,6 +9,18 @@
 #include "PID.h"
 #include "oscilloscope.h"
 
+#define INV_MIN_VOLTAGE_HYSTERESIS 5.f
+#define INV_MAX_TEMPERATURE_DISABLE 70.f //C
+#define INV_MAX_TEMPERATURE_ENABLE 65.f //C
+
+void inv_reset_controllers(inverter_t * inverter)
+{
+    inverter->pid_d.integrated = 0;
+    inverter->pid_q.integrated = 0;
+    inverter->pid_a.integrated = 0;
+    inverter->pid_b.integrated = 0;
+}
+
 void inv_init(inverter_t *inverter) {
     TIM_OC_InitTypeDef oc_config;
 
@@ -257,6 +269,7 @@ void inv_enable(inverter_t *inv, bool status) {
         HAL_TIM_PWM_Start(inv->timer, TIM_CHANNEL_3);
         HAL_TIMEx_PWMN_Start(inv->timer, TIM_CHANNEL_3);
     } else {
+        inv_reset_controllers(inv);
         HAL_TIM_Base_Stop(inv->timer);
         HAL_TIM_PWM_Stop(inv->timer, TIM_CHANNEL_1);
         HAL_TIM_PWM_Stop(inv->timer, TIM_CHANNEL_2);
@@ -279,17 +292,29 @@ void inv_vbus_update(inverter_t * inverter)
 
 
 
-#define INV_MIN_VOLTAGE_HYSTERESIS 5.f
     if(current_vbus < INV_MIN_VOLTAGE_VALUE)
     {
         inv_enable(inverter,false);
     }
     else
-    if(current_vbus > INV_MIN_VOLTAGE_VALUE + 5 )
+    if(current_vbus > INV_MIN_VOLTAGE_VALUE + INV_MIN_VOLTAGE_HYSTERESIS )
     {
         inverter->vbus = current_vbus;
+
         inv_enable(inverter,true);
     }
+}
+
+void inv_temperature_check(inverter_t * inverter)
+{
+    if( inverter->adcs.transistor1 > INV_MAX_TEMPERATURE_DISABLE)
+    {
+        inv_enable(inverter,false);
+    } else if ( inverter->adcs.transistor1 < INV_MAX_TEMPERATURE_ENABLE)
+    {
+        inv_enable(inverter, true);
+    }
+
 }
 
 void inv_slow_tick(inverter_t * inverter)
@@ -299,5 +324,7 @@ void inv_slow_tick(inverter_t * inverter)
 
 
     inv_vbus_update(inverter);
+
+
 
 }
