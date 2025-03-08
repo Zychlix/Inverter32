@@ -164,6 +164,9 @@ int main(void) {
     inv.timer = &htim1;
     inv.current_adc = &hadc1;
     inv.active = 0;
+    CLEAR_BIT(SPI1->CR1, SPI_CR1_BIDIOE);
+    SET_BIT(SPI1->CR1, SPI_CR1_SPE);
+
     inv_init(&inv);
     inv_enable(&inv, false);
 
@@ -580,7 +583,7 @@ static void MX_SPI1_Init(void) {
     /* SPI1 parameter configuration*/
     hspi1.Instance = SPI1;
     hspi1.Init.Mode = SPI_MODE_MASTER;
-    hspi1.Init.Direction = SPI_DIRECTION_2LINES_RXONLY;
+    hspi1.Init.Direction = SPI_DIRECTION_2LINES;
     hspi1.Init.DataSize = SPI_DATASIZE_16BIT;
     hspi1.Init.CLKPolarity = SPI_POLARITY_HIGH;
     hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;

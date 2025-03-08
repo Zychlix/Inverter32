@@ -80,11 +80,16 @@ void inv_init(inverter_t *inverter) {
 
 uint16_t spi_read_word(SPI_TypeDef *spi)
 {
-    SET_BIT(spi->CR1, SPI_CR1_SPE);
-    CLEAR_BIT(spi->CR2, SPI_RXFIFO_THRESHOLD);
-    spi->DR = 0xffff;
-    while (!(spi->SR & SPI_SR_RXNE));
-    return spi->DR;
+    while (spi->SR & SPI_SR_BSY)
+    {
+    }
+    *(volatile uint16_t*)(&spi->DR) = 0xffff;
+    while (!(spi->SR & SPI_SR_RXNE))
+    {
+    }
+    uint16_t data = *(volatile uint16_t*)(&spi->DR);
+
+    return data;
 }
 
 void res_read_position(resolver_t *res) {
@@ -109,13 +114,13 @@ void res_read_position(resolver_t *res) {
     HAL_GPIO_WritePin(RDVEL_GPIO_Port, RDVEL_Pin, 0);
     HAL_GPIO_WritePin(RD_GPIO_Port, RD_Pin, 1);
     HAL_GPIO_WritePin(RD_GPIO_Port, RD_Pin, 0);
-    HAL_SPI_Receive(res->spi_handler, data, 1, 10);
-    int16_t speed = (int16_t) (((data[1] << 8) | (data[0])) & 0xfff0) / 16;
+    int16_t speed = (int16_t) (spi_read_word(res->spi_handler->Instance) & 0xfff0) / 16;
     res->velocity = speed * 7; // TODO: rad/s, find a better factor
+
+
 
     HAL_GPIO_WritePin(RD_GPIO_Port, RD_Pin, 1);
     HAL_GPIO_WritePin(SAMPLE_GPIO_Port, SAMPLE_Pin, 1);
-
 }
 
 bool inv_get_fault() {
