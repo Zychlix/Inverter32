@@ -43,7 +43,6 @@
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
 inverter_t inv = {0};
-adcs_t adcs = {0};
 
 /* USER CODE END PM */
 
@@ -149,8 +148,8 @@ int main(void) {
     // enable AD2S1205 resolver
     HAL_GPIO_WritePin(RESET_RES_GPIO_Port, RESET_RES_Pin, true);
 
-    adcs.adc4 = &hadc4;
-    adcs.adc2 = &hadc2;
+    inv.adcs.adc4 = &hadc4;
+    inv.adcs.adc2 = &hadc2;
 
     inv.resolver.spi_handler = &hspi1;
     inv.timer = &htim1;
@@ -166,7 +165,7 @@ int main(void) {
     } else {
         printf("Current calibration completed %d %d\n", inv.current_adc_offset[0], inv.current_adc_offset[1]);
     }
-    inv.vbus = 40;
+    inv.vbus = 40; //Do a readout
     inv_enable(&inv, true);
 
     static volatile uint32_t cycle_period = 0;
@@ -181,9 +180,7 @@ int main(void) {
         /* USER CODE END WHILE */
 
         /* USER CODE BEGIN 3 */
-        adc4_read(&adcs);
-        adc2_read(&adcs);
-
+        inv_slow_tick(&inv);
         cli_poll();
 
         if (cycle_period > 0 && cycle_current != 0.0f)

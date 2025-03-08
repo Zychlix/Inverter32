@@ -62,6 +62,7 @@ CMakeFiles/32Inverter.elf.dir/Core/Src/adc.c.obj: /home/zychlix/projekty/Inverte
 
 CMakeFiles/32Inverter.elf.dir/Core/Src/cli.c.obj: /home/zychlix/projekty/Inverter32/32Inverter/Core/Src/cli.c \
   /home/zychlix/projekty/Inverter32/32Inverter/Core/Inc/PID.h \
+  /home/zychlix/projekty/Inverter32/32Inverter/Core/Inc/adc.h \
   /home/zychlix/projekty/Inverter32/32Inverter/Core/Inc/iir_filter.h \
   /home/zychlix/projekty/Inverter32/32Inverter/Core/Inc/inverter.h \
   /home/zychlix/projekty/Inverter32/32Inverter/Core/Inc/stm32f3xx_hal_conf.h \
@@ -132,6 +133,7 @@ CMakeFiles/32Inverter.elf.dir/Core/Src/iir_filter.c.obj: /home/zychlix/projekty/
 
 CMakeFiles/32Inverter.elf.dir/Core/Src/inverter.c.obj: /home/zychlix/projekty/Inverter32/32Inverter/Core/Src/inverter.c \
   /home/zychlix/projekty/Inverter32/32Inverter/Core/Inc/PID.h \
+  /home/zychlix/projekty/Inverter32/32Inverter/Core/Inc/adc.h \
   /home/zychlix/projekty/Inverter32/32Inverter/Core/Inc/iir_filter.h \
   /home/zychlix/projekty/Inverter32/32Inverter/Core/Inc/inverter.h \
   /home/zychlix/projekty/Inverter32/32Inverter/Core/Inc/main.h \

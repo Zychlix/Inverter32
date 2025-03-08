@@ -38,6 +38,7 @@ void inv_init(inverter_t *inverter) {
     iir_filter_init(&inverter->filter_d);
     iir_filter_init(&inverter->filter_q);
 
+
     // current PI
     inverter->pid_d.kp = 1.f;
     inverter->pid_d.ki = 20.f;
@@ -269,5 +270,34 @@ void inv_set_mode_and_current(inverter_t *inverter, inverter_mode_t mode, vec_t 
     inverter->mode = mode;
     inverter->set_current = current;
 
+
+}
+
+void inv_vbus_update(inverter_t * inverter)
+{
+    float current_vbus = inverter->adcs.vbus;
+
+
+
+#define INV_MIN_VOLTAGE_HYSTERESIS 5.f
+    if(current_vbus < INV_MIN_VOLTAGE_VALUE)
+    {
+        inv_enable(inverter,false);
+    }
+    else
+    if(current_vbus > INV_MIN_VOLTAGE_VALUE + 5 )
+    {
+        inverter->vbus = current_vbus;
+        inv_enable(inverter,true);
+    }
+}
+
+void inv_slow_tick(inverter_t * inverter)
+{
+    adc4_read(&inverter->adcs);
+    adc2_read(&inverter->adcs);
+
+
+    inv_vbus_update(inverter);
 
 }

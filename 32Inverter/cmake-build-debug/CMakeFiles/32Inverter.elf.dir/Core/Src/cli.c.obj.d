@@ -64,4 +64,5 @@ CMakeFiles/32Inverter.elf.dir/Core/Src/cli.c.obj: \
  /home/zychlix/projekty/Inverter32/32Inverter/Core/Inc/iir_filter.h \
  /usr/arm-none-eabi/include/math.h \
  /home/zychlix/projekty/Inverter32/32Inverter/Core/Inc/vectors.h \
- /home/zychlix/projekty/Inverter32/32Inverter/Core/Inc/PID.h
+ /home/zychlix/projekty/Inverter32/32Inverter/Core/Inc/PID.h \
+ /home/zychlix/projekty/Inverter32/32Inverter/Core/Inc/adc.h

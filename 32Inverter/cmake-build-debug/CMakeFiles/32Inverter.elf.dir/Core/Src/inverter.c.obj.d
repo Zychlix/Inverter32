@@ -61,6 +61,7 @@ CMakeFiles/32Inverter.elf.dir/Core/Src/inverter.c.obj: \
  /usr/lib/gcc/arm-none-eabi/14.2.0/include/stdbool.h \
  /home/zychlix/projekty/Inverter32/32Inverter/Core/Inc/vectors.h \
  /home/zychlix/projekty/Inverter32/32Inverter/Core/Inc/PID.h \
+ /home/zychlix/projekty/Inverter32/32Inverter/Core/Inc/adc.h \
  /home/zychlix/projekty/Inverter32/32Inverter/Core/Inc/resolver.h \
  /home/zychlix/projekty/Inverter32/32Inverter/Core/Inc/main.h \
  /home/zychlix/projekty/Inverter32/32Inverter/Core/Inc/oscilloscope.h

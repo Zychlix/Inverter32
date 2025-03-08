@@ -7,11 +7,13 @@
 #include "stdbool.h"
 #include "vectors.h"
 #include "PID.h"
+#include "adc.h"
 
 #define INV_MAX_PWM_PULSE_VAL 5000
 #define INV_FEEDBACK_CYCLE_DIVISION 2
 #define INV_PID_MAX_OUT 10
 #define DEFAULT_CURRENT_FILTER_ALPHA 0.01
+#define INV_MIN_VOLTAGE_VALUE 30.f
 
 typedef struct {
     SPI_HandleTypeDef *spi_handler;
@@ -43,9 +45,12 @@ typedef struct {
     vec_t smooth_set_current;
     inverter_mode_t mode; /**< Control mode requested by user */
     float current_filter_alpha;
+    float vbus_filter_alpha;
     vec_t voltage;
     iir_filter_t filter_d;
     iir_filter_t filter_q;
+
+    adcs_t adcs;
 } inverter_t;
 
 
@@ -70,3 +75,5 @@ void inv_read_vbus();
 int32_t inv_calibrate_current(inverter_t *inverter);
 
 void inv_set_mode_and_current(inverter_t *inverter, inverter_mode_t mode, vec_t current);
+
+void inv_slow_tick(inverter_t * inverter);
