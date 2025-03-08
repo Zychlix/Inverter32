@@ -71,8 +71,8 @@ vec_t rotate180(vec_t a) {
 
 vec_t angle(float phi) {
     vec_t result = {
-            cosf(phi),
-            sinf(phi),
+            cos_lut(phi),
+            sin_lut(phi),
     };
 
     return result;
@@ -123,7 +123,7 @@ vec_t inverseParkTransform(vec_t in, vec_t phi) {
 };
 
 
-static const float sin_lut_table[] = {
+float sin_lut_table[] = {
 0.0f,
 0.012368159663362913f,
 0.024734427279994954f,
@@ -255,20 +255,26 @@ static const float sin_lut_table[] = {
 };
 
 #define SINE_LUT_LEN (sizeof(sin_lut_table) / sizeof(sin_lut_table[0]))
-#define INTERVAL_LENGTH (M_PI_2 / (SINE_LUT_LEN - 1))
+#define INTERVAL_LENGTH ((float)(M_PI_2 / (SINE_LUT_LEN - 1)))
 
 float sin_lut(float x)
 {
-    x = fmod(x, 2.f * M_PI);
+    if(x > (float)(2.f * M_PI)){
+        x -= (float)(2 * M_PI);
+    }
+    if (x < 0)
+    {
+        x += (float)(2 * M_PI);
+    }
 
     bool invert = false;
-    if (x > M_PI) {
-        x -= M_PI;
+    if (x > (float)M_PI) {
+        x -= (float)M_PI;
         invert = true;
     }
 
-    if (x > M_PI_2) {
-        x = M_PI - x;
+    if (x > (float)M_PI_2) {
+        x = (float)M_PI - x;
     }
 
     uint16_t step = (uint16_t)(x / INTERVAL_LENGTH);

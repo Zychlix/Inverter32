@@ -135,6 +135,15 @@ int main(void) {
     MX_ADC2_Init();
     /* USER CODE BEGIN 2 */
 
+
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
+    GPIO_InitStruct.Pin = GPIO_PIN_10;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
     HAL_GPIO_WritePin(X_OUT_GPIO_Port, X_OUT_Pin,
                       false); // hack for enabling the inverter, control FAULT_DRV via ULN2003
 

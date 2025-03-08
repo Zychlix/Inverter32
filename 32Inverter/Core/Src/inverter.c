@@ -78,14 +78,17 @@ void inv_init(inverter_t *inverter) {
     inverter->pid_b.max_out = INV_PID_MAX_OUT;
 }
 
+uint16_t spi_read_word(SPI_TypeDef *spi)
+{
+    SET_BIT(spi->CR1, SPI_CR1_SPE);
+    CLEAR_BIT(spi->CR2, SPI_RXFIFO_THRESHOLD);
+    spi->DR = 0xffff;
+    while (!(spi->SR & SPI_SR_RXNE));
+    return spi->DR;
+}
 
 void res_read_position(resolver_t *res) {
     // TODO: simplify GPIO toggling
-    static volatile float speed_rad_s = 0;
-    static volatile float saved_fi = 0;
-    static volatile float total_fi = 0;
-    static volatile uint32_t saved_cyccnt = 0;
-
     HAL_GPIO_WritePin(SAMPLE_GPIO_Port, SAMPLE_Pin, 0);
     HAL_GPIO_WritePin(SAMPLE_GPIO_Port, SAMPLE_Pin, 1);
 
@@ -98,25 +101,10 @@ void res_read_position(resolver_t *res) {
 
 
     uint8_t data[2];
-    HAL_SPI_Receive(res->spi_handler, data, 1, 10);
-    uint16_t pos = ((data[1] << 8) | (data[0])) >> 4;
+    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, true);
+    uint16_t pos = spi_read_word(res->spi_handler->Instance) >> 4;
+    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, false);
     res->fi = (float) pos / 4096.f * 2 * (float) M_PI + resolver_offset;
-
-    float fi_diff = res->fi - saved_fi;
-    if (fi_diff > M_PI) {
-        fi_diff -= 2 * (float)M_PI;
-    } else if (fi_diff < -M_PI) {
-        fi_diff += 2 * (float)M_PI;
-    }
-
-    total_fi += fi_diff;
-    saved_fi = res->fi;
-
-    if (DWT->CYCCNT - saved_cyccnt >= 6400000) {
-        speed_rad_s = total_fi * 10;
-        total_fi = 0;
-        saved_cyccnt = DWT->CYCCNT;
-    }
 
     HAL_GPIO_WritePin(RDVEL_GPIO_Port, RDVEL_Pin, 0);
     HAL_GPIO_WritePin(RD_GPIO_Port, RD_Pin, 1);
@@ -127,6 +115,7 @@ void res_read_position(resolver_t *res) {
 
     HAL_GPIO_WritePin(RD_GPIO_Port, RD_Pin, 1);
     HAL_GPIO_WritePin(SAMPLE_GPIO_Port, SAMPLE_Pin, 1);
+
 }
 
 bool inv_get_fault() {
@@ -152,17 +141,16 @@ void inv_set_pwm(inverter_t *inverter, float u, float v, float w) {
 }
 
 void inv_tick(inverter_t *inverter) {
-    static uint32_t current_time = 0;
-    static uint32_t max_time = 0;
-
-    uint32_t current_cycles = DWT->CYCCNT;
-
     static int i = 0;
     i++;
     if (i % INV_FEEDBACK_CYCLE_DIVISION != 0) return;
 
     res_read_position(&inverter->resolver);
+
+
     vec_t phi = angle(inverter->resolver.fi);
+
+
 
     static volatile abc_t current_abc;
     current_abc = inv_read_current(inverter);
@@ -213,9 +201,6 @@ void inv_tick(inverter_t *inverter) {
         inv_set_pwm(inverter, pwmABC.a, pwmABC.b, pwmABC.c);
     }
 
-    uint32_t total_cycles = DWT->CYCCNT - current_cycles;
-    current_time = total_cycles;
-    max_time = (current_time > max_time) ? current_time : max_time;
 }
 
 int32_t inv_calibrate_current(inverter_t *inverter) {
