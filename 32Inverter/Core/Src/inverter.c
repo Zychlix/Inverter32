@@ -260,20 +260,29 @@ abc_t inv_read_current(inverter_t *inverter) {
 }
 
 void inv_enable(inverter_t *inv, bool status) {
+
     if (status) {
-        HAL_TIM_Base_Start_IT(inv->timer);
-        HAL_TIM_PWM_Start(inv->timer, TIM_CHANNEL_1);
-        HAL_TIMEx_PWMN_Start(inv->timer, TIM_CHANNEL_1);
-        HAL_TIM_PWM_Start(inv->timer, TIM_CHANNEL_2);
-        HAL_TIMEx_PWMN_Start(inv->timer, TIM_CHANNEL_2);
-        HAL_TIM_PWM_Start(inv->timer, TIM_CHANNEL_3);
-        HAL_TIMEx_PWMN_Start(inv->timer, TIM_CHANNEL_3);
+        if(! inv->active)
+        {
+            HAL_TIM_Base_Start_IT(inv->timer);
+            HAL_TIM_PWM_Start(inv->timer, TIM_CHANNEL_1);
+            HAL_TIMEx_PWMN_Start(inv->timer, TIM_CHANNEL_1);
+            HAL_TIM_PWM_Start(inv->timer, TIM_CHANNEL_2);
+            HAL_TIMEx_PWMN_Start(inv->timer, TIM_CHANNEL_2);
+            HAL_TIM_PWM_Start(inv->timer, TIM_CHANNEL_3);
+            HAL_TIMEx_PWMN_Start(inv->timer, TIM_CHANNEL_3);
+        }
+
     } else {
-        inv_reset_controllers(inv);
-        HAL_TIM_Base_Stop(inv->timer);
-        HAL_TIM_PWM_Stop(inv->timer, TIM_CHANNEL_1);
-        HAL_TIM_PWM_Stop(inv->timer, TIM_CHANNEL_2);
-        HAL_TIM_PWM_Stop(inv->timer, TIM_CHANNEL_3);
+        if(inv->active)
+        {
+            inv_reset_controllers(inv);
+            HAL_TIM_Base_Stop(inv->timer);
+            HAL_TIM_PWM_Stop(inv->timer, TIM_CHANNEL_1);
+            HAL_TIM_PWM_Stop(inv->timer, TIM_CHANNEL_2);
+            HAL_TIM_PWM_Stop(inv->timer, TIM_CHANNEL_3);
+        }
+
     }
     inv->active = status;
 }
