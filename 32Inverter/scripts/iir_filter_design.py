@@ -6,13 +6,16 @@ import matplotlib.pyplot as plt
 
 samplerate = 12.8e3
 nyquist = samplerate / 2
-cutoff = 100
+cutoff = 300
 
 fig = plt.figure()
 ax = fig.add_subplot(1, 1, 1)
 
 b, a = signal.iirfilter(2, cutoff, btype='lowpass', ftype='butter', fs=samplerate)
-print(b, a)
+#print(b, a)
+
+print(f'        .a = {{{', '.join(map(lambda x: f'{x}f', a))}}}, ')
+print(f'        .b = {{{', '.join(map(lambda x: f'{x}f', b))}}}, ')
 
 w, h = signal.freqz(b, a, fs=samplerate)
 

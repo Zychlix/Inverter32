@@ -42,8 +42,8 @@ void inv_init(inverter_t *inverter) {
     inverter->current_filter_alpha = DEFAULT_CURRENT_FILTER_ALPHA;
 
     inverter->filter_d = (iir_filter_t){
-        .a = {1.f, -1.93060643f,  0.93293473f},
-        .b = {0.00058208f, 0.00116415f, 0.00058208f},
+        .a = {1.0f, -1.7923856371114915f, 0.8119977769946318f},
+        .b = {0.004903034970785105f, 0.00980606994157021f, 0.004903034970785105f},
     };
     inverter->filter_q = inverter->filter_d;
 
@@ -52,14 +52,14 @@ void inv_init(inverter_t *inverter) {
 
 
     // current PI
-    inverter->pid_d.kp = 1.f;
-    inverter->pid_d.ki = 20.f;
+    inverter->pid_d.kp = 0.1f;
+    inverter->pid_d.ki = 1.f;
     inverter->pid_d.dt = (float) INV_MAX_PWM_PULSE_VAL / (float) SystemCoreClock;
     inverter->pid_d.integrated = 0;
     inverter->pid_d.max_out = INV_PID_MAX_OUT;
 
-    inverter->pid_q.kp = 1.f;
-    inverter->pid_q.ki = 20.f;
+    inverter->pid_q.kp = 0.1f;
+    inverter->pid_q.ki = 1.f;
     inverter->pid_q.dt = (float) INV_MAX_PWM_PULSE_VAL / (float) SystemCoreClock;
     inverter->pid_q.integrated = 0;
     inverter->pid_q.max_out = INV_PID_MAX_OUT;
@@ -171,6 +171,9 @@ void inv_tick(inverter_t *inverter) {
             pid_calc(&inverter->pid_q, inverter->current.y, inverter->smooth_set_current.y) + rotor_flux_linkage * inverter->resolver.velocity,
         };
 
+        /*inverter->voltage.x = 0;
+        inverter->voltage.y = inverter->smooth_set_current.y;*/
+
         vec_t pwm = {
             inverter->voltage.x / inverter->vbus,
             inverter->voltage.y / inverter->vbus,
@@ -178,7 +181,8 @@ void inv_tick(inverter_t *inverter) {
 
         pwm = limit_amplitude(pwm, 1);
         pwm = inverseParkTransform(pwm, phi);
-        abc_t pwmABC = inverseClarkeTransform(pwm);
+        static volatile abc_t pwmABC = {0};
+        pwmABC = inverseClarkeTransform(pwm);
         inv_set_pwm(inverter, pwmABC.a, pwmABC.b, pwmABC.c);
     } else if (inverter->mode == MODE_AB) {
         inverter->voltage = (vec_t){
@@ -311,7 +315,7 @@ void inv_slow_tick(inverter_t * inverter)
     adc2_read(&inverter->adcs);
 
 
-    inv_vbus_update(inverter);
+    // inv_vbus_update(inverter);
 
 
 

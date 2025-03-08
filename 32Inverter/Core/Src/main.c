@@ -201,7 +201,7 @@ int main(void) {
             if (phase < cycle_period / 5)
             {
                 inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){cycle_syf_current, cycle_current});
-            } else if (inv.resolver.velocity < 0) {
+            } else if (inv.resolver.velocity < 10) {
                 inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){0, 0});
             } else
             {
