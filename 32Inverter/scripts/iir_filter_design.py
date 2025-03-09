@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 samplerate = 12.8e3
 nyquist = samplerate / 2
-cutoff = 300
+cutoff = 3000
 
 fig = plt.figure()
 ax = fig.add_subplot(1, 1, 1)
