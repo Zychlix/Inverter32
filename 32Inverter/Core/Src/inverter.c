@@ -8,6 +8,7 @@
 #include "vectors.h"
 #include "PID.h"
 #include "oscilloscope.h"
+#include "swo_scope.h"
 
 #define INV_MIN_VOLTAGE_HYSTERESIS 5.f
 #define INV_MAX_TEMPERATURE_DISABLE 70.f //C
@@ -141,6 +142,16 @@ void inv_set_pwm(inverter_t *inverter, float u, float v, float w) {
 }
 
 void inv_tick(inverter_t *inverter) {
+    static float test = 0;
+    static int tick = 0;
+    test += 1/12800.f;
+    tick++;
+
+    if (tick >= 16) {
+        swo_send_float(1, test);
+        tick = 0;
+    }
+
     HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, true);
     res_read_position(&inverter->resolver);
     vec_t phi = angle(inverter->resolver.fi);

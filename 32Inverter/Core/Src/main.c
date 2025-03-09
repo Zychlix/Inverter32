@@ -94,7 +94,6 @@ static void MX_ADC2_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
 /* USER CODE END 0 */
 
 /**
@@ -112,7 +111,7 @@ int main(void) {
     HAL_Init();
 
     /* USER CODE BEGIN Init */
-
+    ITM->TER = 3;
     /* USER CODE END Init */
 
     /* Configure the system clock */
@@ -835,7 +834,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 }
 
 int _write(int file, char *data, int len) {
-    if ((file != STDOUT_FILENO) && (file != STDERR_FILENO)) {
+    /*if ((file != STDOUT_FILENO) && (file != STDERR_FILENO)) {
         return -1;
     }
 
@@ -843,7 +842,13 @@ int _write(int file, char *data, int len) {
             HAL_UART_Transmit(&huart3, (uint8_t *) data, (uint16_t) len, 1000);
 
     // return # of bytes written - as best we can tell
-    return (status == HAL_OK ? len : 0);
+    return (status == HAL_OK ? len : 0);*/
+
+    while (len--) {
+        ITM_SendChar(*data++);
+    }
+    
+    return len;
 }
 
 
