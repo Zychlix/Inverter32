@@ -56,7 +56,7 @@ void inv_init(inverter_t *inverter) {
 
     // current PI
     inverter->pid_d.kp = 0.3f;
-    inverter->pid_d.ki = 1.f;
+    inverter->pid_d.ki = 10.f;
     inverter->pid_d.dt = (float) INV_MAX_PWM_PULSE_VAL / (float) SystemCoreClock;
     inverter->pid_d.integrated = 0;
     inverter->pid_d.max_out = INV_PID_MAX_OUT;
@@ -138,9 +138,9 @@ inline float constrain(float x, const float min, const float max) {
 }
 
 void inv_set_pwm(inverter_t *inverter, float u, float v, float w) {
-    inverter->timer->Instance->CCR1 = INV_MAX_PWM_PULSE_VAL * (0.5 + u / 2.0);
-    inverter->timer->Instance->CCR2 = INV_MAX_PWM_PULSE_VAL * (0.5 + v / 2.0);
-    inverter->timer->Instance->CCR3 = INV_MAX_PWM_PULSE_VAL * (0.5 + w / 2.0);
+    inverter->timer->Instance->CCR1 = INV_MAX_PWM_PULSE_VAL * (0.5f + u / 2.0f);
+    inverter->timer->Instance->CCR2 = INV_MAX_PWM_PULSE_VAL * (0.5f + v / 2.0f);
+    inverter->timer->Instance->CCR3 = INV_MAX_PWM_PULSE_VAL * (0.5f + w / 2.0f);
 }
 
 typedef enum {
@@ -149,6 +149,8 @@ typedef enum {
     FI,
     SET_VOLTAGE_D,
     SET_VOLTAGE_Q,
+    CALCULATED_VELOCITY,
+    BUS_VOLTAGE
 } graph_channel_t;
 
 static void inv_send_trace_data(inverter_t *inverter) {
@@ -163,6 +165,8 @@ static void inv_send_trace_data(inverter_t *inverter) {
         swo_send_float(FI, inverter->resolver.fi);
         swo_send_float(SET_VOLTAGE_D, inverter->voltage.x);
         swo_send_float(SET_VOLTAGE_Q, inverter->voltage.y);
+        swo_send_float(CALCULATED_VELOCITY, inverter->resolver.velocity/100.f);
+        swo_send_float(BUS_VOLTAGE, inverter->vbus);
     }
 }
 
@@ -311,7 +315,6 @@ void inv_vbus_update(inverter_t * inverter)
     float current_vbus = inverter->adcs.vbus;
 
 
-
     if(current_vbus < INV_MIN_VOLTAGE_VALUE)
     {
         inv_enable(inverter,false);
@@ -343,7 +346,8 @@ void inv_slow_tick(inverter_t * inverter)
     adc2_read(&inverter->adcs);
 
 
-    // inv_vbus_update(inverter);
+     inv_vbus_update(inverter);
+    inv_temperature_check(inverter);
 
 
 

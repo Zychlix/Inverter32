@@ -179,8 +179,8 @@ int main(void) {
     inv.vbus = 40; //Do a readout
     inv_enable(&inv, true);
 
-    static volatile uint32_t cycle_period = 0;
-    static volatile float cycle_current = 0;
+    static volatile uint32_t cycle_period = 10000;
+    static volatile float cycle_current = 10;
     static volatile float cycle_syf_current = 0;
 
     /* USER CODE END 2 */
