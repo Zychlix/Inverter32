@@ -293,5 +293,5 @@ float sin_lut(float x)
 
 float cos_lut(float x)
 {
-    return sin_lut(x + (float)M_PI_4);
+    return sin_lut(x + (float)M_PI_2);
 }

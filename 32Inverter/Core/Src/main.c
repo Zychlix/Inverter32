@@ -111,7 +111,7 @@ int main(void) {
     HAL_Init();
 
     /* USER CODE BEGIN Init */
-    ITM->TER = 3;
+    ITM->TER = 0xFFFFFFFFU;
     /* USER CODE END Init */
 
     /* Configure the system clock */

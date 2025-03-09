@@ -14,6 +14,8 @@
 #define INV_MAX_TEMPERATURE_DISABLE 70.f //C
 #define INV_MAX_TEMPERATURE_ENABLE 65.f //C
 
+#define TRACE_FREQUENCY_DIVIDER 16
+
 void inv_reset_controllers(inverter_t * inverter)
 {
     inverter->pid_d.integrated = 0;
@@ -53,14 +55,14 @@ void inv_init(inverter_t *inverter) {
 
 
     // current PI
-    inverter->pid_d.kp = 0.1f;
+    inverter->pid_d.kp = 0.3f;
     inverter->pid_d.ki = 1.f;
     inverter->pid_d.dt = (float) INV_MAX_PWM_PULSE_VAL / (float) SystemCoreClock;
     inverter->pid_d.integrated = 0;
     inverter->pid_d.max_out = INV_PID_MAX_OUT;
 
-    inverter->pid_q.kp = 0.1f;
-    inverter->pid_q.ki = 1.f;
+    inverter->pid_q.kp = 0.3f;
+    inverter->pid_q.ki = 10.f;
     inverter->pid_q.dt = (float) INV_MAX_PWM_PULSE_VAL / (float) SystemCoreClock;
     inverter->pid_q.integrated = 0;
     inverter->pid_q.max_out = INV_PID_MAX_OUT;
@@ -141,17 +143,30 @@ void inv_set_pwm(inverter_t *inverter, float u, float v, float w) {
     inverter->timer->Instance->CCR3 = INV_MAX_PWM_PULSE_VAL * (0.5 + w / 2.0);
 }
 
-void inv_tick(inverter_t *inverter) {
-    static float test = 0;
+typedef enum {
+    MEASURED_CURRENT_D = 1,
+    MEASURED_CURRENT_Q,
+    FI,
+    SET_VOLTAGE_D,
+    SET_VOLTAGE_Q,
+} graph_channel_t;
+
+static void inv_send_trace_data(inverter_t *inverter) {
     static int tick = 0;
-    test += 1/12800.f;
-    tick++;
+    ++tick;
 
-    if (tick >= 16) {
-        swo_send_float(1, test);
+    if (tick > TRACE_FREQUENCY_DIVIDER) {
         tick = 0;
-    }
 
+        swo_send_float(MEASURED_CURRENT_D, inverter->current.x);
+        swo_send_float(MEASURED_CURRENT_Q, inverter->current.y);
+        swo_send_float(FI, inverter->resolver.fi);
+        swo_send_float(SET_VOLTAGE_D, inverter->voltage.x);
+        swo_send_float(SET_VOLTAGE_Q, inverter->voltage.y);
+    }
+}
+
+void inv_tick(inverter_t *inverter) {
     HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, true);
     res_read_position(&inverter->resolver);
     vec_t phi = angle(inverter->resolver.fi);
@@ -209,6 +224,8 @@ void inv_tick(inverter_t *inverter) {
         abc_t pwmABC = inverseClarkeTransform(pwm);
         inv_set_pwm(inverter, pwmABC.a, pwmABC.b, pwmABC.c);
     }
+
+    inv_send_trace_data(inverter);
     HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, false);
 }
 
