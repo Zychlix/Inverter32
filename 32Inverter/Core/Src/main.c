@@ -24,8 +24,8 @@
 #include "inverter.h"
 #include "vectors.h"
 #include "adc.h"
+#include "dcdc_controller.h"
 #include "oscilloscope.h"
-#include <sys/unistd.h>
 #include <stdio.h>
 #include <cli.h>
 /* USER CODE END Includes */
@@ -43,6 +43,7 @@
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
 inverter_t inv = {0};
+chg_t charger = {0};
 
 /* USER CODE END PM */
 
@@ -94,6 +95,39 @@ static void MX_ADC2_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+void USB_LP_CAN_RX0_IRQHandler(void)
+{
+    /* USER CODE BEGIN CAN1_RX0_IRQn 0 */
+
+    /* USER CODE END CAN1_RX0_IRQn 0 */
+    HAL_CAN_IRQHandler(&hcan);
+    /* USER CODE BEGIN CAN1_RX0_IRQn 1 */
+
+    /* USER CODE END CAN1_RX0_IRQn 1 */
+}
+
+/**
+  * @brief This function handles CAN1 RX1 interrupt.
+  */
+void CAN_RX1_IRQHandler(void)
+{
+    /* USER CODE BEGIN CAN1_RX1_IRQn 0 */
+
+    /* USER CODE END CAN1_RX1_IRQn 0 */
+    HAL_CAN_IRQHandler(&hcan);
+    /* USER CODE BEGIN CAN1_RX1_IRQn 1 */
+
+    /* USER CODE END CAN1_RX1_IRQn 1 */
+}
+
+void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *can)
+{
+    CAN_RxHeaderTypeDef header;
+    uint8_t data[16];
+    HAL_CAN_GetRxMessage(can,CAN_RX_FIFO0,&header,data);
+    chg_message_semaphore(&header, data, &charger);
+}
+
 /* USER CODE END 0 */
 
 /**
@@ -150,6 +184,9 @@ int main(void) {
 
 
     cli_init(&huart3, &inv);
+    charger.can = &hcan;
+    chg_initialize(&charger);
+    chg_config_filters(&charger);
 
     inv_clear_fault();
 
@@ -189,13 +226,13 @@ int main(void) {
 
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
+    uint32_t last_call = 0;
     while (1) {
         /* USER CODE END WHILE */
 
         /* USER CODE BEGIN 3 */
         inv_slow_tick(&inv);
         cli_poll();
-
 
         if (cycle_period > 0 && cycle_current != 0.0f)
         {
@@ -232,8 +269,10 @@ int main(void) {
             }
         }
 
-
-
+        if (HAL_GetTick() - last_call >= 80) {
+            chg_send_data(&charger);
+            last_call = HAL_GetTick();
+        }
     }
     /* USER CODE END 3 */
 }
@@ -570,11 +609,11 @@ static void MX_CAN_Init(void) {
 
     /* USER CODE END CAN_Init 1 */
     hcan.Instance = CAN;
-    hcan.Init.Prescaler = 16;
+    hcan.Init.Prescaler = 8;
     hcan.Init.Mode = CAN_MODE_NORMAL;
     hcan.Init.SyncJumpWidth = CAN_SJW_1TQ;
-    hcan.Init.TimeSeg1 = CAN_BS1_1TQ;
-    hcan.Init.TimeSeg2 = CAN_BS2_1TQ;
+    hcan.Init.TimeSeg1 = CAN_BS1_3TQ;
+    hcan.Init.TimeSeg2 = CAN_BS2_4TQ;
     hcan.Init.TimeTriggeredMode = DISABLE;
     hcan.Init.AutoBusOff = DISABLE;
     hcan.Init.AutoWakeUp = DISABLE;
