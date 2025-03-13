@@ -270,7 +270,13 @@ int main(void) {
         }
 
         if (HAL_GetTick() - last_call >= 80) {
-            chg_send_data(&charger);
+
+            if(charger.telemetry.ready_for_charging)
+            {
+                chg_send_data(&charger);
+            }
+            chg_refresh_data_struct(&charger);
+            chg_print_data(&charger);
             last_call = HAL_GetTick();
         }
     }

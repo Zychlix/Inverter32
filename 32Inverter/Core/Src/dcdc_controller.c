@@ -150,13 +150,60 @@ chg_ret_val_t chg_refresh_data_struct(chg_t *instance) {
         data->in_operation = instance->frames.status.in_operation;
         data->ready = instance->frames.status.in_operation;
 
-        data->mains_present = instance->frames.status.
-//        bool can_error = data=;
-        bool waiting_for_mains;
-        bool ready_for_charging;
-        bool pilot_present;
+        data->mains_present = instance->frames.main_battery_status.mains_present;
+        data->charging = instance->frames.main_battery_status.charging;
+        data->pilot_present = instance->frames.main_battery_status.pilot_present;
+        data->can_error = instance->frames.main_battery_status.error_can;
+
+        //aux battery
+        data->aux_battery.charging_active = instance->frames.main_battery_status.dcdc_active;
+        data->aux_battery.voltage = (float)swap_endianness_16(instance->frames.status.aux_battery_voltage)/100.f;
+        data->aux_battery.current = (float)instance->frames.status.aux_current/10.f;
+
+        data->main_battery_voltage = instance->frames.main_battery_status.battery_voltage;
+        data->main_battery_current = (float)instance->frames.main_battery_status.dc_current * 10;
+
+        data->temperature.A0 =  (int16_t)(instance->frames.status.temperature_1 - 40);
+        data->temperature.A1 =  (int16_t)(instance->frames.status.temperature_2 - 40);
+        data->temperature.A2 =  (int16_t)(instance->frames.status.temperature_3 - 40);
+
+        data->temperature.B0 =  instance->frames.main_battery_status.temperature_1;
+        data->temperature.B0 =  instance->frames.main_battery_status.temperature_2;
+
+        data->evse_duty = instance->frames.evse.evse_duty;
 
     }
 
     return CHG_OK;
+}
+
+
+void chg_print_data(chg_t * instance)
+{
+    printf("\n\n\n Charger status: \n");
+
+    printf("\n\n Flags: \n");
+
+    printf("    CAN error: %d\n", instance->telemetry.can_error);
+    printf("    Ready for charging: %d\n", instance->telemetry.ready_for_charging);
+    printf("    Waiting for mains: %d\n", instance->telemetry.waiting_for_mains);
+    printf("    Pilot present: %d\n", instance->telemetry.pilot_present);
+    printf("    Pilot duty: %d\n", instance->telemetry.evse_duty);
+    printf("    Mains present: %d\n", instance->telemetry.mains_present);
+
+    printf("\n\n Low voltage battery: \n");
+    printf("    Voltage: %f\n", instance->telemetry.aux_battery.voltage);
+    printf("    Current: %f\n", instance->telemetry.aux_battery.current);
+    printf("    Charging: %d\n", instance->telemetry.aux_battery.charging_active);
+
+    printf("\n\n Main battery: \n");
+    printf("    Voltage: %f\n", instance->telemetry.aux_battery.voltage);
+    printf("    Voltage: %f\n", instance->telemetry.aux_battery.voltage);
+
+
+    printf("\n\n Temperatures: \n");
+    printf("    Temp A0: %d\n", instance->telemetry.temperature.A0);
+    printf("    Temp A1: %d\n", instance->telemetry.temperature.A1);
+    printf("    Temp A2: %d\n", instance->telemetry.temperature.A2);
+
 }

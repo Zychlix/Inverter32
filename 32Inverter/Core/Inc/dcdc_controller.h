@@ -52,3 +52,7 @@ void chg_message_semaphore(CAN_RxHeaderTypeDef *pHeader, uint8_t aData[], chg_t 
 void chg_send_data(chg_t * charger);
 
 chg_ret_val_t chg_refresh_data_struct(chg_t * instance);
+
+void chg_print_data(chg_t * instance);
+
+chg_ret_val_t chg_start_pwm(chg_t * instance);
