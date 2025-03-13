@@ -183,6 +183,8 @@ int main(void) {
     static volatile float cycle_current = 10;
     static volatile float cycle_syf_current = 0;
 
+    bool steady = 0;
+    bool direction = 0;
     /* USER CODE END 2 */
 
     /* Infinite loop */
@@ -194,20 +196,43 @@ int main(void) {
         inv_slow_tick(&inv);
         cli_poll();
 
+
         if (cycle_period > 0 && cycle_current != 0.0f)
         {
             uint32_t phase = HAL_GetTick() % cycle_period;
-            if (phase < cycle_period / 5)
+            if (phase < cycle_period / 3)
             {
-                inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){cycle_syf_current, cycle_current});
-            } else if (inv.resolver.velocity < 10) {
+                if( steady )
+                {
+                    steady = 0;
+                    direction =!direction;
+                }
+                if(direction)
+                {
+                    inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){cycle_syf_current, cycle_current});
+                } else
+                {
+
+                    inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){-cycle_syf_current, -cycle_current});
+                }
+            } else if ((inv.resolver.velocity) < 10.f & (inv.resolver.velocity) > -10.f) {
                 inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){0, 0});
+                steady = 1;
             } else
             {
-                //inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){0, -cycle_current});
-                inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){0, -5});
+                if(direction)
+                {
+                    inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){0, -5});
+
+                } else
+                {
+                    inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){0, 5});
+
+                }
             }
         }
+
+
 
     }
     /* USER CODE END 3 */
