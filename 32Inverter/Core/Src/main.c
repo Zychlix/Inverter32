@@ -203,6 +203,23 @@ int main(void) {
     CLEAR_BIT(SPI1->CR1, SPI_CR1_BIDIOE);
     SET_BIT(SPI1->CR1, SPI_CR1_SPE);
 
+    inv.io.precharge_contactor.pin = PRECHARGE_OUT_Pin;
+    inv.io.precharge_contactor.port = PRECHARGE_OUT_GPIO_Port;
+    inv.io.main_contactor.pin = MAIN_OUT_Pin;
+    inv.io.main_contactor.port = MAIN_OUT_GPIO_Port;
+
+
+
+    for(int i = 0; i< 10; i ++)
+    {
+//        inv_connect_supply(&inv);
+//        HAL_Delay(3000);
+//        inv_disconnect_supply(&inv);
+//        HAL_Delay(3000);
+
+
+    }
+
     inv_init(&inv);
     inv_enable(&inv, false);
 
@@ -213,10 +230,10 @@ int main(void) {
     } else {
         printf("Current calibration completed %d %d\n", inv.current_adc_offset[0], inv.current_adc_offset[1]);
     }
-    inv.vbus = 40; //Do a readout
+    inv.vbus = 100; //Do a readout
     inv_enable(&inv, true);
 
-    static volatile uint32_t cycle_period = 10000;
+    static volatile uint32_t cycle_period = 0;
     static volatile float cycle_current = 10;
     static volatile float cycle_syf_current = 0;
 
@@ -231,6 +248,11 @@ int main(void) {
         /* USER CODE END WHILE */
 
         /* USER CODE BEGIN 3 */
+        float throttle=inv.adcs.throttleB;
+        if(throttle>0.15)
+        {
+            inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){0, (throttle-0.2f)*30});
+        }
         inv_slow_tick(&inv);
         cli_poll();
 
@@ -276,9 +298,10 @@ int main(void) {
                 chg_send_data(&charger);
             }
             chg_refresh_data_struct(&charger);
-            chg_print_data(&charger);
+            //chg_print_data(&charger);
             last_call = HAL_GetTick();
         }
+        //printf("Throttle: %f, press: %f\n", inv.adcs.throttleB, inv.adcs.throttleA );
     }
     /* USER CODE END 3 */
 }
@@ -886,9 +909,10 @@ static void MX_GPIO_Init(void) {
 
     /*Configure GPIO pin : MAIN_OUT_Pin */
     GPIO_InitStruct.Pin = MAIN_OUT_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+    HAL_GPIO_WritePin(MAIN_OUT_GPIO_Port, MAIN_OUT_Pin,1);
     HAL_GPIO_Init(MAIN_OUT_GPIO_Port, &GPIO_InitStruct);
 
 /* USER CODE BEGIN MX_GPIO_Init_2 */

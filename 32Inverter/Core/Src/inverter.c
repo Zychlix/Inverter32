@@ -24,7 +24,13 @@ void inv_reset_controllers(inverter_t * inverter)
     inverter->pid_b.integrated = 0;
 }
 
-void inv_init(inverter_t *inverter) {
+inv_ret_val_t inv_init(inverter_t *inverter) {
+
+    if(inverter->io.main_contactor.pin == 0) return INV_FAIL;
+    if(inverter->io.main_contactor.port == 0) return INV_FAIL;
+    if(inverter->io.precharge_contactor.pin == 0) return INV_FAIL;
+    if(inverter->io.precharge_contactor.port == 0)return INV_FAIL;
+
     TIM_OC_InitTypeDef oc_config;
 
     oc_config.OCMode = TIM_OCMODE_PWM1;
@@ -79,6 +85,8 @@ void inv_init(inverter_t *inverter) {
     inverter->pid_b.dt = (float) INV_MAX_PWM_PULSE_VAL / (float) SystemCoreClock;
     inverter->pid_b.integrated = 0;
     inverter->pid_b.max_out = INV_PID_MAX_OUT;
+
+    return INV_OK;
 }
 
 uint16_t spi_read_word(SPI_TypeDef *spi)
@@ -352,4 +360,28 @@ void inv_slow_tick(inverter_t * inverter)
 
 
 
+}
+
+
+
+
+inv_ret_val_t inv_connect_supply(inverter_t * inverter)
+{
+    HAL_GPIO_WritePin(inverter->io.precharge_contactor.port, inverter->io.precharge_contactor.pin, 1);
+    HAL_Delay(1000); //Change to checking the voltage!!!
+    HAL_GPIO_WritePin(inverter->io.main_contactor.port, inverter->io.main_contactor.pin, 0);
+    HAL_Delay(500);
+    HAL_GPIO_WritePin(inverter->io.precharge_contactor.port, inverter->io.precharge_contactor.pin, 0);
+    HAL_Delay(500);
+
+    return INV_OK;
+}
+inv_ret_val_t inv_disconnect_supply(inverter_t * inverter)
+{
+
+    HAL_GPIO_WritePin(inverter->io.main_contactor.port, inverter->io.main_contactor.pin, 1);
+    HAL_Delay(100);
+    HAL_GPIO_WritePin(inverter->io.precharge_contactor.port, inverter->io.precharge_contactor.pin, 0);
+    HAL_Delay(500);
+    return INV_OK;
 }

@@ -14,6 +14,25 @@
 #define DEFAULT_CURRENT_FILTER_ALPHA 0.01f
 #define INV_MIN_VOLTAGE_VALUE 30.f
 
+typedef struct
+{
+    uint32_t pin;
+    GPIO_TypeDef * port;
+
+}inv_pin_t;
+
+typedef struct
+{
+    inv_pin_t main_contactor;
+    inv_pin_t precharge_contactor;
+}inv_io_t;
+
+typedef enum
+{
+    INV_OK,
+    INV_FAIL
+}inv_ret_val_t ;
+
 typedef struct {
     SPI_HandleTypeDef *spi_handler;
     float fi;
@@ -27,6 +46,7 @@ typedef enum
 } inverter_mode_t;
 
 typedef struct {
+    inv_io_t io;
     TIM_HandleTypeDef *timer;
     resolver_t resolver;
     bool voltage_vector_advance;
@@ -53,7 +73,7 @@ typedef struct {
 } inverter_t;
 
 
-void inv_init(inverter_t *inverter);
+inv_ret_val_t inv_init(inverter_t *inverter);
 
 void inv_enable(inverter_t *inv, bool status);
 
@@ -76,3 +96,6 @@ int32_t inv_calibrate_current(inverter_t *inverter);
 void inv_set_mode_and_current(inverter_t *inverter, inverter_mode_t mode, vec_t current);
 
 void inv_slow_tick(inverter_t * inverter);
+
+inv_ret_val_t inv_connect_supply(inverter_t * inverter);
+inv_ret_val_t inv_disconnect_supply(inverter_t * inverter);
