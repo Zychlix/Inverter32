@@ -145,9 +145,9 @@ static void MX_TIM8_Init(void)
 
     /* USER CODE END TIM8_Init 1 */
     htim8.Instance = TIM8;
-    htim8.Init.Prescaler = 8;
+    htim8.Init.Prescaler = 100;
     htim8.Init.CounterMode = TIM_COUNTERMODE_UP;
-    htim8.Init.Period = 65535;
+    htim8.Init.Period = 1000;
     htim8.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
     htim8.Init.RepetitionCounter = 0;
     htim8.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
@@ -168,7 +168,7 @@ static void MX_TIM8_Init(void)
         Error_Handler();
     }
     sConfigOC.OCMode = TIM_OCMODE_PWM1;
-    sConfigOC.Pulse = 30000;
+    sConfigOC.Pulse = 100;
     sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
     sConfigOC.OCNPolarity = TIM_OCNPOLARITY_HIGH;
     sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
@@ -203,6 +203,9 @@ static void MX_TIM8_Init(void)
 void TIM8_init()
 {
 
+    __HAL_RCC_TIM8_CLK_ENABLE();
+
+
     GPIO_InitTypeDef GPIO_InitStruct = {0};
     GPIO_InitStruct.Pin = FAN_OUT_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
@@ -221,7 +224,7 @@ void TIM8_init()
     }
     MX_TIM8_Init();
 //    HAL_TIM_Base_Start(&htim8);
-    HAL_TIM_PWM_Start(&htim8,TIM_CHANNEL_2);
+    HAL_TIMEx_PWMN_Start(&htim8,TIM_CHANNEL_2);
 }
 
 /* USER CODE END 0 */
@@ -394,6 +397,7 @@ int main(void) {
             //chg_print_data(&charger);
             last_call = HAL_GetTick();
         }
+        HAL_GPIO_TogglePin(GPIOC,FAN_OUT_Pin);
         //printf("Throttle: %f, press: %f\n", inv.adcs.throttleB, inv.adcs.throttleA );
     }
     /* USER CODE END 3 */
