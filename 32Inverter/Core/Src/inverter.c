@@ -368,8 +368,12 @@ void inv_slow_tick(inverter_t * inverter)
 inv_ret_val_t inv_connect_supply(inverter_t * inverter)
 {
     HAL_GPIO_WritePin(inverter->io.precharge_contactor.port, inverter->io.precharge_contactor.pin, 1);
-    HAL_Delay(1000); //Change to checking the voltage!!!
-    HAL_GPIO_WritePin(inverter->io.main_contactor.port, inverter->io.main_contactor.pin, 0);
+    HAL_Delay(2000); //Change to checking the voltage!!!
+   // if(inverter->adcs.vbus>30)
+    //{
+        HAL_GPIO_WritePin(inverter->io.main_contactor.port, inverter->io.main_contactor.pin, 0);
+
+    //}
     HAL_Delay(500);
     HAL_GPIO_WritePin(inverter->io.precharge_contactor.port, inverter->io.precharge_contactor.pin, 0);
     HAL_Delay(500);

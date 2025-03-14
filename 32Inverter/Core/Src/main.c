@@ -64,6 +64,7 @@ TIM_HandleTypeDef htim1;
 UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN PV */
+TIM_HandleTypeDef htim8;
 
 /* USER CODE END PV */
 
@@ -126,6 +127,101 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *can)
     uint8_t data[16];
     HAL_CAN_GetRxMessage(can,CAN_RX_FIFO0,&header,data);
     chg_message_semaphore(&header, data, &charger);
+}
+
+static void MX_TIM8_Init(void)
+{
+
+    /* USER CODE BEGIN TIM8_Init 0 */
+
+    /* USER CODE END TIM8_Init 0 */
+
+    TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+    TIM_MasterConfigTypeDef sMasterConfig = {0};
+    TIM_OC_InitTypeDef sConfigOC = {0};
+    TIM_BreakDeadTimeConfigTypeDef sBreakDeadTimeConfig = {0};
+
+    /* USER CODE BEGIN TIM8_Init 1 */
+
+    /* USER CODE END TIM8_Init 1 */
+    htim8.Instance = TIM8;
+    htim8.Init.Prescaler = 8;
+    htim8.Init.CounterMode = TIM_COUNTERMODE_UP;
+    htim8.Init.Period = 65535;
+    htim8.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+    htim8.Init.RepetitionCounter = 0;
+    htim8.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+    if (HAL_TIM_Base_Init(&htim8) != HAL_OK)
+    {
+        Error_Handler();
+    }
+
+    if (HAL_TIM_PWM_Init(&htim8) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+    sMasterConfig.MasterOutputTrigger2 = TIM_TRGO2_RESET;
+    sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+    if (HAL_TIMEx_MasterConfigSynchronization(&htim8, &sMasterConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sConfigOC.OCMode = TIM_OCMODE_PWM1;
+    sConfigOC.Pulse = 30000;
+    sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+    sConfigOC.OCNPolarity = TIM_OCNPOLARITY_HIGH;
+    sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+    sConfigOC.OCIdleState = TIM_OCIDLESTATE_RESET;
+    sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
+    if (HAL_TIM_PWM_ConfigChannel(&htim8, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sBreakDeadTimeConfig.OffStateRunMode = TIM_OSSR_DISABLE;
+    sBreakDeadTimeConfig.OffStateIDLEMode = TIM_OSSI_DISABLE;
+    sBreakDeadTimeConfig.LockLevel = TIM_LOCKLEVEL_OFF;
+    sBreakDeadTimeConfig.DeadTime = 0;
+    sBreakDeadTimeConfig.BreakState = TIM_BREAK_DISABLE;
+    sBreakDeadTimeConfig.BreakPolarity = TIM_BREAKPOLARITY_HIGH;
+    sBreakDeadTimeConfig.BreakFilter = 0;
+    sBreakDeadTimeConfig.Break2State = TIM_BREAK2_DISABLE;
+    sBreakDeadTimeConfig.Break2Polarity = TIM_BREAK2POLARITY_HIGH;
+    sBreakDeadTimeConfig.Break2Filter = 0;
+    sBreakDeadTimeConfig.AutomaticOutput = TIM_AUTOMATICOUTPUT_DISABLE;
+    if (HAL_TIMEx_ConfigBreakDeadTime(&htim8, &sBreakDeadTimeConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN TIM8_Init 2 */
+
+    /* USER CODE END TIM8_Init 2 */
+    HAL_TIM_MspPostInit(&htim8);
+
+}
+
+void TIM8_init()
+{
+
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
+    GPIO_InitStruct.Pin = FAN_OUT_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    GPIO_InitStruct.Alternate = GPIO_AF4_TIM8;
+    HAL_GPIO_Init(FAN_OUT_GPIO_Port, &GPIO_InitStruct);
+
+    RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
+
+    PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_TIM8;
+    PeriphClkInit.Tim8ClockSelection = RCC_TIM8CLK_HCLK;
+    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    MX_TIM8_Init();
+//    HAL_TIM_Base_Start(&htim8);
+    HAL_TIM_PWM_Start(&htim8,TIM_CHANNEL_2);
 }
 
 /* USER CODE END 0 */
@@ -209,16 +305,9 @@ int main(void) {
     inv.io.main_contactor.port = MAIN_OUT_GPIO_Port;
 
 
+    inv_connect_supply(&inv);
 
-    for(int i = 0; i< 10; i ++)
-    {
-//        inv_connect_supply(&inv);
-//        HAL_Delay(3000);
-//        inv_disconnect_supply(&inv);
-//        HAL_Delay(3000);
-
-
-    }
+    TIM8_init();
 
     inv_init(&inv);
     inv_enable(&inv, false);
@@ -253,8 +342,12 @@ int main(void) {
         {
             inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){0, (throttle-0.2f)*30});
         }
+        else
+        {
+            inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){0, 0});
+        }
         inv_slow_tick(&inv);
-        cli_poll();
+//        cli_poll();
 
         if (cycle_period > 0 && cycle_current != 0.0f)
         {
@@ -847,7 +940,7 @@ static void MX_GPIO_Init(void) {
                              | GPIO_C_Pin | GPIO_B_Pin | GPIO_A_Pin | X_OUT_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOC, RESET_RES_Pin | GPIO_D_Pin | PRECHARGE_OUT_Pin | FAN_OUT_Pin
+    HAL_GPIO_WritePin(GPIOC, RESET_RES_Pin | GPIO_D_Pin | PRECHARGE_OUT_Pin //| FAN_OUT_Pin
                              | PUMP_OUT_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
@@ -880,7 +973,7 @@ static void MX_GPIO_Init(void) {
 
     /*Configure GPIO pins : RESET_RES_Pin GPIO_D_Pin PRECHARGE_OUT_Pin FAN_OUT_Pin
                              PUMP_OUT_Pin */
-    GPIO_InitStruct.Pin = RESET_RES_Pin | GPIO_D_Pin | PRECHARGE_OUT_Pin | FAN_OUT_Pin
+    GPIO_InitStruct.Pin = RESET_RES_Pin | GPIO_D_Pin | PRECHARGE_OUT_Pin //| FAN_OUT_Pin
                           | PUMP_OUT_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
