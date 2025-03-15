@@ -46,7 +46,6 @@ inv_ret_val_t inv_init(inverter_t *inverter) {
 
     // ADC
     HAL_ADC_Start_DMA(inverter->current_adc, (uint32_t *) &inverter->raw_current_adc, 2);
-    HAL_ADC_Start(inverter->current_adc);
 
     inverter->current_filter_alpha = DEFAULT_CURRENT_FILTER_ALPHA;
 
@@ -85,6 +84,9 @@ inv_ret_val_t inv_init(inverter_t *inverter) {
     inverter->pid_b.dt = (float) INV_MAX_PWM_PULSE_VAL / (float) SystemCoreClock;
     inverter->pid_b.integrated = 0;
     inverter->pid_b.max_out = INV_PID_MAX_OUT;
+
+
+    HAL_TIM_Base_Start_IT(inverter->timer);
 
     return INV_OK;
 }
@@ -284,11 +286,9 @@ abc_t inv_read_current(inverter_t *inverter) {
 }
 
 void inv_enable(inverter_t *inv, bool status) {
-
     if (status) {
         if(! inv->active)
         {
-            HAL_TIM_Base_Start_IT(inv->timer);
             HAL_TIM_PWM_Start(inv->timer, TIM_CHANNEL_1);
             HAL_TIMEx_PWMN_Start(inv->timer, TIM_CHANNEL_1);
             HAL_TIM_PWM_Start(inv->timer, TIM_CHANNEL_2);
@@ -301,7 +301,6 @@ void inv_enable(inverter_t *inv, bool status) {
         if(inv->active)
         {
             inv_reset_controllers(inv);
-            HAL_TIM_Base_Stop(inv->timer);
             HAL_TIM_PWM_Stop(inv->timer, TIM_CHANNEL_1);
             HAL_TIM_PWM_Stop(inv->timer, TIM_CHANNEL_2);
             HAL_TIM_PWM_Stop(inv->timer, TIM_CHANNEL_3);
@@ -323,6 +322,7 @@ void inv_vbus_update(inverter_t * inverter)
 {
     float current_vbus = inverter->adcs.vbus;
 
+    inverter->vbus = current_vbus;
 
     if(current_vbus < INV_MIN_VOLTAGE_VALUE)
     {
@@ -331,7 +331,6 @@ void inv_vbus_update(inverter_t * inverter)
     else
     if(current_vbus > INV_MIN_VOLTAGE_VALUE + INV_MIN_VOLTAGE_HYSTERESIS )
     {
-        inverter->vbus = current_vbus;
 
         inv_enable(inverter,true);
     }
