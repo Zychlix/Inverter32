@@ -325,8 +325,8 @@ int main(void) {
     inv.vbus = 100; //Do a readout
     inv_enable(&inv, true);
 
-    static volatile uint32_t cycle_period = 0;
-    static volatile float cycle_current = 0;
+    static volatile uint32_t cycle_period = 10000;
+    static volatile float cycle_current = 10;
     static volatile float cycle_syf_current = 0;
 
     bool steady = 0;
@@ -351,7 +351,7 @@ int main(void) {
 //        }
         inv_slow_tick(&inv);
         cli_poll();
-        inv_set_mode_and_current(&inv, MODE_AB, (vec_t){0, 0});
+//        inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){0, 10});
         if (cycle_period > 0 && cycle_current != 0.0f)
         {
             uint32_t phase = HAL_GetTick() % cycle_period;
@@ -812,10 +812,10 @@ static void MX_TIM1_Init(void) {
     /* USER CODE END TIM1_Init 1 */
     htim1.Instance = TIM1;
     htim1.Init.Prescaler = 0;
-    htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-    htim1.Init.Period = 5000;
+    htim1.Init.CounterMode = TIM_COUNTERMODE_CENTERALIGNED1;
+    htim1.Init.Period = INV_MAX_PWM_PULSE_VAL;
     htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-    htim1.Init.RepetitionCounter = 0;
+    htim1.Init.RepetitionCounter = 1;
     htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
     if (HAL_TIM_PWM_Init(&htim1) != HAL_OK) {
         Error_Handler();
