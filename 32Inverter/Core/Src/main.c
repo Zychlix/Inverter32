@@ -326,7 +326,7 @@ int main(void) {
     inv_enable(&inv, true);
 
     static volatile uint32_t cycle_period = 0;
-    static volatile float cycle_current = 10;
+    static volatile float cycle_current = 0;
     static volatile float cycle_syf_current = 0;
 
     bool steady = 0;
@@ -341,17 +341,17 @@ int main(void) {
 
         /* USER CODE BEGIN 3 */
         float throttle=inv.adcs.throttleB;
-        if(throttle>0.15)
-        {
-            inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){0, (throttle-0.2f)*30});
-        }
-        else
-        {
-            inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){0, 0});
-        }
+//        if(throttle>=0.20)
+//        {
+//            inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){0, (throttle-0.20f)*50});
+//        }
+//        else
+//        {
+//            inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){0, 0});
+//        }
         inv_slow_tick(&inv);
-//        cli_poll();
-
+        cli_poll();
+        inv_set_mode_and_current(&inv, MODE_AB, (vec_t){0, 0});
         if (cycle_period > 0 && cycle_current != 0.0f)
         {
             uint32_t phase = HAL_GetTick() % cycle_period;
@@ -397,7 +397,6 @@ int main(void) {
             //chg_print_data(&charger);
             last_call = HAL_GetTick();
         }
-        HAL_GPIO_TogglePin(GPIOC,FAN_OUT_Pin);
         //printf("Throttle: %f, press: %f\n", inv.adcs.throttleB, inv.adcs.throttleA );
     }
     /* USER CODE END 3 */
