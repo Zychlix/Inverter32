@@ -44,14 +44,13 @@ inv_ret_val_t inv_init(inverter_t *inverter) {
     HAL_TIM_PWM_ConfigChannel(inverter->timer, &oc_config, TIM_CHANNEL_2);
     HAL_TIM_PWM_ConfigChannel(inverter->timer, &oc_config, TIM_CHANNEL_3);
 
-    // ADC
     HAL_ADC_Start_DMA(inverter->current_adc, (uint32_t *) &inverter->raw_current_adc, 2);
 
     inverter->current_filter_alpha = DEFAULT_CURRENT_FILTER_ALPHA;
 
     inverter->filter_d = (iir_filter_t){
-        .a = {1.0f, -1.7923856371114915f, 0.8119977769946318f},
-        .b = {0.004903034970785105f, 0.00980606994157021f, 0.004903034970785105f},
+        .a = {1.0f, -0.10528975341038055f, 0.07419736034296573f},
+        .b = {0.24222690173314645f, 0.4844538034662929f, 0.24222690173314645f},
     };
     inverter->filter_q = inverter->filter_d;
 
@@ -60,14 +59,14 @@ inv_ret_val_t inv_init(inverter_t *inverter) {
 
 
     // current PI
-    inverter->pid_d.kp = 0.3f;
-    inverter->pid_d.ki = 10.f;
+    inverter->pid_d.kp = 0.8f;
+    inverter->pid_d.ki = 200.f;
     inverter->pid_d.dt = (float) INV_MAX_PWM_PULSE_VAL / (float) SystemCoreClock;
     inverter->pid_d.integrated = 0;
     inverter->pid_d.max_out = INV_PID_MAX_OUT;
 
-    inverter->pid_q.kp = 0.3f;
-    inverter->pid_q.ki = 10.f;
+    inverter->pid_q.kp = 0.8f;
+    inverter->pid_q.ki = 200.f;
     inverter->pid_q.dt = (float) INV_MAX_PWM_PULSE_VAL / (float) SystemCoreClock;
     inverter->pid_q.integrated = 0;
     inverter->pid_q.max_out = INV_PID_MAX_OUT;
@@ -86,7 +85,15 @@ inv_ret_val_t inv_init(inverter_t *inverter) {
     inverter->pid_b.max_out = INV_PID_MAX_OUT;
 
 
+
     HAL_TIM_Base_Start_IT(inverter->timer);
+
+    HAL_TIM_PWM_Stop(inverter->timer, TIM_CHANNEL_1);
+    HAL_TIMEx_PWMN_Stop(inverter->timer, TIM_CHANNEL_1);
+    HAL_TIM_PWM_Stop(inverter->timer, TIM_CHANNEL_2);
+    HAL_TIMEx_PWMN_Stop(inverter->timer, TIM_CHANNEL_2);
+    HAL_TIM_PWM_Stop(inverter->timer, TIM_CHANNEL_3);
+    HAL_TIMEx_PWMN_Stop(inverter->timer, TIM_CHANNEL_3);
 
     return INV_OK;
 }
@@ -182,19 +189,24 @@ static void inv_send_trace_data(inverter_t *inverter) {
 }
 
 void inv_tick(inverter_t *inverter) {
-    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, true);
+    // HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, true);
     res_read_position(&inverter->resolver);
     vec_t phi = angle(inverter->resolver.fi);
 
     static volatile abc_t current_abc;
     static volatile vec_t current_ab;
     static volatile vec_t current_dq;
+
+    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, false);
     current_abc = inv_read_current(inverter);
     current_ab = clarkeTransform(current_abc);
     current_dq = parkTransform(current_ab, phi);
 
     inverter->current.x = iir_filter_calculate(&inverter->filter_d, current_dq.x);
     inverter->current.y = iir_filter_calculate(&inverter->filter_q, current_dq.y);
+
+    // inverter->current.x = current_dq.x;
+    // inverter->current.y = current_dq.y;
 
     // inverter->current.x = (inverter->current_filter_alpha * current_dq.x) + (1.0f - inverter->current_filter_alpha) * inverter->current.x;
     // inverter->current.y = (inverter->current_filter_alpha * current_dq.y) + (1.0f - inverter->current_filter_alpha) * inverter->current.y;
@@ -205,11 +217,9 @@ void inv_tick(inverter_t *inverter) {
 
     if (inverter->mode == MODE_DQ)
     {
-        static volatile float rotor_flux_linkage = 0.023f; /* Volts / (rad / s) */
-
         inverter->voltage = (vec_t){
             pid_calc(&inverter->pid_d, inverter->current.x, inverter->smooth_set_current.x),
-            pid_calc(&inverter->pid_q, inverter->current.y, inverter->smooth_set_current.y) + rotor_flux_linkage * inverter->resolver.velocity,
+            pid_calc(&inverter->pid_q, inverter->current.y, inverter->smooth_set_current.y),
         };
 
         /*inverter->voltage.x = 0;
@@ -242,6 +252,14 @@ void inv_tick(inverter_t *inverter) {
 
     inv_send_trace_data(inverter);
     HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, false);
+}
+
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
+{
+    if (hadc->Instance == ADC1)
+    {
+        HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, true);
+    }
 }
 
 int32_t inv_calibrate_current(inverter_t *inverter) {
@@ -287,7 +305,7 @@ abc_t inv_read_current(inverter_t *inverter) {
 
 void inv_enable(inverter_t *inv, bool status) {
     if (status) {
-        if(! inv->active)
+        if(!inv->active)
         {
             HAL_TIM_PWM_Start(inv->timer, TIM_CHANNEL_1);
             HAL_TIMEx_PWMN_Start(inv->timer, TIM_CHANNEL_1);
@@ -302,8 +320,11 @@ void inv_enable(inverter_t *inv, bool status) {
         {
             inv_reset_controllers(inv);
             HAL_TIM_PWM_Stop(inv->timer, TIM_CHANNEL_1);
+            HAL_TIMEx_PWMN_Stop(inv->timer, TIM_CHANNEL_1);
             HAL_TIM_PWM_Stop(inv->timer, TIM_CHANNEL_2);
+            HAL_TIMEx_PWMN_Stop(inv->timer, TIM_CHANNEL_2);
             HAL_TIM_PWM_Stop(inv->timer, TIM_CHANNEL_3);
+            HAL_TIMEx_PWMN_Stop(inv->timer, TIM_CHANNEL_3);
         }
 
     }
@@ -324,16 +345,16 @@ void inv_vbus_update(inverter_t * inverter)
 
     inverter->vbus = current_vbus;
 
-    if(current_vbus < INV_MIN_VOLTAGE_VALUE)
-    {
-        inv_enable(inverter,false);
-    }
-    else
-    if(current_vbus > INV_MIN_VOLTAGE_VALUE + INV_MIN_VOLTAGE_HYSTERESIS )
-    {
-
-        inv_enable(inverter,true);
-    }
+    // if(current_vbus < INV_MIN_VOLTAGE_VALUE)
+    // {
+    //     inv_enable(inverter,false);
+    // }
+    // else
+    // if(current_vbus > INV_MIN_VOLTAGE_VALUE + INV_MIN_VOLTAGE_HYSTERESIS )
+    // {
+    //
+    //     inv_enable(inverter,true);
+    // }
 }
 
 void inv_temperature_check(inverter_t * inverter)

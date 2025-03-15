@@ -10,7 +10,7 @@
 #include "adc.h"
 
 #define INV_MAX_PWM_PULSE_VAL 2500
-#define INV_PID_MAX_OUT 10
+#define INV_PID_MAX_OUT 50
 #define DEFAULT_CURRENT_FILTER_ALPHA 0.01f
 #define INV_MIN_VOLTAGE_VALUE 30.f
 

@@ -313,19 +313,20 @@ int main(void) {
     TIM8_init();
 
     inv_init(&inv);
+    HAL_Delay(200);
     inv_enable(&inv, false);
-
+    HAL_Delay(200);
 
     if (inv_calibrate_current(&inv)) {
         printf("Current calibration failed\n");
-        //Error_Handler();
+        Error_Handler();
     } else {
         printf("Current calibration completed %d %d\n", inv.current_adc_offset[0], inv.current_adc_offset[1]);
     }
     inv.vbus = 100; //Do a readout
     inv_enable(&inv, true);
 
-    static volatile uint32_t cycle_period = 10000;
+    static volatile uint32_t cycle_period = 3000;
     static volatile float cycle_current = 10;
     static volatile float cycle_syf_current = 0;
 
