@@ -11,7 +11,7 @@ cutoff = 3000
 fig = plt.figure()
 ax = fig.add_subplot(1, 1, 1)
 
-b, a = signal.iirfilter(2, cutoff, btype='lowpass', ftype='butter', fs=samplerate)
+b, a = signal.iirfilter(2, cutoff, btype='lowpass', ftype='bessel', fs=samplerate)
 #print(b, a)
 
 print(f'        .a = {{{', '.join(map(lambda x: f'{x}f', a))}}}, ')
