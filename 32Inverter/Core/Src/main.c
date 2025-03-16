@@ -316,10 +316,11 @@ int main(void) {
     HAL_Delay(200);
     inv_enable(&inv, false);
     HAL_Delay(200);
+    HAL_TIM_Base_Stop_IT(inv.timer);
 
     if (inv_calibrate_current(&inv)) {
         printf("Current calibration failed\n");
-        Error_Handler();
+       //Error_Handler();
     } else {
         printf("Current calibration completed %d %d\n", inv.current_adc_offset[0], inv.current_adc_offset[1]);
     }

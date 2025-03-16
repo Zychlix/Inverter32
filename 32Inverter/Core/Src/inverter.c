@@ -9,6 +9,7 @@
 #include "PID.h"
 #include "oscilloscope.h"
 #include "swo_scope.h"
+#include "stm32f3xx_hal_tim_ex.h"
 
 #define INV_MIN_VOLTAGE_HYSTERESIS 5.f
 #define INV_MAX_TEMPERATURE_DISABLE 70.f //C
@@ -23,6 +24,19 @@ void inv_reset_controllers(inverter_t * inverter)
     inverter->pid_a.integrated = 0;
     inverter->pid_b.integrated = 0;
 }
+
+void inv_enable_pwm_outputs(inverter_t *inverter, uint32_t Channel)
+{
+    inverter->timer->Instance->CCER |= (1 | 1<<2)<<Channel;
+
+}
+
+void inv_disable_pwm_outputs(inverter_t *inverter, uint32_t Channel)
+{
+    inverter->timer->Instance->CCER &= ~(1 | 1<<2)<<Channel;
+
+}
+
 
 inv_ret_val_t inv_init(inverter_t *inverter) {
 
@@ -88,13 +102,21 @@ inv_ret_val_t inv_init(inverter_t *inverter) {
 
     HAL_TIM_Base_Start_IT(inverter->timer);
 
-    HAL_TIM_PWM_Stop(inverter->timer, TIM_CHANNEL_1);
-    HAL_TIMEx_PWMN_Stop(inverter->timer, TIM_CHANNEL_1);
-    HAL_TIM_PWM_Stop(inverter->timer, TIM_CHANNEL_2);
-    HAL_TIMEx_PWMN_Stop(inverter->timer, TIM_CHANNEL_2);
-    HAL_TIM_PWM_Stop(inverter->timer, TIM_CHANNEL_3);
-    HAL_TIMEx_PWMN_Stop(inverter->timer, TIM_CHANNEL_3);
+    TIM_CCxChannelCmd(inverter->timer->Instance, TIM_CHANNEL_1, TIM_CCx_DISABLE);
 
+    inv_disable_pwm_outputs(inverter, TIM_CHANNEL_1);
+    inv_disable_pwm_outputs(inverter, TIM_CHANNEL_2);
+    inv_disable_pwm_outputs(inverter, TIM_CHANNEL_3);
+
+//    HAL_TIM_PWM_Stop(inverter->timer, TIM_CHANNEL_1);
+//    TIM_CCxNChannelCmd(htim->Instance, Channel, TIM_CCxN_DISABLE);
+//    HAL_TIMEx_PWMN_Stop(inverter->timer, TIM_CHANNEL_1);
+//    HAL_TIM_PWM_Stop(inverter->timer, TIM_CHANNEL_2);
+//    HAL_TIMEx_PWMN_Stop(inverter->timer, TIM_CHANNEL_2);
+//    HAL_TIM_PWM_Stop(inverter->timer, TIM_CHANNEL_3);
+//    HAL_TIMEx_PWMN_Stop(inverter->timer, TIM_CHANNEL_3);
+
+//    inverter->timer->Instance ->CR1 |= TIM_CR1_CEN; //Use brake
     return INV_OK;
 }
 
@@ -307,24 +329,30 @@ void inv_enable(inverter_t *inv, bool status) {
     if (status) {
         if(!inv->active)
         {
-            HAL_TIM_PWM_Start(inv->timer, TIM_CHANNEL_1);
-            HAL_TIMEx_PWMN_Start(inv->timer, TIM_CHANNEL_1);
-            HAL_TIM_PWM_Start(inv->timer, TIM_CHANNEL_2);
-            HAL_TIMEx_PWMN_Start(inv->timer, TIM_CHANNEL_2);
-            HAL_TIM_PWM_Start(inv->timer, TIM_CHANNEL_3);
-            HAL_TIMEx_PWMN_Start(inv->timer, TIM_CHANNEL_3);
+            inv_enable_pwm_outputs(inv, TIM_CHANNEL_1);
+            inv_enable_pwm_outputs(inv, TIM_CHANNEL_2);
+            inv_enable_pwm_outputs(inv, TIM_CHANNEL_3);
+//            HAL_TIM_PWM_Start(inv->timer, TIM_CHANNEL_1);
+//            HAL_TIMEx_PWMN_Start(inv->timer, TIM_CHANNEL_1);
+//            HAL_TIM_PWM_Start(inv->timer, TIM_CHANNEL_2);
+//            HAL_TIMEx_PWMN_Start(inv->timer, TIM_CHANNEL_2);
+//            HAL_TIM_PWM_Start(inv->timer, TIM_CHANNEL_3);
+//            HAL_TIMEx_PWMN_Start(inv->timer, TIM_CHANNEL_3);
         }
 
     } else {
         if(inv->active)
         {
             inv_reset_controllers(inv);
-            HAL_TIM_PWM_Stop(inv->timer, TIM_CHANNEL_1);
-            HAL_TIMEx_PWMN_Stop(inv->timer, TIM_CHANNEL_1);
-            HAL_TIM_PWM_Stop(inv->timer, TIM_CHANNEL_2);
-            HAL_TIMEx_PWMN_Stop(inv->timer, TIM_CHANNEL_2);
-            HAL_TIM_PWM_Stop(inv->timer, TIM_CHANNEL_3);
-            HAL_TIMEx_PWMN_Stop(inv->timer, TIM_CHANNEL_3);
+            inv_disable_pwm_outputs(inv, TIM_CHANNEL_1);
+            inv_disable_pwm_outputs(inv, TIM_CHANNEL_2);
+            inv_disable_pwm_outputs(inv, TIM_CHANNEL_3);
+//            HAL_TIM_PWM_Stop(inv->timer, TIM_CHANNEL_1);
+//            HAL_TIMEx_PWMN_Stop(inv->timer, TIM_CHANNEL_1);
+//            HAL_TIM_PWM_Stop(inv->timer, TIM_CHANNEL_2);
+//            HAL_TIMEx_PWMN_Stop(inv->timer, TIM_CHANNEL_2);
+//            HAL_TIM_PWM_Stop(inv->timer, TIM_CHANNEL_3);
+//            HAL_TIMEx_PWMN_Stop(inv->timer, TIM_CHANNEL_3);
         }
 
     }
