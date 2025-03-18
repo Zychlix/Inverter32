@@ -265,7 +265,7 @@ int main(void) {
     MX_CAN_Init();
     MX_SPI1_Init();
     MX_TIM1_Init();
-    // MX_USART3_UART_Init();
+     MX_USART3_UART_Init();
     MX_ADC1_Init();
     MX_ADC3_Init();
     MX_ADC4_Init();
@@ -279,11 +279,11 @@ int main(void) {
 #define BRK_IN_PORT GPIOD
 
     GPIO_InitTypeDef GPIO_InitStruct = {0};
-    GPIO_InitStruct.Pin = GPIO_PIN_10;
-    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
-    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+//    GPIO_InitStruct.Pin = GPIO_PIN_10;
+//    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+//    GPIO_InitStruct.Pull = GPIO_NOPULL;
+//    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+//    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
     HAL_GPIO_WritePin(GPIO_A_GPIO_Port, GPIO_A_Pin,
                       true); // hack for enabling the inverter, control FAULT_DRV via GPIOA
@@ -1092,19 +1092,19 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 }
 
 int _write(int file, char *data, int len) {
-    /*if ((file != STDOUT_FILENO) && (file != STDERR_FILENO)) {
-        return -1;
-    }
+//    if ((file != STDOUT_FILENO) && (file != STDERR_FILENO)) {
+//        return -1;
+//    }
 
     HAL_StatusTypeDef status =
             HAL_UART_Transmit(&huart3, (uint8_t *) data, (uint16_t) len, 1000);
 
     // return # of bytes written - as best we can tell
-    return (status == HAL_OK ? len : 0);*/
+    return (status == HAL_OK ? len : 0);
 
-    while (len--) {
-        ITM_SendChar(*data++);
-    }
+//    while (len--) {
+//        ITM_SendChar(*data++);
+//    }
     
     return len;
 }
