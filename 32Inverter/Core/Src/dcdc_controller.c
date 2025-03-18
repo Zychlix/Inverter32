@@ -106,8 +106,8 @@ void chg_send_data(chg_t *charger) {
     HAL_CAN_AddTxMessage(hcan1, &tx_header, (uint8_t *) &en_payload, &shit);
 
     DCDC_Frame_Setpoint_x286_t set_payload = {0};
-    set_payload.charge_current = 10;
-    set_payload.charge_voltage = swap_endianness_16(3700);
+    set_payload.charge_current = 2;
+    set_payload.charge_voltage = swap_endianness_16(3500);
     set_payload._nn0[0] = 0x37; //magic number
     set_payload._nn0[1] = 0x00; //magic number
     set_payload._nn0[2] = 0x00; //magic number
@@ -165,7 +165,7 @@ chg_ret_val_t chg_refresh_data_struct(chg_t *instance) {
         data->aux_battery.voltage = (float)swap_endianness_16(instance->frames.status.aux_battery_voltage)/100.f;
         data->aux_battery.current = (float)instance->frames.status.aux_current/10.f;
 
-        data->main_battery_voltage = instance->frames.main_battery_status.battery_voltage;
+        data->main_battery_voltage = instance->frames.main_battery_status.battery_voltage;  //REAL VALUE
         data->main_battery_current = (float)instance->frames.main_battery_status.dc_current * 10;
 
         data->temperature.A0 =  (int16_t)(instance->frames.status.temperature_1 - 40);
@@ -202,8 +202,8 @@ void chg_print_data(chg_t * instance)
     printf("    Charging: %d\n", instance->telemetry.aux_battery.charging_active);
 
     printf("\n\n Main battery: \n");
-    printf("    Voltage: %f\n", instance->telemetry.aux_battery.voltage);
-    printf("    Voltage: %f\n", instance->telemetry.aux_battery.voltage);
+    printf("    Voltage: %f\n", (float)instance->telemetry.main_battery_voltage);
+    printf("    Current: %f\n", instance->telemetry.main_battery_current);
 
 
     printf("\n\n Temperatures: \n");
@@ -225,6 +225,8 @@ chg_ret_val_t static chg_switch_power(chg_t * instance, bool power)
 
 chg_ret_val_t chg_state_machine_update(chg_t * instance)
 {
+    chg_refresh_data_struct(instance);
+
     switch (instance->current_command) {
         case CHG_CMD_ENABLE:
             if(instance->state == CHG_DISABLED)
@@ -263,11 +265,19 @@ chg_ret_val_t chg_state_machine_update(chg_t * instance)
             break;
 
         case CHG_WAITING_FOR_CHARGING:
+            chg_send_data(instance);
             //If AC_Present?
         default:
             break;
 
     }
+
+
+//    if(charger.telemetry.ready_for_charging)
+//    {
+//        //chg_send_data(&charger);
+//    }
+
 
 
     instance->current_command = CHG_CMD_NONE;
