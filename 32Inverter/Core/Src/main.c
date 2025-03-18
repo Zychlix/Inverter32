@@ -145,11 +145,11 @@ static void MX_TIM8_Init(void)
 
     /* USER CODE END TIM8_Init 1 */
     htim8.Instance = TIM8;
-    htim8.Init.Prescaler = 100;
+    htim8.Init.Prescaler = 64;
     htim8.Init.CounterMode = TIM_COUNTERMODE_UP;
     htim8.Init.Period = 1000;
     htim8.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-    htim8.Init.RepetitionCounter = 0;
+    htim8.Init.RepetitionCounter = 20-1;
     htim8.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
     if (HAL_TIM_Base_Init(&htim8) != HAL_OK)
     {
@@ -203,6 +203,8 @@ static void MX_TIM8_Init(void)
 void TIM8_init()
 {
 
+    NVIC_SetPriority(TIM8_UP_IRQn,6);
+    NVIC_EnableIRQ(TIM8_UP_IRQn);
     __HAL_RCC_TIM8_CLK_ENABLE();
 
 
@@ -224,6 +226,9 @@ void TIM8_init()
     }
     MX_TIM8_Init();
 //    HAL_TIM_Base_Start(&htim8);
+
+    HAL_TIM_Base_Start_IT(&htim8);
+
     HAL_TIMEx_PWMN_Start(&htim8,TIM_CHANNEL_2);
 }
 
@@ -289,6 +294,8 @@ int main(void) {
     chg_config_filters(&charger);
 
     // enable AD2S1205 resolver
+    HAL_GPIO_WritePin(RESET_RES_GPIO_Port, RESET_RES_Pin, false);
+    HAL_Delay(10);
     HAL_GPIO_WritePin(RESET_RES_GPIO_Port, RESET_RES_Pin, true);
 
     inv.adcs.adc4 = &hadc4;
@@ -331,7 +338,6 @@ int main(void) {
     } else {
         printf("Current calibration completed %d %d\n", inv.current_adc_offset[0], inv.current_adc_offset[1]);
     }
-    inv.vbus = 100; //Do a readout
 
     inv_enable(&inv, true);
     inv_clear_fault();
@@ -351,7 +357,6 @@ int main(void) {
         /* USER CODE END WHILE */
 
         /* USER CODE BEGIN 3 */
-        inv_slow_tick(&inv);
 
         float throttle=inv.adcs.throttleB;
 //        if(throttle>=0.20)
@@ -363,7 +368,7 @@ int main(void) {
 //            inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){0, 0});
 //        }
         cli_poll();
-        inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){0, 10});
+//        inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){0, 10});
 
 //        inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){0, 10});
         if (cycle_period > 0 && cycle_current != 0.0f)
@@ -1031,6 +1036,20 @@ static void MX_GPIO_Init(void) {
 }
 
 /* USER CODE BEGIN 4 */
+
+
+/*
+ * Slow inv tick. Does sundries
+ */
+void TIM8_UP_IRQHandler()
+{
+    HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_10);
+    inv_slow_tick(&inv);
+    HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_10);
+
+    TIM8->SR = 0;
+
+}
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
     if (htim->Instance == TIM1) {

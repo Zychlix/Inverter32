@@ -229,7 +229,6 @@ static void inv_send_trace_data(inverter_t *inverter) {
 }
 
 void inv_tick(inverter_t *inverter) {
-    // HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, true);
     res_read_position(&inverter->resolver);
     vec_t phi = angle(inverter->resolver.fi);
 
@@ -237,7 +236,7 @@ void inv_tick(inverter_t *inverter) {
     static volatile vec_t current_ab;
     static volatile vec_t current_dq;
 
-    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, false);
+//    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, false);
     current_abc = inv_read_current(inverter);
     current_ab = clarkeTransform(current_abc);
     current_dq = parkTransform(current_ab, phi);
@@ -290,14 +289,14 @@ void inv_tick(inverter_t *inverter) {
     }
 
     inv_send_trace_data(inverter);
-    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, false);
+//    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, false);
 }
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 {
     if (hadc->Instance == ADC1)
     {
-        HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, true);
+//        HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, true);
     }
 }
 
@@ -411,13 +410,22 @@ void inv_temperature_check(inverter_t * inverter)
         inv_enable(inverter,false);
     } else if ( inverter->adcs.transistor1 < INV_MAX_TEMPERATURE_ENABLE)
     {
-        inv_enable(inverter, true);
+//        inv_enable(inverter, true);
     }
 
 }
 
 void inv_slow_tick(inverter_t * inverter)
 {
+    if(!inverter)
+    {
+        return;
+    }
+
+    if (inverter->state == INV_UNINITIALIZED)
+    {
+        return;
+    }
     adc4_read(&inverter->adcs);
     adc2_read(&inverter->adcs);
 
@@ -470,9 +478,9 @@ inv_ret_val_t inv_connect_supply(inverter_t * inverter)
         HAL_GPIO_WritePin(inverter->io.main_contactor.port, inverter->io.main_contactor.pin, 0);
 
     //}
-    HAL_Delay(500);
+    HAL_Delay(50);
     HAL_GPIO_WritePin(inverter->io.precharge_contactor.port, inverter->io.precharge_contactor.pin, 0);
-    HAL_Delay(500);
+    HAL_Delay(100);
 
     return INV_OK;
 }

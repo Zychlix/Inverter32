@@ -46,6 +46,15 @@ typedef enum
     MODE_DQ,
 } inverter_mode_t;
 
+typedef struct
+{
+    bool transistor_temperature;
+    bool motor_temperature;
+    bool overcurrent;
+    bool low_voltage;
+    bool throttle_input_error;
+}inverter_error_t;
+
 
 typedef enum
 {
