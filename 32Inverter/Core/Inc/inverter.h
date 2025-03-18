@@ -30,7 +30,8 @@ typedef struct
 typedef enum
 {
     INV_OK,
-    INV_FAIL
+    INV_FAIL,
+    INV_PRECHARGE_FAIL
 }inv_ret_val_t ;
 
 typedef struct {
@@ -45,7 +46,16 @@ typedef enum
     MODE_DQ,
 } inverter_mode_t;
 
+
+typedef enum
+{
+    INV_UNINITIALIZED = 0,  //Primary state. Not allowed after using inv_init
+    INV_IDLE,               //Inverter succesfully initialized, awaiting action
+} inverter_state_t;
+
 typedef struct {
+    inverter_state_t state;
+
     inv_io_t io;
     TIM_HandleTypeDef *timer;
     resolver_t resolver;

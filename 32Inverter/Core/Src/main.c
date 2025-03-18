@@ -282,12 +282,11 @@ int main(void) {
     printf("Hello World \r\n");
 
 
+    //  CAN initialization
     cli_init(&huart3, &inv);
     charger.can = &hcan;
     chg_initialize(&charger);
     chg_config_filters(&charger);
-
-    inv_clear_fault();
 
     // enable AD2S1205 resolver
     HAL_GPIO_WritePin(RESET_RES_GPIO_Port, RESET_RES_Pin, true);
@@ -299,6 +298,7 @@ int main(void) {
     inv.timer = &htim1;
     inv.current_adc = &hadc1;
     inv.active = 0;
+
     CLEAR_BIT(SPI1->CR1, SPI_CR1_BIDIOE);
     SET_BIT(SPI1->CR1, SPI_CR1_SPE);
 
@@ -308,12 +308,19 @@ int main(void) {
     inv.io.main_contactor.port = MAIN_OUT_GPIO_Port;
 
 
-    inv_connect_supply(&inv);
+
 
     TIM8_init();
     HAL_Delay(200);
-    inv_init(&inv);
-    HAL_GPIO_WritePin(SAMPLE_GPIO_Port, SAMPLE_Pin, 0);
+
+    if(inv_init(&inv)!=INV_OK)
+    {
+        printf("Initialization failed\n");
+        Error_Handler();
+    }
+
+    inv_connect_supply(&inv);
+
     HAL_Delay(2000);
     inv_enable(&inv, false);
     HAL_Delay(200);

@@ -101,6 +101,8 @@ inv_ret_val_t inv_init(inverter_t *inverter) {
     inv_set_fault();
     inv_start(inverter);
 
+    inverter->state = INV_IDLE;
+
     return INV_OK;
 }
 
@@ -428,12 +430,41 @@ void inv_slow_tick(inverter_t * inverter)
 }
 
 
+#define INV_PRECHARGE_WAIT_TIME 5000
 
-
+//Remember to start the ADCS
 inv_ret_val_t inv_connect_supply(inverter_t * inverter)
 {
+    float initial_voltage = inverter->adcs.vbus;
     HAL_GPIO_WritePin(inverter->io.precharge_contactor.port, inverter->io.precharge_contactor.pin, 1);
-    HAL_Delay(2000); //Change to checking the voltage!!!
+
+    uint32_t start_time = HAL_GetTick();
+    uint32_t current_time = start_time;
+
+    inv_slow_tick(inverter);
+
+    float current_voltage = inverter->adcs.vbus;
+    float vbus_derivative = 0;
+
+    while(inverter->adcs.vbus < INV_MIN_VOLTAGE_VALUE || (current_time - start_time)<INV_PRECHARGE_WAIT_TIME) //later change to derivative
+    {
+        inv_slow_tick(inverter);
+        vbus_derivative = ((inverter->adcs.vbus - current_voltage)/(float)(HAL_GetTick()-current_time+1));
+        current_time = HAL_GetTick();
+        current_voltage = inverter->adcs.vbus;
+        HAL_Delay(1);
+
+    }
+
+    HAL_Delay(500);
+
+    if(current_time - start_time > INV_PRECHARGE_WAIT_TIME)
+    {
+        HAL_GPIO_WritePin(inverter->io.precharge_contactor.port, inverter->io.precharge_contactor.pin, 0);
+        return INV_PRECHARGE_FAIL;
+    }
+
+
    // if(inverter->adcs.vbus>30)
     //{
         HAL_GPIO_WritePin(inverter->io.main_contactor.port, inverter->io.main_contactor.pin, 0);
