@@ -5,8 +5,13 @@
 //
 
 
-chg_ret_val_t chg_initialize(chg_t *instance) {
+chg_ret_val_t chg_init(chg_t *instance) {
     if (!instance) {
+        return CHG_FAIL;
+    }
+
+    if(instance->power.pin ==0 || instance->power.port == 0)
+    {
         return CHG_FAIL;
     }
 
@@ -206,4 +211,72 @@ void chg_print_data(chg_t * instance)
     printf("    Temp A1: %d\n", instance->telemetry.temperature.A1);
     printf("    Temp A2: %d\n", instance->telemetry.temperature.A2);
 
+}
+
+chg_ret_val_t static chg_switch_power(chg_t * instance, bool power)
+{
+    if (!instance) {
+        return CHG_FAIL;
+    }
+
+    HAL_GPIO_WritePin(instance->power.port, instance->power.pin, power);
+    return CHG_OK;
+}
+
+chg_ret_val_t chg_state_machine_update(chg_t * instance)
+{
+    switch (instance->current_command) {
+        case CHG_CMD_ENABLE:
+            if(instance->state == CHG_DISABLED)
+            {
+                chg_switch_power(instance, true);
+            }
+            instance->state = CHG_UNINITIALIZED;
+            break;
+
+        case CHG_CMD_DISABLE:
+            chg_switch_power(instance, false);
+            instance->state = CHG_DISABLED;
+            break;
+
+        case CHG_CMD_START_CHARGING:
+
+            if(instance->state == CHG_IDLE)
+            {
+                instance->state = CHG_WAITING_FOR_CHARGING;
+            }
+
+            break;
+
+        default:
+            break;
+
+
+    }
+
+    switch (instance->state) {
+        case CHG_UNINITIALIZED:
+            if(instance->telemetry.new_frame)
+            {
+                instance->state = CHG_IDLE;
+            }
+            break;
+
+        case CHG_WAITING_FOR_CHARGING:
+            //If AC_Present?
+        default:
+            break;
+
+    }
+
+
+    instance->current_command = CHG_CMD_NONE;
+    return CHG_OK;
+
+}
+
+chg_ret_val_t chg_command(chg_t * instance, chg_command_t command)
+{
+    instance->current_command = command;
+    return CHG_OK;
 }

@@ -149,7 +149,7 @@ static void MX_TIM8_Init(void)
     htim8.Init.CounterMode = TIM_COUNTERMODE_UP;
     htim8.Init.Period = 1000;
     htim8.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-    htim8.Init.RepetitionCounter = 20-1;
+    htim8.Init.RepetitionCounter = 100-1;
     htim8.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
     if (HAL_TIM_Base_Init(&htim8) != HAL_OK)
     {
@@ -299,7 +299,14 @@ int main(void) {
     //  CAN initialization
     cli_init(&huart3, &inv);
     charger.can = &hcan;
-    chg_initialize(&charger);
+
+    charger.power.port = PUMP_OUT_GPIO_Port;
+    charger.power.pin = PUMP_OUT_Pin;
+    if(chg_init(&charger)!= CHG_OK)
+    {
+        printf("Charger init error");
+        Error_Handler();
+    }
     chg_config_filters(&charger);
 
     // enable AD2S1205 resolver
@@ -337,7 +344,7 @@ int main(void) {
 
     inv_connect_supply(&inv);
 
-    HAL_Delay(2000);
+    HAL_Delay(200);
     inv_enable(&inv, false);
     HAL_Delay(200);
 
@@ -348,8 +355,8 @@ int main(void) {
         printf("Current calibration completed %d %d\n", inv.current_adc_offset[0], inv.current_adc_offset[1]);
     }
 
-    inv_enable(&inv, true);
-    inv_clear_fault();
+   // inv_enable(&inv, true); //!!! importante
+//    inv_clear_fault();
 
     static volatile uint32_t cycle_period = 3000;
     static volatile float cycle_current = 10;
@@ -363,6 +370,8 @@ int main(void) {
     /* USER CODE BEGIN WHILE */
     uint32_t last_call = 0;
 
+
+    chg_command(&charger, CHG_CMD_ENABLE);
 //    while(!HAL_GPIO_ReadPin(BRK_IN_PORT,BRK_IN_PIN));
     while (1) {
         /* USER CODE END WHILE */
@@ -379,9 +388,8 @@ int main(void) {
 //            inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){0, 0});
 //        }
         cli_poll();
-//        inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){0, 10});
+        volatile int a = HAL_GPIO_ReadPin(BRK_IN_PORT,BRK_IN_PIN);
 
-//        inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){0, 10});
         if (cycle_period > 0 && cycle_current != 0.0f)
         {
             uint32_t phase = HAL_GetTick() % cycle_period;
@@ -418,6 +426,13 @@ int main(void) {
         }
 
         if (HAL_GetTick() - last_call >= 80) {
+
+            if(charger.state == CHG_IDLE)
+            {
+                chg_command(&charger, CHG_CMD_START_CHARGING);
+            }
+
+            chg_state_machine_update(&charger);
 
             if(charger.telemetry.ready_for_charging)
             {
