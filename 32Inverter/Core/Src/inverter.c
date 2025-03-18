@@ -184,9 +184,9 @@ void inv_clear_fault() {
 }
 
 void inv_set_fault() {
-    HAL_GPIO_WritePin(GPIO_A_GPIO_Port, GPIO_A_Pin, false);
-    HAL_Delay(1);
     HAL_GPIO_WritePin(GPIO_A_GPIO_Port, GPIO_A_Pin, true);
+    HAL_Delay(1);
+    HAL_GPIO_WritePin(GPIO_A_GPIO_Port, GPIO_A_Pin, false);
 }
 
 inline float constrain(float x, const float min, const float max) {

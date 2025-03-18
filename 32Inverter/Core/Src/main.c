@@ -274,6 +274,10 @@ int main(void) {
 
 
     __HAL_RCC_GPIOB_CLK_ENABLE();
+    __HAL_RCC_GPIOD_CLK_ENABLE();
+#define BRK_IN_PIN GPIO_PIN_13
+#define BRK_IN_PORT GPIOD
+
     GPIO_InitTypeDef GPIO_InitStruct = {0};
     GPIO_InitStruct.Pin = GPIO_PIN_10;
     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
@@ -282,7 +286,12 @@ int main(void) {
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
     HAL_GPIO_WritePin(GPIO_A_GPIO_Port, GPIO_A_Pin,
-                      false); // hack for enabling the inverter, control FAULT_DRV via ULN2003
+                      true); // hack for enabling the inverter, control FAULT_DRV via GPIOA
+
+    GPIO_InitStruct.Pin = BRK_IN_PIN;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
     printf("Hello World \r\n");
 
@@ -353,6 +362,8 @@ int main(void) {
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
     uint32_t last_call = 0;
+
+//    while(!HAL_GPIO_ReadPin(BRK_IN_PORT,BRK_IN_PIN));
     while (1) {
         /* USER CODE END WHILE */
 
@@ -961,6 +972,8 @@ static void MX_GPIO_Init(void) {
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(GPIOA, RD_Pin | SAMPLE_Pin | RDVEL_Pin | CS_RES_Pin
                              | GPIO_C_Pin | GPIO_B_Pin | GPIO_A_Pin | X_OUT_Pin, GPIO_PIN_RESET);
+
+    HAL_GPIO_WritePin(GPIOA, GPIO_A_Pin, GPIO_PIN_SET);
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(GPIOC, RESET_RES_Pin | GPIO_D_Pin | PRECHARGE_OUT_Pin //| FAN_OUT_Pin
