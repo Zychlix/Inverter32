@@ -75,6 +75,7 @@ typedef struct {
 
 inv_ret_val_t inv_init(inverter_t *inverter);
 
+inv_ret_val_t inv_start(inverter_t * inv);
 void inv_enable(inverter_t *inv, bool status);
 
 void res_read_position(resolver_t *res);
@@ -82,6 +83,8 @@ void res_read_position(resolver_t *res);
 bool inv_get_fault();
 
 void inv_clear_fault();
+
+void inv_set_fault();
 
 void inv_set_pwm(inverter_t *inverter, float u, float v, float w);
 

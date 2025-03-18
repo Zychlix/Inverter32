@@ -98,18 +98,29 @@ inv_ret_val_t inv_init(inverter_t *inverter) {
     inverter->pid_b.integrated = 0;
     inverter->pid_b.max_out = INV_PID_MAX_OUT;
 
+    inv_set_fault();
+    inv_start(inverter);
 
+    return INV_OK;
+}
 
-    HAL_TIM_Base_Start_IT(inverter->timer);
+inv_ret_val_t inv_start(inverter_t * inv)
+{
+    if(!inv)
+{
+    return INV_FAIL;
+}
 
-    TIM_CCxChannelCmd(inverter->timer->Instance, TIM_CHANNEL_1, TIM_CCx_DISABLE);
+    HAL_TIM_Base_Start_IT(inv->timer);
 
-    inv_disable_pwm_outputs(inverter, TIM_CHANNEL_1);
-    inv_disable_pwm_outputs(inverter, TIM_CHANNEL_2);
-    inv_disable_pwm_outputs(inverter, TIM_CHANNEL_3);
+//    TIM_CCxChannelCmd(inverter->timer->Instance, TIM_CHANNEL_1, TIM_CCx_DISABLE);
 
-//    HAL_TIM_PWM_Stop(inverter->timer, TIM_CHANNEL_1);
+//    inv_disable_pwm_outputs(inverter, TIM_CHANNEL_1);
+//    inv_disable_pwm_outputs(inverter, TIM_CHANNEL_2);
+//    inv_disable_pwm_outputs(inverter, TIM_CHANNEL_3);
+
 //    TIM_CCxNChannelCmd(htim->Instance, Channel, TIM_CCxN_DISABLE);
+//    HAL_TIM_PWM_Stop(inverter->timer, TIM_CHANNEL_1);
 //    HAL_TIMEx_PWMN_Stop(inverter->timer, TIM_CHANNEL_1);
 //    HAL_TIM_PWM_Stop(inverter->timer, TIM_CHANNEL_2);
 //    HAL_TIMEx_PWMN_Stop(inverter->timer, TIM_CHANNEL_2);
@@ -117,6 +128,7 @@ inv_ret_val_t inv_init(inverter_t *inverter) {
 //    HAL_TIMEx_PWMN_Stop(inverter->timer, TIM_CHANNEL_3);
 
 //    inverter->timer->Instance ->CR1 |= TIM_CR1_CEN; //Use brake
+//    inv->timer->Instance->BDTR &=~(TIM_BDTR_MOE);
     return INV_OK;
 }
 
@@ -143,10 +155,8 @@ void res_read_position(resolver_t *res) {
     HAL_GPIO_WritePin(RD_GPIO_Port, RD_Pin, 1);
     HAL_GPIO_WritePin(RD_GPIO_Port, RD_Pin, 0);
 
-
     // static volatile float resolver_offset = -3.141f;
     static volatile float resolver_offset = -2.9f;
-
 
     uint16_t pos = spi_read_word(res->spi_handler->Instance) >> 4;
     res->fi = (float) pos / 4096.f * 2 * (float) M_PI + resolver_offset;
@@ -169,6 +179,12 @@ void inv_clear_fault() {
     HAL_GPIO_WritePin(FAULT_RST_GPIO_Port, FAULT_RST_Pin, true);
     HAL_Delay(1);
     HAL_GPIO_WritePin(FAULT_RST_GPIO_Port, FAULT_RST_Pin, false);
+}
+
+void inv_set_fault() {
+    HAL_GPIO_WritePin(X_OUT_GPIO_Port, X_OUT_Pin, true);
+    HAL_Delay(1);
+    HAL_GPIO_WritePin(X_OUT_GPIO_Port, X_OUT_Pin, false);
 }
 
 inline float constrain(float x, const float min, const float max) {
@@ -226,7 +242,6 @@ void inv_tick(inverter_t *inverter) {
 
     inverter->current.x = iir_filter_calculate(&inverter->filter_d, current_dq.x);
     inverter->current.y = iir_filter_calculate(&inverter->filter_q, current_dq.y);
-
     // inverter->current.x = current_dq.x;
     // inverter->current.y = current_dq.y;
 
@@ -293,6 +308,8 @@ int32_t inv_calibrate_current(inverter_t *inverter) {
     sum[1] = 0;
     HAL_Delay(1);
     for (int i = 0; i < avg_cycles; i++) {
+        HAL_ADC_Start_DMA(inverter->current_adc,sum,2);
+        HAL_ADC_PollForConversion(inverter->current_adc, 100);
         sum[0] += inverter->raw_current_adc[0];
         sum[1] += inverter->raw_current_adc[1];
         HAL_Delay(1);
@@ -329,30 +346,30 @@ void inv_enable(inverter_t *inv, bool status) {
     if (status) {
         if(!inv->active)
         {
-            inv_enable_pwm_outputs(inv, TIM_CHANNEL_1);
-            inv_enable_pwm_outputs(inv, TIM_CHANNEL_2);
-            inv_enable_pwm_outputs(inv, TIM_CHANNEL_3);
-//            HAL_TIM_PWM_Start(inv->timer, TIM_CHANNEL_1);
-//            HAL_TIMEx_PWMN_Start(inv->timer, TIM_CHANNEL_1);
-//            HAL_TIM_PWM_Start(inv->timer, TIM_CHANNEL_2);
-//            HAL_TIMEx_PWMN_Start(inv->timer, TIM_CHANNEL_2);
-//            HAL_TIM_PWM_Start(inv->timer, TIM_CHANNEL_3);
-//            HAL_TIMEx_PWMN_Start(inv->timer, TIM_CHANNEL_3);
+//            inv_enable_pwm_outputs(inv, TIM_CHANNEL_1);
+//            inv_enable_pwm_outputs(inv, TIM_CHANNEL_2);
+//            inv_enable_pwm_outputs(inv, TIM_CHANNEL_3);
+            HAL_TIM_PWM_Start(inv->timer, TIM_CHANNEL_1);
+            HAL_TIMEx_PWMN_Start(inv->timer, TIM_CHANNEL_1);
+            HAL_TIM_PWM_Start(inv->timer, TIM_CHANNEL_2);
+            HAL_TIMEx_PWMN_Start(inv->timer, TIM_CHANNEL_2);
+            HAL_TIM_PWM_Start(inv->timer, TIM_CHANNEL_3);
+            HAL_TIMEx_PWMN_Start(inv->timer, TIM_CHANNEL_3);
         }
 
     } else {
         if(inv->active)
         {
             inv_reset_controllers(inv);
-            inv_disable_pwm_outputs(inv, TIM_CHANNEL_1);
-            inv_disable_pwm_outputs(inv, TIM_CHANNEL_2);
-            inv_disable_pwm_outputs(inv, TIM_CHANNEL_3);
-//            HAL_TIM_PWM_Stop(inv->timer, TIM_CHANNEL_1);
-//            HAL_TIMEx_PWMN_Stop(inv->timer, TIM_CHANNEL_1);
-//            HAL_TIM_PWM_Stop(inv->timer, TIM_CHANNEL_2);
-//            HAL_TIMEx_PWMN_Stop(inv->timer, TIM_CHANNEL_2);
-//            HAL_TIM_PWM_Stop(inv->timer, TIM_CHANNEL_3);
-//            HAL_TIMEx_PWMN_Stop(inv->timer, TIM_CHANNEL_3);
+//            inv_disable_pwm_outputs(inv, TIM_CHANNEL_1);
+//            inv_disable_pwm_outputs(inv, TIM_CHANNEL_2);
+//            inv_disable_pwm_outputs(inv, TIM_CHANNEL_3);
+            HAL_TIM_PWM_Stop(inv->timer, TIM_CHANNEL_1);
+            HAL_TIMEx_PWMN_Stop(inv->timer, TIM_CHANNEL_1);
+            HAL_TIM_PWM_Stop(inv->timer, TIM_CHANNEL_2);
+            HAL_TIMEx_PWMN_Stop(inv->timer, TIM_CHANNEL_2);
+            HAL_TIM_PWM_Stop(inv->timer, TIM_CHANNEL_3);
+            HAL_TIMEx_PWMN_Stop(inv->timer, TIM_CHANNEL_3);
         }
 
     }

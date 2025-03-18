@@ -311,12 +311,12 @@ int main(void) {
     inv_connect_supply(&inv);
 
     TIM8_init();
-
-    inv_init(&inv);
     HAL_Delay(200);
+    inv_init(&inv);
+    HAL_GPIO_WritePin(SAMPLE_GPIO_Port, SAMPLE_Pin, 0);
+    HAL_Delay(2000);
     inv_enable(&inv, false);
     HAL_Delay(200);
-    HAL_TIM_Base_Stop_IT(inv.timer);
 
     if (inv_calibrate_current(&inv)) {
         printf("Current calibration failed\n");
@@ -325,7 +325,9 @@ int main(void) {
         printf("Current calibration completed %d %d\n", inv.current_adc_offset[0], inv.current_adc_offset[1]);
     }
     inv.vbus = 100; //Do a readout
+
     inv_enable(&inv, true);
+    inv_clear_fault();
 
     static volatile uint32_t cycle_period = 3000;
     static volatile float cycle_current = 10;
@@ -342,6 +344,8 @@ int main(void) {
         /* USER CODE END WHILE */
 
         /* USER CODE BEGIN 3 */
+        inv_slow_tick(&inv);
+
         float throttle=inv.adcs.throttleB;
 //        if(throttle>=0.20)
 //        {
@@ -351,8 +355,9 @@ int main(void) {
 //        {
 //            inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){0, 0});
 //        }
-        inv_slow_tick(&inv);
         cli_poll();
+        inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){0, 10});
+
 //        inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){0, 10});
         if (cycle_period > 0 && cycle_current != 0.0f)
         {
@@ -398,6 +403,7 @@ int main(void) {
             chg_refresh_data_struct(&charger);
             //chg_print_data(&charger);
             last_call = HAL_GetTick();
+
         }
         //printf("Throttle: %f, press: %f\n", inv.adcs.throttleB, inv.adcs.throttleA );
     }
@@ -829,7 +835,7 @@ static void MX_TIM1_Init(void) {
         Error_Handler();
     }
     sConfigOC.OCMode = TIM_OCMODE_PWM1;
-    sConfigOC.Pulse = 100;
+    sConfigOC.Pulse = 0;
     sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
     sConfigOC.OCNPolarity = TIM_OCNPOLARITY_LOW;
     sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
