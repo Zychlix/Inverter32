@@ -85,8 +85,37 @@ static void parse_command(char* str)
 
     } else if(strcmp(str, "enable") == 0) {
         inv_enable(me.inverter,true);
+        printf("ok\n");
+
     } else if(strcmp(str, "disable") == 0) {
         inv_enable(me.inverter,false);
+        printf("ok\n");
+
+    } else if(strcmp(str, "voltage") == 0) {
+        printf("voltage: %fV \n", me.inverter->vbus);
+
+    } else if(strcmp(str, "temp") == 0) {
+        printf("Transistor temp: %f C \n",me.inverter->adcs.transistor1);
+        printf("Motor temp: %f C UNCORRECTED\n",me.inverter->adcs.motor_temp2);
+
+    }else if (sscanf(str, "throttle %c", &c) == 1) {
+        /* Sets PI coefficients of current controllers
+         * pi <controler name> <proportional> <integral>
+         * controller name:
+         *	'a' alpha beta mode
+         *	'd' d q mode
+         */
+
+        if (c == '1')
+        {
+            me.inverter->throttle_control = true;
+            printf("Throttle control enabled \n");
+        } else
+        {
+            me.inverter->throttle_control = false;
+            printf("Throttle control disabled \n");
+
+        }
 
     }else {
 		printf("Unknown command!\n");

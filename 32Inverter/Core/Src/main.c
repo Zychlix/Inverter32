@@ -149,7 +149,7 @@ static void MX_TIM8_Init(void)
     htim8.Init.CounterMode = TIM_COUNTERMODE_UP;
     htim8.Init.Period = 1000;
     htim8.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-    htim8.Init.RepetitionCounter = 100-1;
+    htim8.Init.RepetitionCounter = 10-1;
     htim8.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
     if (HAL_TIM_Base_Init(&htim8) != HAL_OK)
     {
@@ -362,8 +362,8 @@ int main(void) {
         } else {
             printf("Current calibration completed %d %d\n", inv.current_adc_offset[0], inv.current_adc_offset[1]);
         }
-         inv_enable(&inv, true); //!!! importante
-        inv_clear_fault();
+//         inv_enable(&inv, true); //!!! importante
+
     } else
     {
         inv_set_fault();
@@ -383,8 +383,10 @@ int main(void) {
     /* USER CODE BEGIN WHILE */
     uint32_t last_call = 0;
 
-
     chg_command(&charger, CHG_CMD_ENABLE);
+
+    printf("Bus voltage: %f \n", inv.vbus);
+    printf("ready\n >\n");
 //    while(!HAL_GPIO_ReadPin(BRK_IN_PORT,BRK_IN_PIN));
     while (1) {
         /* USER CODE END WHILE */
@@ -392,16 +394,20 @@ int main(void) {
         /* USER CODE BEGIN 3 */
 //            inv_set_mode_and_current(&inv, MODE_AB, (vec_t){10,0});
 
-        float throttle=inv.adcs.throttleB;
-//        if(throttle>=0.20)
-//        {
-//            inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){0, (throttle-0.20f)*50});
-//        }
-//        else
-//        {
-//            inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){0, 0});
-//        }
         cli_poll();
+        float throttle=inv.adcs.throttleB;
+        if(inv.throttle_control)
+        {
+            if(throttle>=0.20)
+            {
+                inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){0, (throttle-0.20f)*50});
+            }
+            else
+            {
+                inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){0, 0});
+            }
+        }
+
 
 /*
         if (cycle_period > 0 && cycle_current != 0.0f)
@@ -1095,11 +1101,11 @@ static void MX_GPIO_Init(void) {
  */
 void TIM8_UP_IRQHandler()
 {
+    TIM8->SR = 0;
     HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_10);
     inv_slow_tick(&inv);
     HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_10);
 
-    TIM8->SR = 0;
 
 }
 

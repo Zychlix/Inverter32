@@ -349,11 +349,19 @@ void inv_enable(inverter_t *inv, bool status) {
             HAL_TIMEx_PWMN_Start(inv->timer, TIM_CHANNEL_2);
             HAL_TIM_PWM_Start(inv->timer, TIM_CHANNEL_3);
             HAL_TIMEx_PWMN_Start(inv->timer, TIM_CHANNEL_3);
+            for(int i = 0; i< 300; i++)
+            {
+                adc4_read(&inv->adcs);
+            }
+            inv_reset_controllers(inv);
+            inv_clear_fault();
+
         }
 
     } else {
         if(inv->active)
         {
+            inv_set_fault();
             inv_reset_controllers(inv);
 //            inv_disable_pwm_outputs(inv, TIM_CHANNEL_1);
 //            inv_disable_pwm_outputs(inv, TIM_CHANNEL_2);
@@ -421,6 +429,7 @@ void inv_slow_tick(inverter_t * inverter)
     }
     adc4_read(&inverter->adcs);
     adc2_read(&inverter->adcs);
+    //Make it more human
 
 
      inv_vbus_update(inverter);
@@ -438,18 +447,19 @@ inv_ret_val_t inv_connect_supply(inverter_t * inverter)
 {
     float initial_voltage = inverter->adcs.vbus;
     HAL_GPIO_WritePin(inverter->io.precharge_contactor.port, inverter->io.precharge_contactor.pin, 1);
+    printf("Precharge engaged \n");
 
     uint32_t start_time = HAL_GetTick();
     uint32_t current_time = start_time;
 
-    inv_slow_tick(inverter);
+    adc4_read(&inverter->adcs);
 
     float current_voltage = inverter->adcs.vbus;
     float vbus_derivative = 0;
 
-    while(inverter->adcs.vbus < INV_MIN_VOLTAGE_VALUE || (current_time - start_time)<INV_PRECHARGE_WAIT_TIME) //later change to derivative
+    while(inverter->adcs.vbus < INV_MIN_VOLTAGE_VALUE && (current_time - start_time)<INV_PRECHARGE_WAIT_TIME) //later change to derivative
     {
-        inv_slow_tick(inverter);
+        adc4_read(&inverter->adcs);
         vbus_derivative = ((inverter->adcs.vbus - current_voltage)/(float)(HAL_GetTick()-current_time+1));
         current_time = HAL_GetTick();
         current_voltage = inverter->adcs.vbus;
@@ -457,18 +467,22 @@ inv_ret_val_t inv_connect_supply(inverter_t * inverter)
 
     }
 
-    HAL_Delay(500);
 
     if(current_time - start_time > INV_PRECHARGE_WAIT_TIME)
     {
         HAL_GPIO_WritePin(inverter->io.precharge_contactor.port, inverter->io.precharge_contactor.pin, 0);
+        printf("Contactor engage failed \n");
+
         return INV_PRECHARGE_FAIL;
     }
+    HAL_Delay(500);
 
 
    // if(inverter->adcs.vbus>30)
     //{
         HAL_GPIO_WritePin(inverter->io.main_contactor.port, inverter->io.main_contactor.pin, 0);
+    adc4_read(&inverter->adcs);
+
 
     //}
     HAL_Delay(50);
@@ -483,6 +497,9 @@ inv_ret_val_t inv_disconnect_supply(inverter_t * inverter)
     HAL_GPIO_WritePin(inverter->io.main_contactor.port, inverter->io.main_contactor.pin, 1);
     HAL_Delay(100);
     HAL_GPIO_WritePin(inverter->io.precharge_contactor.port, inverter->io.precharge_contactor.pin, 0);
+    printf("Contactor disengaged\n");
+
     HAL_Delay(500);
+
     return INV_OK;
 }

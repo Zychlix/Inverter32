@@ -66,6 +66,8 @@ typedef enum
 typedef struct {
     inverter_state_t state;
 
+    bool active;
+    bool throttle_control;
     inv_io_t io;
     TIM_HandleTypeDef *timer;
     resolver_t resolver;
@@ -79,7 +81,6 @@ typedef struct {
     pi_t pid_a;
     pi_t pid_b;
     vec_t current;
-    bool active;
     vec_t set_current; /**< Current requested by the module user, can be in alpha-beta or dq space*/
     vec_t smooth_set_current;
     inverter_mode_t mode; /**< Control mode requested by user */
