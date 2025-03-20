@@ -78,7 +78,17 @@ static void parse_command(char* str)
 		}
 	} else if(strcmp(str, "res_angle") == 0) {
 		printf("%5.3f\n", me.inverter->resolver.fi);
-	}else {
+    } else if(strcmp(str, "engage") == 0) {
+        inv_connect_supply(me.inverter);
+    } else if(strcmp(str, "disengage") == 0) {
+        inv_disconnect_supply(me.inverter);
+
+    } else if(strcmp(str, "enable") == 0) {
+        inv_enable(me.inverter,true);
+    } else if(strcmp(str, "disable") == 0) {
+        inv_enable(me.inverter,false);
+
+    }else {
 		printf("Unknown command!\n");
 	}
 }

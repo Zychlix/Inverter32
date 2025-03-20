@@ -115,22 +115,6 @@ inv_ret_val_t inv_start(inverter_t * inv)
 
     HAL_TIM_Base_Start_IT(inv->timer);
 
-//    TIM_CCxChannelCmd(inverter->timer->Instance, TIM_CHANNEL_1, TIM_CCx_DISABLE);
-
-//    inv_disable_pwm_outputs(inverter, TIM_CHANNEL_1);
-//    inv_disable_pwm_outputs(inverter, TIM_CHANNEL_2);
-//    inv_disable_pwm_outputs(inverter, TIM_CHANNEL_3);
-
-//    TIM_CCxNChannelCmd(htim->Instance, Channel, TIM_CCxN_DISABLE);
-//    HAL_TIM_PWM_Stop(inverter->timer, TIM_CHANNEL_1);
-//    HAL_TIMEx_PWMN_Stop(inverter->timer, TIM_CHANNEL_1);
-//    HAL_TIM_PWM_Stop(inverter->timer, TIM_CHANNEL_2);
-//    HAL_TIMEx_PWMN_Stop(inverter->timer, TIM_CHANNEL_2);
-//    HAL_TIM_PWM_Stop(inverter->timer, TIM_CHANNEL_3);
-//    HAL_TIMEx_PWMN_Stop(inverter->timer, TIM_CHANNEL_3);
-
-//    inverter->timer->Instance ->CR1 |= TIM_CR1_CEN; //Use brake
-//    inv->timer->Instance->BDTR &=~(TIM_BDTR_MOE);
     return INV_OK;
 }
 

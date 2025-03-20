@@ -403,7 +403,7 @@ int main(void) {
 //        }
         cli_poll();
 
-
+/*
         if (cycle_period > 0 && cycle_current != 0.0f)
         {
             uint32_t phase = HAL_GetTick() % cycle_period;
@@ -438,7 +438,7 @@ int main(void) {
                 }
             }
         }
-
+*/
 
         if (HAL_GetTick() - last_call >= 80) {
 
