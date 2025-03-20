@@ -134,14 +134,23 @@ inv_ret_val_t inv_start(inverter_t * inv)
     return INV_OK;
 }
 
+#define READ_SPI_MAX_CLK_DELAY 72000  //1ms
 uint16_t spi_read_word(SPI_TypeDef *spi)
 {
     while (spi->SR & SPI_SR_BSY)
     {
     }
     *(volatile uint16_t*)(&spi->DR) = 0xffff;
-    while (!(spi->SR & SPI_SR_RXNE))
+    uint32_t start_tick = DWT->CYCCNT;
+    uint32_t current_tick = DWT->CYCCNT;
+    while (!(spi->SR & SPI_SR_RXNE) && (current_tick-start_tick)<READ_SPI_MAX_CLK_DELAY)
     {
+        current_tick = DWT->CYCCNT;
+    }
+
+    if((current_tick-start_tick)>READ_SPI_MAX_CLK_DELAY)
+    {
+        Error_Handler();
     }
     uint16_t data = *(volatile uint16_t*)(&spi->DR);
 

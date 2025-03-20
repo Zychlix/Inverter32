@@ -53,6 +53,7 @@ typedef struct
     bool overcurrent;
     bool low_voltage;
     bool throttle_input_error;
+    bool spi_error;
 }inverter_error_t;
 
 
@@ -87,6 +88,8 @@ typedef struct {
     vec_t voltage;
     iir_filter_t filter_d;
     iir_filter_t filter_q;
+
+    inverter_error_t error_flags;
 
     adcs_t adcs;
 } inverter_t;

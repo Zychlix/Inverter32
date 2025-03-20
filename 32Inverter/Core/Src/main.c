@@ -371,7 +371,7 @@ int main(void) {
 
 
 
-    static volatile uint32_t cycle_period = 3000;
+    static volatile uint32_t cycle_period = 0;
     static volatile float cycle_current = 10;
     static volatile float cycle_syf_current = 0;
 
@@ -390,6 +390,7 @@ int main(void) {
         /* USER CODE END WHILE */
 
         /* USER CODE BEGIN 3 */
+//            inv_set_mode_and_current(&inv, MODE_AB, (vec_t){10,0});
 
         float throttle=inv.adcs.throttleB;
 //        if(throttle>=0.20)
@@ -1139,6 +1140,8 @@ void Error_Handler(void) {
     /* User can add his own implementation to report the HAL error return state */
     __disable_irq();
     inv_enable(&inv, false);
+    inv.error_flags.spi_error = true;
+    inv_set_fault();
 
     while (1) {
     }
