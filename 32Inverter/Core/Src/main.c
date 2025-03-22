@@ -23,7 +23,7 @@
 /* USER CODE BEGIN Includes */
 #include "inverter.h"
 #include "vectors.h"
-#include "adc.h"
+//#include "adc.h"
 #include "dcdc_controller.h"
 #include "oscilloscope.h"
 #include <stdio.h>
@@ -362,7 +362,9 @@ int main(void) {
         } else {
             printf("Current calibration completed %d %d\n", inv.current_adc_offset[0], inv.current_adc_offset[1]);
         }
-//         inv_enable(&inv, true); //!!! importante
+
+        inv_enable(&inv, true); //!!! importante
+        inv.throttle_control = true;
 
     } else
     {
@@ -374,14 +376,16 @@ int main(void) {
     static volatile uint32_t cycle_period = 0;
     static volatile float cycle_current = 10;
     static volatile float cycle_syf_current = 0;
-
+/*
     bool steady = 0;
     bool direction = 0;
+*/
     /* USER CODE END 2 */
 
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
     uint32_t last_call = 0;
+    uint32_t last_slow_data = 0;
 
     chg_command(&charger, CHG_CMD_ENABLE);
 
@@ -446,20 +450,33 @@ int main(void) {
         }
 */
 
-        if (HAL_GetTick() - last_call >= 80) {
+        if (HAL_GetTick() - last_call >= 90) {
 
             if(charger_mode)
             {
 
-                if(charger.state == CHG_IDLE && charger.telemetry.main_battery_voltage > 105)
+                if(charger.state == CHG_IDLE && charger.telemetry.main_battery_voltage > 105 && HAL_GetTick()>10000)
                 {
                     chg_command(&charger, CHG_CMD_START_CHARGING);
                 }
 
                 chg_state_machine_update(&charger);
 
+                if(charger.slow_data_enabled && HAL_GetTick()-last_slow_data>100)
+                {
 
-                chg_print_data(&charger);
+//                    chg_print_data(&charger);
+
+                    chg_send_slow_data(&charger);
+                    last_slow_data = HAL_GetTick();
+
+                }
+
+                if(charger.fast_data_enabled)
+                {
+                    chg_send_fast_data(&charger);
+                }
+
                 last_call = HAL_GetTick();
 
             }
@@ -1130,7 +1147,7 @@ int _write(int file, char *data, int len) {
 //        ITM_SendChar(*data++);
 //    }
     
-    return len;
+//    return len;
 }
 
 

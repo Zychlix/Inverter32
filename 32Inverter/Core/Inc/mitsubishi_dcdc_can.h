@@ -60,7 +60,7 @@ typedef struct __attribute__((__packed__))
     uint8_t _nn[2];
     uint8_t enable_0xb6; //B6 enables charging
     uint8_t _nn1[5];
-}DCDC_Frame_Enable_x285_t; //286
+}DCDC_Frame_Enable_x285_t; //285 Should be sent every 100ms
 
 
 typedef struct __attribute__((__packed__))
@@ -129,3 +129,7 @@ typedef struct __attribute__((__packed__))
     DCDC_Frame_Main_Battery_389_t main_battery_status;
     DCDC_Frame_Main_Battery_38A_t evse;
 } DCDC_Charger_t;
+
+/*
+ * 0x285 is sent every 100 ms
+ */

@@ -90,23 +90,16 @@ uint16_t swap_endianness_16(uint16_t value) {
     return (value >> 8) | (value << 8);
 }
 
-void chg_send_data(chg_t *charger) {
+void chg_send_slow_data(chg_t *charger) {
     CAN_HandleTypeDef *hcan1 = charger->can;
     uint32_t shit;
 
     DCDC_Frame_Enable_x285_t en_payload = {0};
     CAN_TxHeaderTypeDef tx_header = {0};
-    tx_header.StdId = 0x285;
-    tx_header.DLC = sizeof(en_payload);
-    tx_header.IDE = CAN_ID_STD;
-    tx_header.RTR = CAN_RTR_DATA;
 
-    en_payload.enable_0xb6 = 0xb6;
-
-    HAL_CAN_AddTxMessage(hcan1, &tx_header, (uint8_t *) &en_payload, &shit);
 
     DCDC_Frame_Setpoint_x286_t set_payload = {0};
-    set_payload.charge_current = 2;
+    set_payload.charge_current = 20; //0x70 -> 120d max
     set_payload.charge_voltage = swap_endianness_16(3500);
     set_payload._nn0[0] = 0x37; //magic number
     set_payload._nn0[1] = 0x00; //magic number
@@ -120,6 +113,9 @@ void chg_send_data(chg_t *charger) {
 
     HAL_CAN_AddTxMessage(hcan1, &tx_header, (uint8_t *) &set_payload, &shit);
 
+    /*
+     * What was the purpose of it?
+     */
     tx_header.StdId = 0x2FF;
     uint8_t bytes[8];
     bytes[0] = 0x01;
@@ -133,6 +129,25 @@ void chg_send_data(chg_t *charger) {
 
     HAL_CAN_AddTxMessage(hcan1, &tx_header, (uint8_t *) bytes, &shit);
 }
+
+void chg_send_fast_data(chg_t *charger) {
+
+    uint32_t shit;
+
+    CAN_HandleTypeDef *hcan1 = charger->can;
+
+    DCDC_Frame_Enable_x285_t en_payload = {0};
+    CAN_TxHeaderTypeDef tx_header = {0};
+    tx_header.StdId = 0x285;
+    tx_header.DLC = sizeof(en_payload);
+    tx_header.IDE = CAN_ID_STD;
+    tx_header.RTR = CAN_RTR_DATA;
+
+    en_payload.enable_0xb6 = 0xb6;
+
+    HAL_CAN_AddTxMessage(hcan1, &tx_header, (uint8_t *) &en_payload, &shit);
+}
+
 
 
 chg_ret_val_t chg_refresh_data_struct(chg_t *instance) {
@@ -265,7 +280,9 @@ chg_ret_val_t chg_state_machine_update(chg_t * instance)
             break;
 
         case CHG_WAITING_FOR_CHARGING:
-            chg_send_data(instance);
+            instance->slow_data_enabled = 1;
+            instance->fast_data_enabled = 1;
+//            chg_send_slow_data(instance);
             //If AC_Present?
         default:
             break;
