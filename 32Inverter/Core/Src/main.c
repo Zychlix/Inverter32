@@ -400,7 +400,7 @@ int main(void) {
         {
             if(throttle>=0.20)
             {
-                inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){0, (throttle-0.20f)*50});
+                inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){0, -(throttle-0.20f)*500});
             }
             else
             {

@@ -3,6 +3,7 @@
 #include <stm32f3xx.h>
 #include <string.h>
 #include <inverter.h>
+#include <dcdc_controller.h>
 
 /* PRIVATE VARIABLES */
 
@@ -12,6 +13,7 @@ static struct
 	char command_buffer[64];
 	uint8_t buffer_size;
 	inverter_t *inverter;
+    chg_t * charger;
 } me;
 
 /* PRIVATE FUNCTIONS */
@@ -135,11 +137,12 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 
 /* PUBLIC FUNCTIONS */
 
-void cli_init(UART_HandleTypeDef *huart, inverter_t *inverter)
+void cli_init(UART_HandleTypeDef *huart, inverter_t *inverter, chg_t * charger)
 {
 	me.huart = huart;
 	me.buffer_size = 0;
 	me.inverter = inverter;
+	me.charger = charger;
 
 	HAL_UART_Receive_IT(me.huart, (uint8_t*)me.command_buffer + me.buffer_size, 1);
 }

@@ -151,7 +151,7 @@ void res_read_position(resolver_t *res) {
     HAL_GPIO_WritePin(RD_GPIO_Port, RD_Pin, 0);
 
     // static volatile float resolver_offset = -3.141f;
-    static volatile float resolver_offset = -2.9f;
+    static volatile float resolver_offset = -2.9f-3.14152f/2+0.1f;
 
     uint16_t pos = spi_read_word(res->spi_handler->Instance) >> 4;
     res->fi = (float) pos / 4096.f * 2 * (float) M_PI + resolver_offset;
