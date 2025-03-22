@@ -229,7 +229,7 @@ void TIM8_init()
 
     HAL_TIM_Base_Start_IT(&htim8);
 
-    HAL_TIMEx_PWMN_Start(&htim8,TIM_CHANNEL_2);
+//    HAL_TIMEx_PWMN_Start(&htim8,TIM_CHANNEL_2);
 }
 
 /* USER CODE END 0 */
@@ -299,7 +299,7 @@ int main(void) {
 
 
     //  CAN initialization
-    cli_init(&huart3, &inv);
+    cli_init(&huart3, &inv,&charger);
     charger.can = &hcan;
 
     charger.power.port = PUMP_OUT_GPIO_Port;
@@ -450,31 +450,33 @@ int main(void) {
         }
 */
 
-        if (HAL_GetTick() - last_call >= 90) {
+        if (HAL_GetTick() - last_call >= 9) {
 
             if(charger_mode)
             {
 
                 if(charger.state == CHG_IDLE && charger.telemetry.main_battery_voltage > 105 && HAL_GetTick()>10000)
                 {
-                    chg_command(&charger, CHG_CMD_START_CHARGING);
+                    //chg_command(&charger, CHG_CMD_START_CHARGING);
                 }
 
                 chg_state_machine_update(&charger);
 
-                if(charger.slow_data_enabled && HAL_GetTick()-last_slow_data>100)
+                if(charger.slow_data_enabled && HAL_GetTick()-last_slow_data>200 )
                 {
 
-//                    chg_print_data(&charger);
+                    //chg_print_data(&charger);
 
                     chg_send_slow_data(&charger);
                     last_slow_data = HAL_GetTick();
+//                HAL_TIMEx_PWMN_Start(&htim8,TIM_CHANNEL_2);
 
                 }
 
                 if(charger.fast_data_enabled)
                 {
                     chg_send_fast_data(&charger);
+
                 }
 
                 last_call = HAL_GetTick();

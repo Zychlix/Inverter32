@@ -100,7 +100,8 @@ void chg_send_slow_data(chg_t *charger) {
 
     DCDC_Frame_Setpoint_x286_t set_payload = {0};
     set_payload.charge_current = 20; //0x70 -> 120d max
-    set_payload.charge_voltage = swap_endianness_16(3500);
+//    set_payload.charge_voltage = swap_endianness_16(3500);
+    set_payload.charge_voltage = 0x740e;
     set_payload._nn0[0] = 0x37; //magic number
     set_payload._nn0[1] = 0x00; //magic number
     set_payload._nn0[2] = 0x00; //magic number
@@ -116,18 +117,18 @@ void chg_send_slow_data(chg_t *charger) {
     /*
      * What was the purpose of it?
      */
-    tx_header.StdId = 0x2FF;
-    uint8_t bytes[8];
-    bytes[0] = 0x01;
-    bytes[1] = 0xE8;
-    bytes[2] = 0x03;
-    bytes[3] = 0x50;
-    bytes[4] = 0x0F;
-    bytes[5] = 0x78; // 78=12A -> 0,1A/bit
-    bytes[6] = 0x00;
-    bytes[7] = 0x00;
-
-    HAL_CAN_AddTxMessage(hcan1, &tx_header, (uint8_t *) bytes, &shit);
+//    tx_header.StdId = 0x2FF;
+//    uint8_t bytes[8];
+//    bytes[0] = 0x01;
+//    bytes[1] = 0xE8;
+//    bytes[2] = 0x03;
+//    bytes[3] = 0x50;
+//    bytes[4] = 0x0F;
+//    bytes[5] = 0x78; // 78=12A -> 0,1A/bit
+//    bytes[6] = 0x00;
+//    bytes[7] = 0x00;
+//
+//    HAL_CAN_AddTxMessage(hcan1, &tx_header, (uint8_t *) bytes, &shit);
 }
 
 void chg_send_fast_data(chg_t *charger) {
@@ -144,6 +145,9 @@ void chg_send_fast_data(chg_t *charger) {
     tx_header.RTR = CAN_RTR_DATA;
 
     en_payload.enable_0xb6 = 0xb6;
+    en_payload._nn1[0] = 0x10;
+    en_payload._nn1[1] = 0x78;
+    en_payload._nn1[4] = 0x10;
 
     HAL_CAN_AddTxMessage(hcan1, &tx_header, (uint8_t *) &en_payload, &shit);
 }
@@ -174,6 +178,8 @@ chg_ret_val_t chg_refresh_data_struct(chg_t *instance) {
         data->charging = instance->frames.main_battery_status.charging;
         data->pilot_present = instance->frames.main_battery_status.pilot_present;
         data->can_error = instance->frames.main_battery_status.error_can;
+        data->ready_for_charging = instance->frames.evse.ready_for_charging;
+        data->waiting_for_mains = instance->frames.evse.waiting_for_mains;
 
         //aux battery
         data->aux_battery.charging_active = instance->frames.main_battery_status.dcdc_active;
@@ -192,6 +198,8 @@ chg_ret_val_t chg_refresh_data_struct(chg_t *instance) {
 
         data->evse_duty = instance->frames.evse.evse_duty;
 
+        data->supply_voltage  = instance->frames.main_battery_status.supply_voltage;
+
     }
 
     return CHG_OK;
@@ -204,8 +212,11 @@ void chg_print_data(chg_t * instance)
 
     printf("\n\n Flags: \n");
 
+
     printf("    CAN error: %d\n", instance->telemetry.can_error);
+    printf("    Supply voltage: %d\n", instance->telemetry.supply_voltage);
     printf("    Ready for charging: %d\n", instance->telemetry.ready_for_charging);
+    printf("    Charging: %d\n", instance->telemetry.charging);
     printf("    Waiting for mains: %d\n", instance->telemetry.waiting_for_mains);
     printf("    Pilot present: %d\n", instance->telemetry.pilot_present);
     printf("    Pilot duty: %d\n", instance->telemetry.evse_duty);
@@ -280,7 +291,7 @@ chg_ret_val_t chg_state_machine_update(chg_t * instance)
             break;
 
         case CHG_WAITING_FOR_CHARGING:
-            instance->slow_data_enabled = 1;
+//            instance->slow_data_enabled = 1;
             instance->fast_data_enabled = 1;
 //            chg_send_slow_data(instance);
             //If AC_Present?

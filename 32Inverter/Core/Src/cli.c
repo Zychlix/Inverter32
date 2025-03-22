@@ -118,7 +118,32 @@ static void parse_command(char* str)
             printf("Throttle control disabled \n");
 
         }
+        }else if (sscanf(str, "charger %c", &c) == 1) {
+        /* Sets PI coefficients of current controllers
+         * pi <controler name> <proportional> <integral>
+         * controller name:
+         *	'a' alpha beta mode
+         *	'd' d q mode
+         */
 
+        if (c == '1')
+        {
+
+            chg_command(me.charger, CHG_CMD_START_CHARGING);
+        }
+        if(c == '2')
+        {
+//            chg_send_slow_data(me.charger);
+            me.charger->slow_data_enabled = true;
+        }
+
+        if(c == '3')
+        {
+            chg_send_slow_data(me.charger);
+        }
+        printf("OK \n");
+    } else if(strcmp(str, "chg_info") == 0) {
+        chg_print_data(me.charger);
     }else {
 		printf("Unknown command!\n");
 	}
