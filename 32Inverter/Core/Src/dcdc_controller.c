@@ -99,7 +99,7 @@ void chg_send_slow_data(chg_t *charger) {
 
 
     DCDC_Frame_Setpoint_x286_t set_payload = {0};
-    set_payload.charge_current = 20; //0x70 -> 120d max
+    set_payload.charge_current = 2; //0x70 -> 120d max
 //    set_payload.charge_voltage = swap_endianness_16(3500);
     set_payload.charge_voltage = 0x740e;
     set_payload._nn0[0] = 0x37; //magic number

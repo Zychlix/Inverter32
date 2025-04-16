@@ -168,7 +168,7 @@ static void MX_TIM8_Init(void)
         Error_Handler();
     }
     sConfigOC.OCMode = TIM_OCMODE_PWM1;
-    sConfigOC.Pulse = 100;
+    sConfigOC.Pulse = 700;
     sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
     sConfigOC.OCNPolarity = TIM_OCNPOLARITY_HIGH;
     sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
@@ -229,7 +229,7 @@ void TIM8_init()
 
     HAL_TIM_Base_Start_IT(&htim8);
 
-//    HAL_TIMEx_PWMN_Start(&htim8,TIM_CHANNEL_2);
+    HAL_TIMEx_PWMN_Start(&htim8,TIM_CHANNEL_2);
 }
 
 /* USER CODE END 0 */
@@ -347,7 +347,7 @@ int main(void) {
         Error_Handler();
     }
 
-    inv_connect_supply(&inv);
+//    inv_connect_supply(&inv);
 
     HAL_Delay(200);
     if(!charger_mode)
@@ -462,21 +462,19 @@ int main(void) {
 
                 chg_state_machine_update(&charger);
 
-                if(charger.slow_data_enabled && HAL_GetTick()-last_slow_data>200 )
+                if(charger.slow_data_enabled )//&& HAL_GetTick()-last_slow_data>200 )
                 {
 
                     //chg_print_data(&charger);
 
                     chg_send_slow_data(&charger);
                     last_slow_data = HAL_GetTick();
-//                HAL_TIMEx_PWMN_Start(&htim8,TIM_CHANNEL_2);
 
                 }
 
                 if(charger.fast_data_enabled)
                 {
                     chg_send_fast_data(&charger);
-
                 }
 
                 last_call = HAL_GetTick();
