@@ -393,7 +393,7 @@ int main(void) {
     printf("ready\n >\n");
 
     charger.setpoint.mode = DEZHOU_MODE_CHARGING;
-    charger.setpoint.protection = DEZHOU_BATTERY_OPEN_CHARGING;
+    charger.setpoint.protection = DEZHOU_BATTERY_PROTECTION;
     charger.setpoint.voltage = 120.f;
     charger.setpoint.current = 10.f;
 //    while(!HAL_GPIO_ReadPin(BRK_IN_PORT,BRK_IN_PIN));
@@ -418,42 +418,7 @@ int main(void) {
         }
 
 
-/*
-        if (cycle_period > 0 && cycle_current != 0.0f)
-        {
-            uint32_t phase = HAL_GetTick() % cycle_period;
-            if (phase < cycle_period / 3)
-            {
-                if( steady )
-                {
-                    steady = 0;
-                    direction =!direction;
-                }
-                if(direction)
-                {
-                    inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){cycle_syf_current, cycle_current});
-                } else
-                {
 
-                    inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){-cycle_syf_current, -cycle_current});
-                }
-            } else if ((inv.resolver.velocity) < 10.f & (inv.resolver.velocity) > -10.f) {
-                inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){0, 0});
-                steady = 1;
-            } else
-            {
-                if(direction)
-                {
-                    inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){0, -5});
-
-                } else
-                {
-                    inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){0, 5});
-
-                }
-            }
-        }
-*/
 
         if (HAL_GetTick() - last_call >= 100) {
 
@@ -467,7 +432,7 @@ int main(void) {
                 chg_state_machine_update(&charger);
 
 
-                chg_print_data(&charger);
+//                chg_print_data(&charger);
 
                 chg_send_data(&charger);
 

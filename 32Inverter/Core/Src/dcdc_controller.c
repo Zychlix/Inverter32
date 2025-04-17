@@ -219,13 +219,10 @@ void chg_print_data(chg_t * instance)
 {
     printf("\n\n\n Charger status: \n");
 
-    printf("\n\n Flags: \n");
-
-
     printf("    CAN error: %d\n", instance->telemetry.communication_timeout);
     printf("    Battery voltage: %f\n", instance->telemetry.voltage);
     printf("    Battery current: %f\n", instance->telemetry.current);
-    printf("    Temperature to high: %d\n", instance->telemetry.over_temperature);
+    printf("    Temperature too high: %d\n", instance->telemetry.over_temperature);
     printf("    Battery error: %d\n", instance->telemetry.battery_error);
     printf("    Supply error: %d\n", instance->telemetry.ac_error);
 

@@ -118,29 +118,46 @@ static void parse_command(char* str)
             printf("Throttle control disabled \n");
 
         }
-        }else if (sscanf(str, "charger %c", &c) == 1) {
-        /* Sets PI coefficients of current controllers
-         * pi <controler name> <proportional> <integral>
-         * controller name:
-         *	'a' alpha beta mode
-         *	'd' d q mode
+        }else if (sscanf(str, "charger %c %f", &c, &arg1) == 2) {
+        /*Charger control
+         *
+         *
          */
 
-        if (c == '1')
+        if (c == 'v')
         {
 
-            chg_command(me.charger, CHG_CMD_START_CHARGING);
-        }
-        if(c == '2')
-        {
-//            chg_send_slow_data(me.charger);
-//            me.charger->slow_data_enabled = true;
+            me.charger->setpoint.voltage = arg1;
         }
 
-        if(c == '3')
+        if (c == 'a')
         {
-            chg_send_slow_data(me.charger);
+
+            me.charger->setpoint.current = arg1;
         }
+        if(c == 'm')
+        {
+            if(arg1>0)
+            {
+                me.charger->setpoint.mode = DEZHOU_MODE_CHARGING;
+            } else
+            {
+                me.charger->setpoint.mode = DEZHOU_MODE_HEATING;
+            }
+        }
+
+        if(c == 'p')
+        {
+            if(arg1>0)
+            {
+                me.charger->setpoint.protection = DEZHOU_BATTERY_OPEN_CHARGING;
+            } else
+            {
+                me.charger->setpoint.protection = DEZHOU_BATTERY_PROTECTION;
+            }
+        }
+
+
         printf("OK \n");
     } else if(strcmp(str, "chg_info") == 0) {
         chg_print_data(me.charger);
