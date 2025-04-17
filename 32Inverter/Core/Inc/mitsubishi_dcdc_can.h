@@ -20,28 +20,16 @@ typedef struct{
 typedef struct {
 
 
-    DCDC_Converted_Data_Aux_Battery aux_battery;
+    float voltage;
+    float current;
+    bool  hardware_failure;
+    bool  over_temperature;
+    bool  ac_error;
+    bool  battery_error;
+    bool  communication_timeout;
 
-    DCDC_Converted_Data_Temperatures temperature;
 
-
-    uint8_t evse_duty;
-    uint16_t main_battery_voltage;    //*2
-    float main_battery_current;
-    uint8_t supply_voltage;     // Volts
-    uint8_t charge_current;
     bool new_frame;         //Set on every write
-    bool in_operation;
-    bool charging;
-    bool ready;
-    bool mains_present;
-    bool can_error;
-    bool waiting_for_mains;
-    bool ready_for_charging;
-    bool pilot_present;
-
-
-
 
 
 } DCDC_Converted_Data_t;

@@ -3,6 +3,7 @@
 #include "stdbool.h"
 #include "stdint.h"
 #include "mitsubishi_dcdc_can.h"
+#include "dezhou_charger_can.h"
 #include "stm32f3xx.h"
 
 typedef enum
@@ -17,9 +18,32 @@ typedef enum
     CHG_DISABLED,
     CHG_UNINITIALIZED,
     CHG_IDLE,
-    CHG_WAITING_FOR_CHARGING
+    CHG_WAITING_FOR_CHARGING,
+    CHG_CHARGING
 } chg_state_t;
 
+typedef enum
+{
+    DEZHOU_BATTERY_OPEN_CHARGING = 0,
+    DEZHOU_BATTERY_PROTECTION = 1,
+
+} dezhou_battery_protection_t;
+
+typedef enum
+{
+    DEZHOU_MODE_CHARGING = 0,
+    DEZHOU_MODE_HEATING = 1,
+
+} dezhou_mode_protection_t;
+
+typedef struct
+{
+    float voltage;
+    float current;
+    dezhou_battery_protection_t protection;
+    dezhou_mode_protection_t mode;
+
+}chg_setpoint_t;
 
 typedef enum
 {
@@ -53,10 +77,15 @@ typedef struct
 
     chg_state_t state;
     DCDC_Converted_Data_t telemetry;
-    DCDC_Charger_t frames;
+//    DCDC_Charger_t frames;
 
-    bool slow_data_enabled;
-    bool fast_data_enabled;
+    dezhou_status_frame_t status_frame;
+    bool status_frame_received;
+
+    chg_setpoint_t setpoint;
+
+//    bool slow_data_enabled;
+//    bool fast_data_enabled;
 
 } chg_t;
 
@@ -72,7 +101,8 @@ chg_ret_val_t chg_establish_connection(chg_t * instance); //The charger gets int
 void chg_message_semaphore(CAN_RxHeaderTypeDef *pHeader, uint8_t aData[], chg_t * charger);
 
 void chg_send_slow_data(chg_t * charger);
-void chg_send_fast_data(chg_t * charger);
+
+uint32_t chg_send_data(chg_t * charger);
 
 chg_ret_val_t chg_refresh_data_struct(chg_t * instance);
 

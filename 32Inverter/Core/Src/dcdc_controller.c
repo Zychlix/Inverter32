@@ -18,26 +18,43 @@ chg_ret_val_t chg_init(chg_t *instance) {
     return CHG_OK;
 }
 
+//void chg_message_semaphore(CAN_RxHeaderTypeDef *pHeader, uint8_t aData[], chg_t *charger) {
+//    uint32_t message_id = pHeader->StdId;
+//    switch (message_id) {
+//        case 0x377:
+//            if (pHeader->DLC == sizeof(DCDC_Frame_Status_377_t)) {
+//                memcpy(&charger->frames.status, aData, sizeof(DCDC_Frame_Status_377_t));
+//                charger->frames.frame_377_received = true;
+//            }
+//            break;
+//        case 0x389:
+//            if (pHeader->DLC == sizeof(DCDC_Frame_Main_Battery_389_t)) {
+//                memcpy(&charger->frames.main_battery_status, aData, sizeof(DCDC_Frame_Main_Battery_389_t));
+//                charger->frames.frame_389_received = true;
+//            }
+//            break;
+//        case 0x38A:
+//            if (pHeader->DLC == sizeof(DCDC_Frame_Main_Battery_38A_t)) {
+//                memcpy(&charger->frames.evse, aData, sizeof(DCDC_Frame_Main_Battery_38A_t));
+//                charger->frames.frame_38A_received = true;
+//            }
+//
+//        default:
+//            break;
+//
+//    }
+//}
+
 void chg_message_semaphore(CAN_RxHeaderTypeDef *pHeader, uint8_t aData[], chg_t *charger) {
-    uint32_t message_id = pHeader->StdId;
+    uint32_t message_id = pHeader->ExtId;
     switch (message_id) {
-        case 0x377:
-            if (pHeader->DLC == sizeof(DCDC_Frame_Status_377_t)) {
-                memcpy(&charger->frames.status, aData, sizeof(DCDC_Frame_Status_377_t));
-                charger->frames.frame_377_received = true;
+        case DEZHOU_STATUS_EXTID:
+            if (pHeader->DLC == sizeof(dezhou_status_frame_t))
+            {
+                memcpy(&charger->status_frame, aData, sizeof(dezhou_status_frame_t));
+                charger->status_frame_received=true;
             }
             break;
-        case 0x389:
-            if (pHeader->DLC == sizeof(DCDC_Frame_Main_Battery_389_t)) {
-                memcpy(&charger->frames.main_battery_status, aData, sizeof(DCDC_Frame_Main_Battery_389_t));
-                charger->frames.frame_389_received = true;
-            }
-            break;
-        case 0x38A:
-            if (pHeader->DLC == sizeof(DCDC_Frame_Main_Battery_38A_t)) {
-                memcpy(&charger->frames.evse, aData, sizeof(DCDC_Frame_Main_Battery_38A_t));
-                charger->frames.frame_38A_received = true;
-            }
 
         default:
             break;
@@ -51,12 +68,13 @@ void chg_config_filters(chg_t *chg) {
     CAN_FilterTypeDef sFilterConfig;
 
     sFilterConfig.FilterFIFOAssignment = CAN_FILTER_FIFO0; //set fifo assignment
-    sFilterConfig.FilterIdHigh = 0x389 << 5; //the ID that the filter looks for (switch this for the other microcontroller)
+    sFilterConfig.FilterIdHigh = 0 << 5; //the ID that the filter looks for (switch this for the other microcontroller)
     sFilterConfig.FilterIdLow = 0;
-    sFilterConfig.FilterMaskIdHigh = 0;
-    sFilterConfig.FilterMaskIdLow = 0;
+    sFilterConfig.FilterMaskIdHigh = 0xffff;
+    sFilterConfig.FilterMaskIdLow = 0xffff;
     sFilterConfig.FilterScale = CAN_FILTERSCALE_32BIT; //set filter scale
     sFilterConfig.FilterActivation = ENABLE;
+    sFilterConfig.FilterMode = CAN_FILTERMODE_IDMASK;
     sFilterConfig.FilterBank = 0;
     HAL_CAN_ConfigFilter(hcan1, &sFilterConfig); //configure CAN filter
 
@@ -131,25 +149,38 @@ void chg_send_slow_data(chg_t *charger) {
 //    HAL_CAN_AddTxMessage(hcan1, &tx_header, (uint8_t *) bytes, &shit);
 }
 
-void chg_send_fast_data(chg_t *charger) {
+uint32_t chg_send_data(chg_t *charger) {
 
     uint32_t shit;
 
     CAN_HandleTypeDef *hcan1 = charger->can;
 
-    DCDC_Frame_Enable_x285_t en_payload = {0};
+    dezhou_command_frame_t en_payload = {0};
     CAN_TxHeaderTypeDef tx_header = {0};
-    tx_header.StdId = 0x285;
+
+    en_payload.voltage_setpoint_msb = swap_endianness_16((uint16_t)(charger->setpoint.voltage*10));
+    en_payload.current_setpoint_msb = swap_endianness_16((uint16_t)(charger->setpoint.current*10));
+    en_payload.mode = charger->setpoint.mode;
+    en_payload.battery_contactor =  charger->setpoint.protection;
+
+    tx_header.ExtId = DEZHOU_COMMAND_EXTID;
+    tx_header.IDE = CAN_ID_EXT;
     tx_header.DLC = sizeof(en_payload);
-    tx_header.IDE = CAN_ID_STD;
     tx_header.RTR = CAN_RTR_DATA;
 
-    en_payload.enable_0xb6 = 0xb6;
-    en_payload._nn1[0] = 0x10;
-    en_payload._nn1[1] = 0x78;
-    en_payload._nn1[4] = 0x10;
 
-    HAL_CAN_AddTxMessage(hcan1, &tx_header, (uint8_t *) &en_payload, &shit);
+    HAL_StatusTypeDef retval;
+    retval = HAL_CAN_AddTxMessage(hcan1, &tx_header, (uint8_t *) &en_payload, &shit);
+
+    if(retval == HAL_OK)
+    {
+        return 0;
+    } else
+    {
+        return 1;
+    }
+
+
 }
 
 
@@ -159,46 +190,24 @@ chg_ret_val_t chg_refresh_data_struct(chg_t *instance) {
         return CHG_FAIL;
     }
 
-    if (instance->frames.frame_377_received &&
-        instance->frames.frame_38A_received &&
-        instance->frames.frame_389_received) {
-        instance->frames.frame_377_received = false;
-        instance->frames.frame_38A_received = false;
-        instance->frames.frame_389_received = false;
+    if (instance->status_frame_received)
+    {
+        instance->status_frame_received = false;
 
         //tu parsuj
 
         DCDC_Converted_Data_t *data = &instance->telemetry;
 
         data->new_frame = true; //reset on read
-        data->in_operation = instance->frames.status.in_operation;
-        data->ready = instance->frames.status.in_operation;
 
-        data->mains_present = instance->frames.main_battery_status.mains_present;
-        data->charging = instance->frames.main_battery_status.charging;
-        data->pilot_present = instance->frames.main_battery_status.pilot_present;
-        data->can_error = instance->frames.main_battery_status.error_can;
-        data->ready_for_charging = instance->frames.evse.ready_for_charging;
-        data->waiting_for_mains = instance->frames.evse.waiting_for_mains;
+        data->voltage = (float)swap_endianness_16(instance->status_frame.voltage_msb)/10.f;
+        data->current = (float)swap_endianness_16(instance->status_frame.current_msb)/10.f;
 
-        //aux battery
-        data->aux_battery.charging_active = instance->frames.main_battery_status.dcdc_active;
-        data->aux_battery.voltage = (float)swap_endianness_16(instance->frames.status.aux_battery_voltage)/100.f;
-        data->aux_battery.current = (float)instance->frames.status.aux_current/10.f;
-
-        data->main_battery_voltage = instance->frames.main_battery_status.battery_voltage;  //REAL VALUE
-        data->main_battery_current = (float)instance->frames.main_battery_status.dc_current * 10;
-
-        data->temperature.A0 =  (int16_t)(instance->frames.status.temperature_1 - 40);
-        data->temperature.A1 =  (int16_t)(instance->frames.status.temperature_2 - 40);
-        data->temperature.A2 =  (int16_t)(instance->frames.status.temperature_3 - 40);
-
-        data->temperature.B0 =  instance->frames.main_battery_status.temperature_1;
-        data->temperature.B0 =  instance->frames.main_battery_status.temperature_2;
-
-        data->evse_duty = instance->frames.evse.evse_duty;
-
-        data->supply_voltage  = instance->frames.main_battery_status.supply_voltage;
+        data->ac_error = instance->status_frame.ac_error;
+        data->battery_error = instance->status_frame.battery_error;
+        data->communication_timeout = instance->status_frame.communication_timeout;
+        data->hardware_failure = instance->status_frame.hardware_failure;
+        data->over_temperature = instance->status_frame.over_temperature;
 
     }
 
@@ -213,29 +222,12 @@ void chg_print_data(chg_t * instance)
     printf("\n\n Flags: \n");
 
 
-    printf("    CAN error: %d\n", instance->telemetry.can_error);
-    printf("    Supply voltage: %d\n", instance->telemetry.supply_voltage);
-    printf("    Ready for charging: %d\n", instance->telemetry.ready_for_charging);
-    printf("    Charging: %d\n", instance->telemetry.charging);
-    printf("    Waiting for mains: %d\n", instance->telemetry.waiting_for_mains);
-    printf("    Pilot present: %d\n", instance->telemetry.pilot_present);
-    printf("    Pilot duty: %d\n", instance->telemetry.evse_duty);
-    printf("    Mains present: %d\n", instance->telemetry.mains_present);
-
-    printf("\n\n Low voltage battery: \n");
-    printf("    Voltage: %f\n", instance->telemetry.aux_battery.voltage);
-    printf("    Current: %f\n", instance->telemetry.aux_battery.current);
-    printf("    Charging: %d\n", instance->telemetry.aux_battery.charging_active);
-
-    printf("\n\n Main battery: \n");
-    printf("    Voltage: %f\n", (float)instance->telemetry.main_battery_voltage);
-    printf("    Current: %f\n", instance->telemetry.main_battery_current);
-
-
-    printf("\n\n Temperatures: \n");
-    printf("    Temp A0: %d\n", instance->telemetry.temperature.A0);
-    printf("    Temp A1: %d\n", instance->telemetry.temperature.A1);
-    printf("    Temp A2: %d\n", instance->telemetry.temperature.A2);
+    printf("    CAN error: %d\n", instance->telemetry.communication_timeout);
+    printf("    Battery voltage: %f\n", instance->telemetry.voltage);
+    printf("    Battery current: %f\n", instance->telemetry.current);
+    printf("    Temperature to high: %d\n", instance->telemetry.over_temperature);
+    printf("    Battery error: %d\n", instance->telemetry.battery_error);
+    printf("    Supply error: %d\n", instance->telemetry.ac_error);
 
 }
 
@@ -259,7 +251,7 @@ chg_ret_val_t chg_state_machine_update(chg_t * instance)
             {
                 chg_switch_power(instance, true);
             }
-            instance->state = CHG_UNINITIALIZED;
+//            instance->state = CHG_UNINITIALIZED;
             break;
 
         case CHG_CMD_DISABLE:
@@ -291,8 +283,18 @@ chg_ret_val_t chg_state_machine_update(chg_t * instance)
             break;
 
         case CHG_WAITING_FOR_CHARGING:
-//            instance->slow_data_enabled = 1;
-            instance->fast_data_enabled = 1;
+
+            if(instance->status_frame_received)
+            {
+                instance->state = CHG_CHARGING;
+            }
+            break;
+
+        case CHG_CHARGING:
+
+
+            chg_send_data(instance);
+            break;
 //            chg_send_slow_data(instance);
             //If AC_Present?
         default:

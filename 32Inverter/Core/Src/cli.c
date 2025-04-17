@@ -134,7 +134,7 @@ static void parse_command(char* str)
         if(c == '2')
         {
 //            chg_send_slow_data(me.charger);
-            me.charger->slow_data_enabled = true;
+//            me.charger->slow_data_enabled = true;
         }
 
         if(c == '3')

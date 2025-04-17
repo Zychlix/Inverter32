@@ -391,6 +391,11 @@ int main(void) {
 
     printf("Bus voltage: %f \n", inv.vbus);
     printf("ready\n >\n");
+
+    charger.setpoint.mode = DEZHOU_MODE_CHARGING;
+    charger.setpoint.protection = DEZHOU_BATTERY_OPEN_CHARGING;
+    charger.setpoint.voltage = 120.f;
+    charger.setpoint.current = 10.f;
 //    while(!HAL_GPIO_ReadPin(BRK_IN_PORT,BRK_IN_PIN));
     while (1) {
         /* USER CODE END WHILE */
@@ -450,32 +455,27 @@ int main(void) {
         }
 */
 
-        if (HAL_GetTick() - last_call >= 9) {
+        if (HAL_GetTick() - last_call >= 100) {
 
             if(charger_mode)
             {
 
-                if(charger.state == CHG_IDLE && charger.telemetry.main_battery_voltage > 105 && HAL_GetTick()>10000)
-                {
-                    //chg_command(&charger, CHG_CMD_START_CHARGING);
-                }
+
+
+
 
                 chg_state_machine_update(&charger);
 
-                if(charger.slow_data_enabled )//&& HAL_GetTick()-last_slow_data>200 )
-                {
 
-                    //chg_print_data(&charger);
+                chg_print_data(&charger);
 
-                    chg_send_slow_data(&charger);
-                    last_slow_data = HAL_GetTick();
+                chg_send_data(&charger);
 
-                }
-
-                if(charger.fast_data_enabled)
-                {
-                    chg_send_fast_data(&charger);
-                }
+//
+//                if(charger.fast_data_enabled)
+//                {
+//                    chg_send_fast_data(&charger);
+//                }
 
                 last_call = HAL_GetTick();
 
