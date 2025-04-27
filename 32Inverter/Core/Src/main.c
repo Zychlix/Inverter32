@@ -405,11 +405,18 @@ int main(void) {
 
         cli_poll();
         float throttle=inv.adcs.throttleB;
-        if(inv.throttle_control)
+        float pocieniasianie = inv.resolver.velocity * 0.1;
+        if(pocieniasianie > 200){
+            pocieniasianie = 200;
+        }
+        if(pocieniasianie < -200)
+        if(inv.throttle_control){
+            pocieniasianie = -200;
+        }
         {
             if(throttle>=0.20)
             {
-                inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){0, -(throttle-0.20f)*500});
+                inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){pocieniasianie, -(throttle-0.20f)*500});
             }
             else
             {

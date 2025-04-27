@@ -10,7 +10,7 @@
 #include "adc.h"
 
 #define INV_MAX_PWM_PULSE_VAL 2500
-#define INV_PID_MAX_OUT 50
+#define INV_PID_MAX_OUT 100
 #define DEFAULT_CURRENT_FILTER_ALPHA 0.01f
 #define INV_MIN_VOLTAGE_VALUE 30.f
 
@@ -44,6 +44,7 @@ typedef enum
 {
     MODE_AB = 0,
     MODE_DQ,
+    MODE_AB_FREQUENCY,
 } inverter_mode_t;
 
 typedef struct
@@ -81,7 +82,7 @@ typedef struct {
     pi_t pid_a;
     pi_t pid_b;
     vec_t current;
-    vec_t set_current; /**< Current requested by the module user, can be in alpha-beta or dq space*/
+    vec_t set_value; /**< Current requested by the module user, can be in alpha-beta or dq space*/
     vec_t smooth_set_current;
     inverter_mode_t mode; /**< Control mode requested by user */
     float current_filter_alpha;

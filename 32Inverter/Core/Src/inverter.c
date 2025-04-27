@@ -243,8 +243,8 @@ void inv_tick(inverter_t *inverter) {
     // inverter->current.y = (inverter->current_filter_alpha * current_dq.y) + (1.0f - inverter->current_filter_alpha) * inverter->current.y;
 
     static volatile float setpoint_alpha = 0.02f;
-    inverter->smooth_set_current.x = (setpoint_alpha * inverter->set_current.x) + (1.0f - setpoint_alpha) * inverter->smooth_set_current.x;
-    inverter->smooth_set_current.y = (setpoint_alpha * inverter->set_current.y) + (1.0f - setpoint_alpha) * inverter->smooth_set_current.y;
+    inverter->smooth_set_current.x = (setpoint_alpha * inverter->set_value.x) + (1.0f - setpoint_alpha) * inverter->smooth_set_current.x;
+    inverter->smooth_set_current.y = (setpoint_alpha * inverter->set_value.y) + (1.0f - setpoint_alpha) * inverter->smooth_set_current.y;
 
     if (inverter->mode == MODE_DQ)
     {
@@ -268,13 +268,28 @@ void inv_tick(inverter_t *inverter) {
         inv_set_pwm(inverter, pwmABC.a, pwmABC.b, pwmABC.c);
     } else if (inverter->mode == MODE_AB) {
         inverter->voltage = (vec_t){
-            pid_calc(&inverter->pid_a, current_ab.x, inverter->set_current.x),
-            pid_calc(&inverter->pid_b, current_ab.y, inverter->set_current.y),
+            pid_calc(&inverter->pid_a, current_ab.x, inverter->set_value.x),
+            pid_calc(&inverter->pid_b, current_ab.y, inverter->set_value.y),
         };
 
         vec_t pwm = {
             inverter->voltage.x / inverter->vbus,
             inverter->voltage.y / inverter->vbus,
+        };
+        pwm = limit_amplitude(pwm, 1);
+        abc_t pwmABC = inverseClarkeTransform(pwm);
+        inv_set_pwm(inverter, pwmABC.a, pwmABC.b, pwmABC.c);
+    } else if(inverter->mode == MODE_AB_FREQUENCY){
+        static float fi = 0;
+        fi += 2 * M_PI * inverter->frequency_setpoint / ;
+        inverter->voltage = (vec_t){
+                sin_lut(fi) * inverter->set_value.x,
+                sin_lut(fi) * inverter->set_value.y,
+        };
+
+        vec_t pwm = {
+                inverter->voltage.x / inverter->vbus,
+                inverter->voltage.y / inverter->vbus,
         };
         pwm = limit_amplitude(pwm, 1);
         abc_t pwmABC = inverseClarkeTransform(pwm);
@@ -381,7 +396,7 @@ void inv_enable(inverter_t *inv, bool status) {
 void inv_set_mode_and_current(inverter_t *inverter, inverter_mode_t mode, vec_t current)
 {
     inverter->mode = mode;
-    inverter->set_current = current;
+    inverter->set_value = current;
 
 
 }

@@ -20,7 +20,7 @@ static struct
 
 static void parse_command(char* str)
 {
-	float arg1, arg2;
+	float arg1, arg2, arg3;
 	char c;
 
 	if (strcmp(str, "ping") == 0) {
@@ -161,7 +161,19 @@ static void parse_command(char* str)
         printf("OK \n");
     } else if(strcmp(str, "chg_info") == 0) {
         chg_print_data(me.charger);
-    }else {
+    } else if(sscanf(str, "vf %f %f %f", &arg1, &arg2, &arg3) == 3) {
+        /* Output voltage with a given frequency  in AB mode
+         * Arguments:
+         *  - frequency [Hz]
+         *  - voltage A [V]
+         *  - voltage B [V]
+         */
+
+
+
+
+
+    } else {
 		printf("Unknown command!\n");
 	}
 }
