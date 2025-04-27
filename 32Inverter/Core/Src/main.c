@@ -347,7 +347,7 @@ int main(void) {
         Error_Handler();
     }
 
-//    inv_connect_supply(&inv);
+    inv_connect_supply(&inv);
 
     HAL_Delay(200);
     if(!charger_mode)
