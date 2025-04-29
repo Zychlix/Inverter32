@@ -28,6 +28,7 @@
 #include "oscilloscope.h"
 #include <stdio.h>
 #include <cli.h>
+#include "can_debug_interface.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -44,7 +45,7 @@
 /* USER CODE BEGIN PM */
 inverter_t inv = {0};
 chg_t charger = {0};
-
+cdi_t can_debugger;
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -314,6 +315,15 @@ int main(void) {
         chg_config_filters(&charger);
     }
 
+    //Enable CAN debiugging
+
+    can_debugger.can = &hcan;
+    if(cdi_init(&can_debugger))
+    {
+        printf("CAN Debugger faulty! \r\n");
+    }
+
+
     // enable AD2S1205 resolver
     HAL_GPIO_WritePin(RESET_RES_GPIO_Port, RESET_RES_Pin, false);
     HAL_Delay(10);
@@ -338,7 +348,7 @@ int main(void) {
 
 
 
-    TIM8_init();
+//    TIM8_init();
     HAL_Delay(200);
 
 
@@ -347,7 +357,7 @@ int main(void) {
         Error_Handler();
     }
 
-    inv_connect_supply(&inv);
+//    inv_connect_supply(&inv); //TODO
 
     HAL_Delay(200);
     if(!charger_mode)
@@ -427,7 +437,7 @@ int main(void) {
 
 
 
-        if (HAL_GetTick() - last_call >= 100) {
+        if (HAL_GetTick() - last_call >= 1) {
 
             if(charger_mode)
             {
@@ -441,7 +451,7 @@ int main(void) {
 
 //                chg_print_data(&charger);
 
-                chg_send_data(&charger);
+//                chg_send_data(&charger);  TODO
 
 //
 //                if(charger.fast_data_enabled)
@@ -452,6 +462,28 @@ int main(void) {
                 last_call = HAL_GetTick();
 
             }
+
+
+            HAL_GPIO_WritePin(X_OUT_GPIO_Port, X_OUT_Pin, true);
+
+//            uint8_t payload[8] = {0};
+//            CAN_TxHeaderTypeDef tx_header = {0};
+//
+//            uint32_t none;
+//
+//            tx_header.StdId = 0x100;
+//            tx_header.ExtId = DEZHOU_COMMAND_EXTID;
+//            tx_header.IDE = CAN_RTR_DATA;
+//            tx_header.DLC = sizeof(payload);
+//            tx_header.RTR = CAN_RTR_DATA;
+//
+//
+//            HAL_StatusTypeDef retval;
+//            retval = HAL_CAN_AddTxMessage(charger.can, &tx_header, (uint8_t *) &payload, &none);
+            cdi_transmit_channel(&can_debugger,0,(uint8_t*)&last_call,sizeof(last_call));
+
+            HAL_GPIO_WritePin(X_OUT_GPIO_Port, X_OUT_Pin, false);
+
 
 
 
@@ -1059,7 +1091,7 @@ static void MX_GPIO_Init(void) {
 
     /*Configure GPIO pin : X_OUT_Pin */
     GPIO_InitStruct.Pin = X_OUT_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
     HAL_GPIO_Init(X_OUT_GPIO_Port, &GPIO_InitStruct);

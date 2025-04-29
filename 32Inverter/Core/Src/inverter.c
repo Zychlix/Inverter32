@@ -281,7 +281,7 @@ void inv_tick(inverter_t *inverter) {
         inv_set_pwm(inverter, pwmABC.a, pwmABC.b, pwmABC.c);
     } else if(inverter->mode == MODE_AB_FREQUENCY){
         static float fi = 0;
-        fi += 2 * M_PI * inverter->frequency_setpoint / ;
+//        fi += 2 * M_PI * inverter->frequency_setpoint / ;
         inverter->voltage = (vec_t){
                 sin_lut(fi) * inverter->set_value.x,
                 sin_lut(fi) * inverter->set_value.y,

@@ -1,0 +1,242 @@
+[
+{
+  "directory": "/home/zychlix/projekty/Inverter32/32Inverter/build",
+  "command": "/usr/bin/arm-none-eabi-gcc -DARM_MATH_CM4 -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDING -DDEBUG -DSTM32F303xC -DUSE_HAL_DRIVER -I/home/zychlix/projekty/Inverter32/32Inverter/Core/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Device/ST/STM32F3xx/Include -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Include -g -std=gnu11 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -mcpu=cortex-m4 -mthumb -mthumb-interwork -ffunction-sections -fdata-sections -fno-common -fmessage-length=0 -Og -g -o CMakeFiles/32Inverter.elf.dir/Core/Src/PID.c.obj -c /home/zychlix/projekty/Inverter32/32Inverter/Core/Src/PID.c",
+  "file": "/home/zychlix/projekty/Inverter32/32Inverter/Core/Src/PID.c",
+  "output": "CMakeFiles/32Inverter.elf.dir/Core/Src/PID.c.obj"
+},
+{
+  "directory": "/home/zychlix/projekty/Inverter32/32Inverter/build",
+  "command": "/usr/bin/arm-none-eabi-gcc -DARM_MATH_CM4 -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDING -DDEBUG -DSTM32F303xC -DUSE_HAL_DRIVER -I/home/zychlix/projekty/Inverter32/32Inverter/Core/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Device/ST/STM32F3xx/Include -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Include -g -std=gnu11 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -mcpu=cortex-m4 -mthumb -mthumb-interwork -ffunction-sections -fdata-sections -fno-common -fmessage-length=0 -Og -g -o CMakeFiles/32Inverter.elf.dir/Core/Src/adc.c.obj -c /home/zychlix/projekty/Inverter32/32Inverter/Core/Src/adc.c",
+  "file": "/home/zychlix/projekty/Inverter32/32Inverter/Core/Src/adc.c",
+  "output": "CMakeFiles/32Inverter.elf.dir/Core/Src/adc.c.obj"
+},
+{
+  "directory": "/home/zychlix/projekty/Inverter32/32Inverter/build",
+  "command": "/usr/bin/arm-none-eabi-gcc -DARM_MATH_CM4 -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDING -DDEBUG -DSTM32F303xC -DUSE_HAL_DRIVER -I/home/zychlix/projekty/Inverter32/32Inverter/Core/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Device/ST/STM32F3xx/Include -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Include -g -std=gnu11 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -mcpu=cortex-m4 -mthumb -mthumb-interwork -ffunction-sections -fdata-sections -fno-common -fmessage-length=0 -Og -g -o CMakeFiles/32Inverter.elf.dir/Core/Src/can_debug_interface.c.obj -c /home/zychlix/projekty/Inverter32/32Inverter/Core/Src/can_debug_interface.c",
+  "file": "/home/zychlix/projekty/Inverter32/32Inverter/Core/Src/can_debug_interface.c",
+  "output": "CMakeFiles/32Inverter.elf.dir/Core/Src/can_debug_interface.c.obj"
+},
+{
+  "directory": "/home/zychlix/projekty/Inverter32/32Inverter/build",
+  "command": "/usr/bin/arm-none-eabi-gcc -DARM_MATH_CM4 -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDING -DDEBUG -DSTM32F303xC -DUSE_HAL_DRIVER -I/home/zychlix/projekty/Inverter32/32Inverter/Core/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Device/ST/STM32F3xx/Include -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Include -g -std=gnu11 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -mcpu=cortex-m4 -mthumb -mthumb-interwork -ffunction-sections -fdata-sections -fno-common -fmessage-length=0 -Og -g -o CMakeFiles/32Inverter.elf.dir/Core/Src/cli.c.obj -c /home/zychlix/projekty/Inverter32/32Inverter/Core/Src/cli.c",
+  "file": "/home/zychlix/projekty/Inverter32/32Inverter/Core/Src/cli.c",
+  "output": "CMakeFiles/32Inverter.elf.dir/Core/Src/cli.c.obj"
+},
+{
+  "directory": "/home/zychlix/projekty/Inverter32/32Inverter/build",
+  "command": "/usr/bin/arm-none-eabi-gcc -DARM_MATH_CM4 -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDING -DDEBUG -DSTM32F303xC -DUSE_HAL_DRIVER -I/home/zychlix/projekty/Inverter32/32Inverter/Core/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Device/ST/STM32F3xx/Include -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Include -g -std=gnu11 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -mcpu=cortex-m4 -mthumb -mthumb-interwork -ffunction-sections -fdata-sections -fno-common -fmessage-length=0 -Og -g -o CMakeFiles/32Inverter.elf.dir/Core/Src/dcdc_controller.c.obj -c /home/zychlix/projekty/Inverter32/32Inverter/Core/Src/dcdc_controller.c",
+  "file": "/home/zychlix/projekty/Inverter32/32Inverter/Core/Src/dcdc_controller.c",
+  "output": "CMakeFiles/32Inverter.elf.dir/Core/Src/dcdc_controller.c.obj"
+},
+{
+  "directory": "/home/zychlix/projekty/Inverter32/32Inverter/build",
+  "command": "/usr/bin/arm-none-eabi-gcc -DARM_MATH_CM4 -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDING -DDEBUG -DSTM32F303xC -DUSE_HAL_DRIVER -I/home/zychlix/projekty/Inverter32/32Inverter/Core/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Device/ST/STM32F3xx/Include -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Include -g -std=gnu11 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -mcpu=cortex-m4 -mthumb -mthumb-interwork -ffunction-sections -fdata-sections -fno-common -fmessage-length=0 -Og -g -o CMakeFiles/32Inverter.elf.dir/Core/Src/iir_filter.c.obj -c /home/zychlix/projekty/Inverter32/32Inverter/Core/Src/iir_filter.c",
+  "file": "/home/zychlix/projekty/Inverter32/32Inverter/Core/Src/iir_filter.c",
+  "output": "CMakeFiles/32Inverter.elf.dir/Core/Src/iir_filter.c.obj"
+},
+{
+  "directory": "/home/zychlix/projekty/Inverter32/32Inverter/build",
+  "command": "/usr/bin/arm-none-eabi-gcc -DARM_MATH_CM4 -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDING -DDEBUG -DSTM32F303xC -DUSE_HAL_DRIVER -I/home/zychlix/projekty/Inverter32/32Inverter/Core/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Device/ST/STM32F3xx/Include -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Include -g -std=gnu11 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -mcpu=cortex-m4 -mthumb -mthumb-interwork -ffunction-sections -fdata-sections -fno-common -fmessage-length=0 -Og -g -o CMakeFiles/32Inverter.elf.dir/Core/Src/inverter.c.obj -c /home/zychlix/projekty/Inverter32/32Inverter/Core/Src/inverter.c",
+  "file": "/home/zychlix/projekty/Inverter32/32Inverter/Core/Src/inverter.c",
+  "output": "CMakeFiles/32Inverter.elf.dir/Core/Src/inverter.c.obj"
+},
+{
+  "directory": "/home/zychlix/projekty/Inverter32/32Inverter/build",
+  "command": "/usr/bin/arm-none-eabi-gcc -DARM_MATH_CM4 -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDING -DDEBUG -DSTM32F303xC -DUSE_HAL_DRIVER -I/home/zychlix/projekty/Inverter32/32Inverter/Core/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Device/ST/STM32F3xx/Include -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Include -g -std=gnu11 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -mcpu=cortex-m4 -mthumb -mthumb-interwork -ffunction-sections -fdata-sections -fno-common -fmessage-length=0 -Og -g -o CMakeFiles/32Inverter.elf.dir/Core/Src/main.c.obj -c /home/zychlix/projekty/Inverter32/32Inverter/Core/Src/main.c",
+  "file": "/home/zychlix/projekty/Inverter32/32Inverter/Core/Src/main.c",
+  "output": "CMakeFiles/32Inverter.elf.dir/Core/Src/main.c.obj"
+},
+{
+  "directory": "/home/zychlix/projekty/Inverter32/32Inverter/build",
+  "command": "/usr/bin/arm-none-eabi-gcc -DARM_MATH_CM4 -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDING -DDEBUG -DSTM32F303xC -DUSE_HAL_DRIVER -I/home/zychlix/projekty/Inverter32/32Inverter/Core/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Device/ST/STM32F3xx/Include -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Include -g -std=gnu11 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -mcpu=cortex-m4 -mthumb -mthumb-interwork -ffunction-sections -fdata-sections -fno-common -fmessage-length=0 -Og -g -o CMakeFiles/32Inverter.elf.dir/Core/Src/mitsubishi_dcdc_can.c.obj -c /home/zychlix/projekty/Inverter32/32Inverter/Core/Src/mitsubishi_dcdc_can.c",
+  "file": "/home/zychlix/projekty/Inverter32/32Inverter/Core/Src/mitsubishi_dcdc_can.c",
+  "output": "CMakeFiles/32Inverter.elf.dir/Core/Src/mitsubishi_dcdc_can.c.obj"
+},
+{
+  "directory": "/home/zychlix/projekty/Inverter32/32Inverter/build",
+  "command": "/usr/bin/arm-none-eabi-gcc -DARM_MATH_CM4 -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDING -DDEBUG -DSTM32F303xC -DUSE_HAL_DRIVER -I/home/zychlix/projekty/Inverter32/32Inverter/Core/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Device/ST/STM32F3xx/Include -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Include -g -std=gnu11 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -mcpu=cortex-m4 -mthumb -mthumb-interwork -ffunction-sections -fdata-sections -fno-common -fmessage-length=0 -Og -g -o CMakeFiles/32Inverter.elf.dir/Core/Src/oscilloscope.c.obj -c /home/zychlix/projekty/Inverter32/32Inverter/Core/Src/oscilloscope.c",
+  "file": "/home/zychlix/projekty/Inverter32/32Inverter/Core/Src/oscilloscope.c",
+  "output": "CMakeFiles/32Inverter.elf.dir/Core/Src/oscilloscope.c.obj"
+},
+{
+  "directory": "/home/zychlix/projekty/Inverter32/32Inverter/build",
+  "command": "/usr/bin/arm-none-eabi-gcc -DARM_MATH_CM4 -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDING -DDEBUG -DSTM32F303xC -DUSE_HAL_DRIVER -I/home/zychlix/projekty/Inverter32/32Inverter/Core/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Device/ST/STM32F3xx/Include -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Include -g -std=gnu11 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -mcpu=cortex-m4 -mthumb -mthumb-interwork -ffunction-sections -fdata-sections -fno-common -fmessage-length=0 -Og -g -o CMakeFiles/32Inverter.elf.dir/Core/Src/stm32f3xx_hal_msp.c.obj -c /home/zychlix/projekty/Inverter32/32Inverter/Core/Src/stm32f3xx_hal_msp.c",
+  "file": "/home/zychlix/projekty/Inverter32/32Inverter/Core/Src/stm32f3xx_hal_msp.c",
+  "output": "CMakeFiles/32Inverter.elf.dir/Core/Src/stm32f3xx_hal_msp.c.obj"
+},
+{
+  "directory": "/home/zychlix/projekty/Inverter32/32Inverter/build",
+  "command": "/usr/bin/arm-none-eabi-gcc -DARM_MATH_CM4 -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDING -DDEBUG -DSTM32F303xC -DUSE_HAL_DRIVER -I/home/zychlix/projekty/Inverter32/32Inverter/Core/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Device/ST/STM32F3xx/Include -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Include -g -std=gnu11 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -mcpu=cortex-m4 -mthumb -mthumb-interwork -ffunction-sections -fdata-sections -fno-common -fmessage-length=0 -Og -g -o CMakeFiles/32Inverter.elf.dir/Core/Src/stm32f3xx_it.c.obj -c /home/zychlix/projekty/Inverter32/32Inverter/Core/Src/stm32f3xx_it.c",
+  "file": "/home/zychlix/projekty/Inverter32/32Inverter/Core/Src/stm32f3xx_it.c",
+  "output": "CMakeFiles/32Inverter.elf.dir/Core/Src/stm32f3xx_it.c.obj"
+},
+{
+  "directory": "/home/zychlix/projekty/Inverter32/32Inverter/build",
+  "command": "/usr/bin/arm-none-eabi-gcc -DARM_MATH_CM4 -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDING -DDEBUG -DSTM32F303xC -DUSE_HAL_DRIVER -I/home/zychlix/projekty/Inverter32/32Inverter/Core/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Device/ST/STM32F3xx/Include -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Include -g -std=gnu11 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -mcpu=cortex-m4 -mthumb -mthumb-interwork -ffunction-sections -fdata-sections -fno-common -fmessage-length=0 -Og -g -o CMakeFiles/32Inverter.elf.dir/Core/Src/swo_scope.c.obj -c /home/zychlix/projekty/Inverter32/32Inverter/Core/Src/swo_scope.c",
+  "file": "/home/zychlix/projekty/Inverter32/32Inverter/Core/Src/swo_scope.c",
+  "output": "CMakeFiles/32Inverter.elf.dir/Core/Src/swo_scope.c.obj"
+},
+{
+  "directory": "/home/zychlix/projekty/Inverter32/32Inverter/build",
+  "command": "/usr/bin/arm-none-eabi-gcc -DARM_MATH_CM4 -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDING -DDEBUG -DSTM32F303xC -DUSE_HAL_DRIVER -I/home/zychlix/projekty/Inverter32/32Inverter/Core/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Device/ST/STM32F3xx/Include -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Include -g -std=gnu11 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -mcpu=cortex-m4 -mthumb -mthumb-interwork -ffunction-sections -fdata-sections -fno-common -fmessage-length=0 -Og -g -o CMakeFiles/32Inverter.elf.dir/Core/Src/syscalls.c.obj -c /home/zychlix/projekty/Inverter32/32Inverter/Core/Src/syscalls.c",
+  "file": "/home/zychlix/projekty/Inverter32/32Inverter/Core/Src/syscalls.c",
+  "output": "CMakeFiles/32Inverter.elf.dir/Core/Src/syscalls.c.obj"
+},
+{
+  "directory": "/home/zychlix/projekty/Inverter32/32Inverter/build",
+  "command": "/usr/bin/arm-none-eabi-gcc -DARM_MATH_CM4 -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDING -DDEBUG -DSTM32F303xC -DUSE_HAL_DRIVER -I/home/zychlix/projekty/Inverter32/32Inverter/Core/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Device/ST/STM32F3xx/Include -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Include -g -std=gnu11 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -mcpu=cortex-m4 -mthumb -mthumb-interwork -ffunction-sections -fdata-sections -fno-common -fmessage-length=0 -Og -g -o CMakeFiles/32Inverter.elf.dir/Core/Src/sysmem.c.obj -c /home/zychlix/projekty/Inverter32/32Inverter/Core/Src/sysmem.c",
+  "file": "/home/zychlix/projekty/Inverter32/32Inverter/Core/Src/sysmem.c",
+  "output": "CMakeFiles/32Inverter.elf.dir/Core/Src/sysmem.c.obj"
+},
+{
+  "directory": "/home/zychlix/projekty/Inverter32/32Inverter/build",
+  "command": "/usr/bin/arm-none-eabi-gcc -DARM_MATH_CM4 -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDING -DDEBUG -DSTM32F303xC -DUSE_HAL_DRIVER -I/home/zychlix/projekty/Inverter32/32Inverter/Core/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Device/ST/STM32F3xx/Include -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Include -g -std=gnu11 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -mcpu=cortex-m4 -mthumb -mthumb-interwork -ffunction-sections -fdata-sections -fno-common -fmessage-length=0 -Og -g -o CMakeFiles/32Inverter.elf.dir/Core/Src/system_stm32f3xx.c.obj -c /home/zychlix/projekty/Inverter32/32Inverter/Core/Src/system_stm32f3xx.c",
+  "file": "/home/zychlix/projekty/Inverter32/32Inverter/Core/Src/system_stm32f3xx.c",
+  "output": "CMakeFiles/32Inverter.elf.dir/Core/Src/system_stm32f3xx.c.obj"
+},
+{
+  "directory": "/home/zychlix/projekty/Inverter32/32Inverter/build",
+  "command": "/usr/bin/arm-none-eabi-gcc -DARM_MATH_CM4 -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDING -DDEBUG -DSTM32F303xC -DUSE_HAL_DRIVER -I/home/zychlix/projekty/Inverter32/32Inverter/Core/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Device/ST/STM32F3xx/Include -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Include -g -std=gnu11 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -mcpu=cortex-m4 -mthumb -mthumb-interwork -ffunction-sections -fdata-sections -fno-common -fmessage-length=0 -Og -g -o CMakeFiles/32Inverter.elf.dir/Core/Src/vectors.c.obj -c /home/zychlix/projekty/Inverter32/32Inverter/Core/Src/vectors.c",
+  "file": "/home/zychlix/projekty/Inverter32/32Inverter/Core/Src/vectors.c",
+  "output": "CMakeFiles/32Inverter.elf.dir/Core/Src/vectors.c.obj"
+},
+{
+  "directory": "/home/zychlix/projekty/Inverter32/32Inverter/build",
+  "command": "/usr/bin/arm-none-eabi-gcc -DARM_MATH_CM4 -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDING -DDEBUG -DSTM32F303xC -DUSE_HAL_DRIVER -I/home/zychlix/projekty/Inverter32/32Inverter/Core/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Device/ST/STM32F3xx/Include -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Include -g -mfloat-abi=hard -mfpu=fpv4-sp-d16 -mcpu=cortex-m4 -mthumb -mthumb-interwork -ffunction-sections -fdata-sections -fno-common -fmessage-length=0 -x assembler-with-cpp -Og -g -o CMakeFiles/32Inverter.elf.dir/Core/Startup/startup_stm32f303vctx.s.obj -c /home/zychlix/projekty/Inverter32/32Inverter/Core/Startup/startup_stm32f303vctx.s",
+  "file": "/home/zychlix/projekty/Inverter32/32Inverter/Core/Startup/startup_stm32f303vctx.s",
+  "output": "CMakeFiles/32Inverter.elf.dir/Core/Startup/startup_stm32f303vctx.s.obj"
+},
+{
+  "directory": "/home/zychlix/projekty/Inverter32/32Inverter/build",
+  "command": "/usr/bin/arm-none-eabi-gcc -DARM_MATH_CM4 -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDING -DDEBUG -DSTM32F303xC -DUSE_HAL_DRIVER -I/home/zychlix/projekty/Inverter32/32Inverter/Core/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Device/ST/STM32F3xx/Include -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Include -g -std=gnu11 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -mcpu=cortex-m4 -mthumb -mthumb-interwork -ffunction-sections -fdata-sections -fno-common -fmessage-length=0 -Og -g -o CMakeFiles/32Inverter.elf.dir/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal.c.obj -c /home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal.c",
+  "file": "/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal.c",
+  "output": "CMakeFiles/32Inverter.elf.dir/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal.c.obj"
+},
+{
+  "directory": "/home/zychlix/projekty/Inverter32/32Inverter/build",
+  "command": "/usr/bin/arm-none-eabi-gcc -DARM_MATH_CM4 -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDING -DDEBUG -DSTM32F303xC -DUSE_HAL_DRIVER -I/home/zychlix/projekty/Inverter32/32Inverter/Core/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Device/ST/STM32F3xx/Include -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Include -g -std=gnu11 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -mcpu=cortex-m4 -mthumb -mthumb-interwork -ffunction-sections -fdata-sections -fno-common -fmessage-length=0 -Og -g -o CMakeFiles/32Inverter.elf.dir/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_adc.c.obj -c /home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_adc.c",
+  "file": "/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_adc.c",
+  "output": "CMakeFiles/32Inverter.elf.dir/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_adc.c.obj"
+},
+{
+  "directory": "/home/zychlix/projekty/Inverter32/32Inverter/build",
+  "command": "/usr/bin/arm-none-eabi-gcc -DARM_MATH_CM4 -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDING -DDEBUG -DSTM32F303xC -DUSE_HAL_DRIVER -I/home/zychlix/projekty/Inverter32/32Inverter/Core/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Device/ST/STM32F3xx/Include -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Include -g -std=gnu11 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -mcpu=cortex-m4 -mthumb -mthumb-interwork -ffunction-sections -fdata-sections -fno-common -fmessage-length=0 -Og -g -o CMakeFiles/32Inverter.elf.dir/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_adc_ex.c.obj -c /home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_adc_ex.c",
+  "file": "/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_adc_ex.c",
+  "output": "CMakeFiles/32Inverter.elf.dir/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_adc_ex.c.obj"
+},
+{
+  "directory": "/home/zychlix/projekty/Inverter32/32Inverter/build",
+  "command": "/usr/bin/arm-none-eabi-gcc -DARM_MATH_CM4 -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDING -DDEBUG -DSTM32F303xC -DUSE_HAL_DRIVER -I/home/zychlix/projekty/Inverter32/32Inverter/Core/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Device/ST/STM32F3xx/Include -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Include -g -std=gnu11 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -mcpu=cortex-m4 -mthumb -mthumb-interwork -ffunction-sections -fdata-sections -fno-common -fmessage-length=0 -Og -g -o CMakeFiles/32Inverter.elf.dir/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_can.c.obj -c /home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_can.c",
+  "file": "/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_can.c",
+  "output": "CMakeFiles/32Inverter.elf.dir/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_can.c.obj"
+},
+{
+  "directory": "/home/zychlix/projekty/Inverter32/32Inverter/build",
+  "command": "/usr/bin/arm-none-eabi-gcc -DARM_MATH_CM4 -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDING -DDEBUG -DSTM32F303xC -DUSE_HAL_DRIVER -I/home/zychlix/projekty/Inverter32/32Inverter/Core/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Device/ST/STM32F3xx/Include -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Include -g -std=gnu11 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -mcpu=cortex-m4 -mthumb -mthumb-interwork -ffunction-sections -fdata-sections -fno-common -fmessage-length=0 -Og -g -o CMakeFiles/32Inverter.elf.dir/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_cortex.c.obj -c /home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_cortex.c",
+  "file": "/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_cortex.c",
+  "output": "CMakeFiles/32Inverter.elf.dir/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_cortex.c.obj"
+},
+{
+  "directory": "/home/zychlix/projekty/Inverter32/32Inverter/build",
+  "command": "/usr/bin/arm-none-eabi-gcc -DARM_MATH_CM4 -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDING -DDEBUG -DSTM32F303xC -DUSE_HAL_DRIVER -I/home/zychlix/projekty/Inverter32/32Inverter/Core/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Device/ST/STM32F3xx/Include -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Include -g -std=gnu11 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -mcpu=cortex-m4 -mthumb -mthumb-interwork -ffunction-sections -fdata-sections -fno-common -fmessage-length=0 -Og -g -o CMakeFiles/32Inverter.elf.dir/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_dma.c.obj -c /home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_dma.c",
+  "file": "/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_dma.c",
+  "output": "CMakeFiles/32Inverter.elf.dir/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_dma.c.obj"
+},
+{
+  "directory": "/home/zychlix/projekty/Inverter32/32Inverter/build",
+  "command": "/usr/bin/arm-none-eabi-gcc -DARM_MATH_CM4 -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDING -DDEBUG -DSTM32F303xC -DUSE_HAL_DRIVER -I/home/zychlix/projekty/Inverter32/32Inverter/Core/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Device/ST/STM32F3xx/Include -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Include -g -std=gnu11 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -mcpu=cortex-m4 -mthumb -mthumb-interwork -ffunction-sections -fdata-sections -fno-common -fmessage-length=0 -Og -g -o CMakeFiles/32Inverter.elf.dir/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_exti.c.obj -c /home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_exti.c",
+  "file": "/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_exti.c",
+  "output": "CMakeFiles/32Inverter.elf.dir/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_exti.c.obj"
+},
+{
+  "directory": "/home/zychlix/projekty/Inverter32/32Inverter/build",
+  "command": "/usr/bin/arm-none-eabi-gcc -DARM_MATH_CM4 -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDING -DDEBUG -DSTM32F303xC -DUSE_HAL_DRIVER -I/home/zychlix/projekty/Inverter32/32Inverter/Core/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Device/ST/STM32F3xx/Include -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Include -g -std=gnu11 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -mcpu=cortex-m4 -mthumb -mthumb-interwork -ffunction-sections -fdata-sections -fno-common -fmessage-length=0 -Og -g -o CMakeFiles/32Inverter.elf.dir/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_flash.c.obj -c /home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_flash.c",
+  "file": "/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_flash.c",
+  "output": "CMakeFiles/32Inverter.elf.dir/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_flash.c.obj"
+},
+{
+  "directory": "/home/zychlix/projekty/Inverter32/32Inverter/build",
+  "command": "/usr/bin/arm-none-eabi-gcc -DARM_MATH_CM4 -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDING -DDEBUG -DSTM32F303xC -DUSE_HAL_DRIVER -I/home/zychlix/projekty/Inverter32/32Inverter/Core/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Device/ST/STM32F3xx/Include -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Include -g -std=gnu11 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -mcpu=cortex-m4 -mthumb -mthumb-interwork -ffunction-sections -fdata-sections -fno-common -fmessage-length=0 -Og -g -o CMakeFiles/32Inverter.elf.dir/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_flash_ex.c.obj -c /home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_flash_ex.c",
+  "file": "/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_flash_ex.c",
+  "output": "CMakeFiles/32Inverter.elf.dir/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_flash_ex.c.obj"
+},
+{
+  "directory": "/home/zychlix/projekty/Inverter32/32Inverter/build",
+  "command": "/usr/bin/arm-none-eabi-gcc -DARM_MATH_CM4 -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDING -DDEBUG -DSTM32F303xC -DUSE_HAL_DRIVER -I/home/zychlix/projekty/Inverter32/32Inverter/Core/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Device/ST/STM32F3xx/Include -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Include -g -std=gnu11 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -mcpu=cortex-m4 -mthumb -mthumb-interwork -ffunction-sections -fdata-sections -fno-common -fmessage-length=0 -Og -g -o CMakeFiles/32Inverter.elf.dir/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_gpio.c.obj -c /home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_gpio.c",
+  "file": "/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_gpio.c",
+  "output": "CMakeFiles/32Inverter.elf.dir/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_gpio.c.obj"
+},
+{
+  "directory": "/home/zychlix/projekty/Inverter32/32Inverter/build",
+  "command": "/usr/bin/arm-none-eabi-gcc -DARM_MATH_CM4 -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDING -DDEBUG -DSTM32F303xC -DUSE_HAL_DRIVER -I/home/zychlix/projekty/Inverter32/32Inverter/Core/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Device/ST/STM32F3xx/Include -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Include -g -std=gnu11 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -mcpu=cortex-m4 -mthumb -mthumb-interwork -ffunction-sections -fdata-sections -fno-common -fmessage-length=0 -Og -g -o CMakeFiles/32Inverter.elf.dir/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_i2c.c.obj -c /home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_i2c.c",
+  "file": "/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_i2c.c",
+  "output": "CMakeFiles/32Inverter.elf.dir/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_i2c.c.obj"
+},
+{
+  "directory": "/home/zychlix/projekty/Inverter32/32Inverter/build",
+  "command": "/usr/bin/arm-none-eabi-gcc -DARM_MATH_CM4 -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDING -DDEBUG -DSTM32F303xC -DUSE_HAL_DRIVER -I/home/zychlix/projekty/Inverter32/32Inverter/Core/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Device/ST/STM32F3xx/Include -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Include -g -std=gnu11 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -mcpu=cortex-m4 -mthumb -mthumb-interwork -ffunction-sections -fdata-sections -fno-common -fmessage-length=0 -Og -g -o CMakeFiles/32Inverter.elf.dir/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_i2c_ex.c.obj -c /home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_i2c_ex.c",
+  "file": "/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_i2c_ex.c",
+  "output": "CMakeFiles/32Inverter.elf.dir/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_i2c_ex.c.obj"
+},
+{
+  "directory": "/home/zychlix/projekty/Inverter32/32Inverter/build",
+  "command": "/usr/bin/arm-none-eabi-gcc -DARM_MATH_CM4 -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDING -DDEBUG -DSTM32F303xC -DUSE_HAL_DRIVER -I/home/zychlix/projekty/Inverter32/32Inverter/Core/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Device/ST/STM32F3xx/Include -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Include -g -std=gnu11 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -mcpu=cortex-m4 -mthumb -mthumb-interwork -ffunction-sections -fdata-sections -fno-common -fmessage-length=0 -Og -g -o CMakeFiles/32Inverter.elf.dir/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_pwr.c.obj -c /home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_pwr.c",
+  "file": "/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_pwr.c",
+  "output": "CMakeFiles/32Inverter.elf.dir/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_pwr.c.obj"
+},
+{
+  "directory": "/home/zychlix/projekty/Inverter32/32Inverter/build",
+  "command": "/usr/bin/arm-none-eabi-gcc -DARM_MATH_CM4 -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDING -DDEBUG -DSTM32F303xC -DUSE_HAL_DRIVER -I/home/zychlix/projekty/Inverter32/32Inverter/Core/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Device/ST/STM32F3xx/Include -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Include -g -std=gnu11 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -mcpu=cortex-m4 -mthumb -mthumb-interwork -ffunction-sections -fdata-sections -fno-common -fmessage-length=0 -Og -g -o CMakeFiles/32Inverter.elf.dir/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_pwr_ex.c.obj -c /home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_pwr_ex.c",
+  "file": "/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_pwr_ex.c",
+  "output": "CMakeFiles/32Inverter.elf.dir/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_pwr_ex.c.obj"
+},
+{
+  "directory": "/home/zychlix/projekty/Inverter32/32Inverter/build",
+  "command": "/usr/bin/arm-none-eabi-gcc -DARM_MATH_CM4 -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDING -DDEBUG -DSTM32F303xC -DUSE_HAL_DRIVER -I/home/zychlix/projekty/Inverter32/32Inverter/Core/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Device/ST/STM32F3xx/Include -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Include -g -std=gnu11 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -mcpu=cortex-m4 -mthumb -mthumb-interwork -ffunction-sections -fdata-sections -fno-common -fmessage-length=0 -Og -g -o CMakeFiles/32Inverter.elf.dir/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_rcc.c.obj -c /home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_rcc.c",
+  "file": "/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_rcc.c",
+  "output": "CMakeFiles/32Inverter.elf.dir/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_rcc.c.obj"
+},
+{
+  "directory": "/home/zychlix/projekty/Inverter32/32Inverter/build",
+  "command": "/usr/bin/arm-none-eabi-gcc -DARM_MATH_CM4 -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDING -DDEBUG -DSTM32F303xC -DUSE_HAL_DRIVER -I/home/zychlix/projekty/Inverter32/32Inverter/Core/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Device/ST/STM32F3xx/Include -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Include -g -std=gnu11 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -mcpu=cortex-m4 -mthumb -mthumb-interwork -ffunction-sections -fdata-sections -fno-common -fmessage-length=0 -Og -g -o CMakeFiles/32Inverter.elf.dir/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_rcc_ex.c.obj -c /home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_rcc_ex.c",
+  "file": "/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_rcc_ex.c",
+  "output": "CMakeFiles/32Inverter.elf.dir/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_rcc_ex.c.obj"
+},
+{
+  "directory": "/home/zychlix/projekty/Inverter32/32Inverter/build",
+  "command": "/usr/bin/arm-none-eabi-gcc -DARM_MATH_CM4 -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDING -DDEBUG -DSTM32F303xC -DUSE_HAL_DRIVER -I/home/zychlix/projekty/Inverter32/32Inverter/Core/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Device/ST/STM32F3xx/Include -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Include -g -std=gnu11 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -mcpu=cortex-m4 -mthumb -mthumb-interwork -ffunction-sections -fdata-sections -fno-common -fmessage-length=0 -Og -g -o CMakeFiles/32Inverter.elf.dir/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_spi.c.obj -c /home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_spi.c",
+  "file": "/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_spi.c",
+  "output": "CMakeFiles/32Inverter.elf.dir/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_spi.c.obj"
+},
+{
+  "directory": "/home/zychlix/projekty/Inverter32/32Inverter/build",
+  "command": "/usr/bin/arm-none-eabi-gcc -DARM_MATH_CM4 -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDING -DDEBUG -DSTM32F303xC -DUSE_HAL_DRIVER -I/home/zychlix/projekty/Inverter32/32Inverter/Core/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Device/ST/STM32F3xx/Include -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Include -g -std=gnu11 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -mcpu=cortex-m4 -mthumb -mthumb-interwork -ffunction-sections -fdata-sections -fno-common -fmessage-length=0 -Og -g -o CMakeFiles/32Inverter.elf.dir/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_spi_ex.c.obj -c /home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_spi_ex.c",
+  "file": "/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_spi_ex.c",
+  "output": "CMakeFiles/32Inverter.elf.dir/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_spi_ex.c.obj"
+},
+{
+  "directory": "/home/zychlix/projekty/Inverter32/32Inverter/build",
+  "command": "/usr/bin/arm-none-eabi-gcc -DARM_MATH_CM4 -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDING -DDEBUG -DSTM32F303xC -DUSE_HAL_DRIVER -I/home/zychlix/projekty/Inverter32/32Inverter/Core/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Device/ST/STM32F3xx/Include -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Include -g -std=gnu11 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -mcpu=cortex-m4 -mthumb -mthumb-interwork -ffunction-sections -fdata-sections -fno-common -fmessage-length=0 -Og -g -o CMakeFiles/32Inverter.elf.dir/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.c.obj -c /home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.c",
+  "file": "/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.c",
+  "output": "CMakeFiles/32Inverter.elf.dir/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.c.obj"
+},
+{
+  "directory": "/home/zychlix/projekty/Inverter32/32Inverter/build",
+  "command": "/usr/bin/arm-none-eabi-gcc -DARM_MATH_CM4 -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDING -DDEBUG -DSTM32F303xC -DUSE_HAL_DRIVER -I/home/zychlix/projekty/Inverter32/32Inverter/Core/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Device/ST/STM32F3xx/Include -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Include -g -std=gnu11 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -mcpu=cortex-m4 -mthumb -mthumb-interwork -ffunction-sections -fdata-sections -fno-common -fmessage-length=0 -Og -g -o CMakeFiles/32Inverter.elf.dir/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim_ex.c.obj -c /home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim_ex.c",
+  "file": "/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim_ex.c",
+  "output": "CMakeFiles/32Inverter.elf.dir/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim_ex.c.obj"
+},
+{
+  "directory": "/home/zychlix/projekty/Inverter32/32Inverter/build",
+  "command": "/usr/bin/arm-none-eabi-gcc -DARM_MATH_CM4 -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDING -DDEBUG -DSTM32F303xC -DUSE_HAL_DRIVER -I/home/zychlix/projekty/Inverter32/32Inverter/Core/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Device/ST/STM32F3xx/Include -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Include -g -std=gnu11 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -mcpu=cortex-m4 -mthumb -mthumb-interwork -ffunction-sections -fdata-sections -fno-common -fmessage-length=0 -Og -g -o CMakeFiles/32Inverter.elf.dir/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.c.obj -c /home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.c",
+  "file": "/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.c",
+  "output": "CMakeFiles/32Inverter.elf.dir/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.c.obj"
+},
+{
+  "directory": "/home/zychlix/projekty/Inverter32/32Inverter/build",
+  "command": "/usr/bin/arm-none-eabi-gcc -DARM_MATH_CM4 -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDING -DDEBUG -DSTM32F303xC -DUSE_HAL_DRIVER -I/home/zychlix/projekty/Inverter32/32Inverter/Core/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Device/ST/STM32F3xx/Include -I/home/zychlix/projekty/Inverter32/32Inverter/Drivers/CMSIS/Include -g -std=gnu11 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -mcpu=cortex-m4 -mthumb -mthumb-interwork -ffunction-sections -fdata-sections -fno-common -fmessage-length=0 -Og -g -o CMakeFiles/32Inverter.elf.dir/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart_ex.c.obj -c /home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart_ex.c",
+  "file": "/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart_ex.c",
+  "output": "CMakeFiles/32Inverter.elf.dir/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart_ex.c.obj"
+}
+]

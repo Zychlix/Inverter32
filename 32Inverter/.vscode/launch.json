@@ -1,0 +1,127 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "cwd": "${workspaceFolder}",
+            "executable": "./cmake-build-debug/32Inverter.elf",
+            "name": "Debug with ST-Link",
+            "request": "launch",
+            "type": "cortex-debug",
+            "runToEntryPoint": "main",
+            "showDevDebugOutput": "none",
+            "servertype": "openocd",
+            "configFiles": [ "./stm32f3discovery.cfg" ],
+            "interface": "swd",
+            "svdFile": "./stm32f303.svd",
+            "swoConfig": {
+                "cpuFrequency": 64000000,
+                "enabled": true,
+                "source": "probe",
+                "swoFrequency": 2000000,
+                "decoders": [
+                    {
+                        "port": 0,
+                        "showOnStartup": true,
+                        "type": "console",
+                        "label": "SWO Output",
+                        "encoding": "ascii",
+                    },
+                    {
+                        "port": 1,
+                        "type": "graph",
+                        "graphId": "1",
+                        "encoding": "float",
+                    },
+                    {
+                        "port": 2,
+                        "type": "graph",
+                        "graphId": "2",
+                        "encoding": "float",
+                    },
+                    {
+                        "port": 3,
+                        "type": "graph",
+                        "graphId": "3",
+                        "encoding": "float",
+                    },
+                    {
+                        "port": 4,
+                        "type": "graph",
+                        "graphId": "4",
+                        "encoding": "float",
+                    },
+                    {
+                        "port": 5,
+                        "type": "graph",
+                        "graphId": "5",
+                        "encoding": "float",
+                    },
+                    {
+                        "port": 6,
+                        "type": "graph",
+                        "graphId": "6",
+                        "encoding": "float",
+                    },
+                    {
+                        "port": 7,
+                        "type": "graph",
+                        "graphId": "7",
+                        "encoding": "float",
+                    }
+                ]
+            },
+            "graphConfig": [
+                {
+                    "label": "Inverter data",
+                    "timespan": 5,
+                    "type": "realtime",
+                    "annotate": false,
+                    "maximum": 50,
+                    "minimum": -50,
+                    "plots": [
+                        {
+                            "graphId": "1",
+                            "color": "#FF0000",
+                            "label": "Measured current d",
+                        },
+                        {
+                            "graphId": "2",
+                            "color": "#00FF00",
+                            "label": "Measured current q",
+                        },
+                        // {
+                        //     "graphId": "3",
+                        //     "color": "#FFFFFF",
+                        //     "label": "Resolver fi",
+                        // },
+                        // {
+                        //     "graphId": "4",
+                        //     "color": "#FFFF00",
+                        //     "label": "Set voltage d",
+                        // },
+                        // {
+                        //     "graphId": "5",
+                        //     "color": "#00FFFF",
+                        //     "label": "Set voltage q",
+                        // },
+                        // {
+                        //     "graphId": "6",
+                        //     "color": "#99FF99",
+                        //     "label": "Angular speed",
+                        // },
+                        // {
+                        //     "graphId": "7",
+                        //     "color": "#990099",
+                        //     "label": "VBUS",
+                        // }
+                    ]
+                }
+            ],
+            "liveWatch": {
+                "enabled": true,
+                "samplesPerSecond": 10
+            }
+        }
+    ],
+    "compounds": []
+}
