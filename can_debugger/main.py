@@ -1,142 +1,142 @@
 import math
 import sys
+import time
+import struct
 
-from PySide6.QtWidgets import QWidget, QApplication
-from PySide6.QtCore import QPoint, QRect, QTimer, Qt, QLine
-from PySide6.QtGui import QPainter, QPointList
-
-import PySide6.QtGui as pqp
-
-from usb_can_adapter_v1 import UsbCanAdapter
-import can_debug_interface
-
-class cdi_channel:
-    def __init__(self, id, interface):
-        self.id = id
-        self.cdi = interface
-        self.color = pqp.QColor('black')
-        self._points = QPointList()
-        self._points.reserve(WIDTH)
-
-        self._x = 0
-        self._delta_x = 1
-        self._half_height = HEIGHT / 2
-        self._factor = 1/Y_SCALE * self._half_height
-        self.color = pqp.QColor('red')
-
-    def next_point(self):
-        # self.cdi.update()
-        # result = self._half_height + self.cdi.channels[0].value
-        # print('self id: '+str(self.id))
-        result = self._half_height - self._factor * self.cdi.channels[self.id].value
-        # print(self.cdi.channels[0].value)
-
-        self._x += self._delta_x
-        return result
-
-#TODO assert channel count
-
-WIDTH = 2000
-HEIGHT = 1000
-
-Y_SCALE = 100
+from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout
+from PySide6.QtCore import Qt, QThread, QObject, Signal, Slot, QTimer, QPointF
+from PySide6.QtCharts import QChartView, QChart, QValueAxis, QLineSeries
 
 
-class PlotWidget(QWidget):
-    """Illustrates the use of opaque containers. QPointList
-       wraps a C++ QList<QPoint> directly, removing the need to convert
-       a Python list in each call to QPainter.drawPolyline()."""
+from can import CANUSB, CANUSB_SPEED
 
-    def __init__(self, parent=None):
+class PlotterWidget(QChartView):
+    def __init__(self, parent):
         super().__init__(parent)
-        self._timer = QTimer(self)
-        self._timer.setInterval(10)
-        self._timer.timeout.connect(self.shift)
+        self.setChart(QChart())
+
+        self.xAxis = QValueAxis()
+        self.yAxis = QValueAxis()
+
+        self.chart().addAxis(self.xAxis, Qt.AlignBottom)
+        self.chart().addAxis(self.yAxis, Qt.AlignLeft)
+
+        self.setRubberBand(QChartView.RectangleRubberBand)
+
+        self.minimum = 1e20
+        self.maximum = -1e20
+        self.max_time = 0
 
 
-        self._data_timer = QTimer(self)
-        self._data_timer.setInterval(3)
+    def range(self, minimum, maximum, max_time):
+        self.minimum = min(self.minimum, minimum)
+        self.maximum = max(self.maximum, maximum)
+        self.max_time = max(self.max_time, max_time)
 
-        self.channels = []
+        self.xAxis.setMax(self.max_time)
+        self.yAxis.setRange(self.minimum, self.maximum)
+
+class Channel():
+    def __init__(self, plotter: PlotterWidget):
+        self.plotter = plotter
+
+        self.series = QLineSeries()
+        self.series.useOpenGL()
+        self.plotter.chart().addSeries(self.series)
+        self.series.attachAxis(self.plotter.xAxis)
+        self.series.attachAxis(self.plotter.yAxis)
+
+        self.points: list[QPointF] = []
+        self.minimum = 1e20
+        self.maximum = -1e20
+        self.max_time = 0
+
+    def add_point(self, time, value):
+        self.points.append(QPointF(time,value))
+        self.minimum = min(value, self.minimum)
+        self.maximum = max(value, self.maximum)
+        self.max_time = time
+        if len(self.points) > 20000:
+            self.points.pop(0)
+
+    def update_plot(self):
+        self.series.replace(self.points)
+        self.plotter.range(self.maximum, self.minimum, self.max_time)
 
 
-        self.uca = UsbCanAdapter()
-        self.uca.set_port('/dev/ttyUSB0')
-        self.uca.adapter_init()
-        self.uca.command_settings(speed=500000)
+class MainWindow(QMainWindow):
+    start_listening = Signal()
 
-        self.cdi = can_debug_interface.cdi_interface(self.uca)
+    def __init__(self):
+        super().__init__()
 
-        #declare channels
-        self.cdi.add_channel(0x100,int,0)
+        self.channels: dict[int, Channel] = {}
 
-        self.cdi.add_channel(0x101,int,1)
+        self.start_listener()
+        self.start_display_update()
 
+        self.w1 = PlotterWidget(self)
+        self.setCentralWidget(self.w1)
+        # self.w2 = PlotterWidget(self)
+
+        # self.layout = QVBoxLayout()
+        # self.layout.addWidget(self.w1)
+        # self.layout.addWidget(self.w2)
+        # self.setLayout(self.layout)
+
+        self.new_channel(0x100, self.w1)
+        # self.new_channel(0x101, self.w2)
+
+    def new_channel(self, id: int, widget: PlotterWidget):
+        self.channels[id] = Channel(widget)
+
+    def start_listener(self):
+        self.listener_thread = QThread()
+        self.listener = CanListener()
+        self.listener.moveToThread(self.listener_thread)
+        self.listener.new_data.connect(self.new_data)
+        self.listener_thread.start()
+
+        self.start_listening.connect(self.listener.listen)
+        self.start_listening.emit()
+
+    def start_display_update(self):
+        self.timer = QTimer(self)
+        self.timer.setInterval(20)
+        self.timer.timeout.connect(self.update_plotters)
+        self.timer.start()
+
+    def update_plotters(self):
+        for channel in self.channels.values():
+            channel.update_plot()
+
+    @Slot(int, float, float)
+    def new_data(self, channel, timestamp, value):
+        channel = self.channels.get(channel, None)
+        if channel is not None:
+            channel.add_point(timestamp, value)
+
+class CanListener(QObject):
+    new_data = Signal(int, float, float)
+
+    def __init__(self):
+        super().__init__()
+        self.can = CANUSB("/dev/ttyUSB0", CANUSB_SPEED.SPEED_500000)
+        self.start_time_us = time.time()
         
-        self._data_timer.timeout.connect(self.dataPoll)
+    @Slot()
+    def listen(self):
+        while True:
+            frame = self.can.get_frame()
+            value, = struct.unpack("<i", frame.data)
+            timestamp = float(time.time()-self.start_time_us)
+            self.new_data.emit(frame.id, timestamp, value)
 
-
-
-        #Create traces
-        for i in range(len(self.cdi.channels)):
-            self.channels.append(cdi_channel(i,self.cdi))
-
-
-        for channel in self.channels:
-            for i in range(WIDTH):
-                channel._points.append(QPoint(i, channel.next_point()))
-
-        self.channels[1].color= pqp.QColor('green')
-
-        self.setFixedSize(WIDTH, HEIGHT)
-
-        self._data_timer.start()
-        self._timer.start()
-
-        self.pen = pqp.QPen()
-
-
-
-    def shift(self):
-        for channel in self.channels:
-            last_x = channel._points[WIDTH - 1].x()
-            channel._points.pop_front()
-            channel._points.append(QPoint(last_x + 1, channel.next_point()))
-        self.update()
-
-    def paintEvent(self, event):
-        with QPainter(self) as painter:
-            rect = QRect(QPoint(0, 0), self.size())
-            painter.fillRect(rect, Qt.GlobalColor.white)
-            painter.translate(-self.channels[0]._points[0].x(), 0) #fixed!
-            # self.verticalReticle(1,1)
-            for channel in self.channels:    
-                # print("channel: " + str(channel.id))
-                # painter.translate(0, channel.id*50)
-                painter.setPen(self.pen)
-                self.pen.setColor(channel.color)
-
-                painter.drawPolyline(channel._points)
-                painter.drawLine(QLine(0,0,1000,1000))
-        
-
-    def verticalReticle(self, intervals, scale):
-        pen = pqp.QPen()
-        with QPainter(self) as painter:
-            painter.setPen(self.pen)
-           
-        pass
-
-    def dataPoll(self):
-        self.cdi.update()
-        pass
-        
 
 
 if __name__ == "__main__":
 
     app = QApplication(sys.argv)
-
-    w = PlotWidget()
+    w = MainWindow()
     w.show()
     sys.exit(app.exec())

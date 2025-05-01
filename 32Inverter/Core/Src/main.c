@@ -437,7 +437,7 @@ int main(void) {
 
 
 
-        if (HAL_GetTick() - last_call >= 20) {
+        if (HAL_GetTick() - last_call >= 1) {
 
             if(charger_mode)
             {

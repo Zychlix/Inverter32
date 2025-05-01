@@ -10,6 +10,7 @@
 #include "oscilloscope.h"
 #include "swo_scope.h"
 #include "stm32f3xx_hal_tim_ex.h"
+#include "can_debug_interface.h"
 
 #define INV_MIN_VOLTAGE_HYSTERESIS 5.f
 #define INV_MAX_TEMPERATURE_DISABLE 70.f //C
@@ -188,6 +189,7 @@ inline float constrain(float x, const float min, const float max) {
     return x;
 }
 
+
 void inv_set_pwm(inverter_t *inverter, float u, float v, float w) {
     inverter->timer->Instance->CCR1 = INV_MAX_PWM_PULSE_VAL * (0.5f + u / 2.0f);
     inverter->timer->Instance->CCR2 = INV_MAX_PWM_PULSE_VAL * (0.5f + v / 2.0f);
@@ -220,11 +222,11 @@ static void inv_send_trace_data(inverter_t *inverter) {
         swo_send_float(BUS_VOLTAGE, inverter->vbus);
     }
 }
-
 void inv_tick(inverter_t *inverter) {
     res_read_position(&inverter->resolver);
     vec_t phi = angle(inverter->resolver.fi);
 
+    int32_t val = (int32_t )((25.f*inverter->resolver.fi));
     static volatile abc_t current_abc;
     static volatile vec_t current_ab;
     static volatile vec_t current_dq;
