@@ -33,7 +33,7 @@ class PlotterWidget(QChartView):
         self.maximum = max(self.maximum, maximum)
         self.max_time = max(self.max_time, max_time)
 
-        self.xAxis.setMax(self.max_time)
+        self.xAxis.setRange(self.max_time-20,self.max_time)
         self.yAxis.setRange(self.minimum, self.maximum)
 
 class Channel():
@@ -61,7 +61,7 @@ class Channel():
 
     def update_plot(self):
         self.series.replace(self.points)
-        self.plotter.range(self.maximum, self.minimum, self.max_time)
+        self.plotter.range(self.minimum, self.maximum,  self.max_time)
 
 
 class MainWindow(QMainWindow):
@@ -77,7 +77,7 @@ class MainWindow(QMainWindow):
 
         self.w1 = PlotterWidget(self)
         self.setCentralWidget(self.w1)
-        # self.w2 = PlotterWidget(self)
+        self.w2 = PlotterWidget(self)
 
         # self.layout = QVBoxLayout()
         # self.layout.addWidget(self.w1)
@@ -85,7 +85,7 @@ class MainWindow(QMainWindow):
         # self.setLayout(self.layout)
 
         self.new_channel(0x100, self.w1)
-        # self.new_channel(0x101, self.w2)
+        self.new_channel(0x101, self.w2)
 
     def new_channel(self, id: int, widget: PlotterWidget):
         self.channels[id] = Channel(widget)
