@@ -17,7 +17,7 @@ class cdi_port_type(Enum):
 def get_value_and_type(channel,data):
     if channel.datatype == int:
         # return int(swap32(data.int()))
-        return int.from_bytes(data, byteorder='little', signed=False)
+        return int.from_bytes(data, byteorder='little', signed=True)
     elif channel.datatype == float:
         return float(swap32(data))
     
@@ -27,6 +27,7 @@ class channel:
     def __init__(self,id,type):
         self.id = id
         self.datatype = type
+        self.value = 0
         data = 0
 
 class cdi_interface:
@@ -57,7 +58,8 @@ class cdi_interface:
                     # print(self.uca.frame)  
                     # print(self.uca.frame[-(received-4):-1]) #Not playing with the library
                     channel.value = get_value_and_type(channel,self.uca.frame[-(received-4):-1])
-                    print(channel.value)
+                    pass
+                    # print(channel.value)
 
 
 

@@ -437,7 +437,7 @@ int main(void) {
 
 
 
-        if (HAL_GetTick() - last_call >= 1) {
+        if (HAL_GetTick() - last_call >= 20) {
 
             if(charger_mode)
             {
@@ -465,22 +465,10 @@ int main(void) {
 
 
             HAL_GPIO_WritePin(X_OUT_GPIO_Port, X_OUT_Pin, true);
-
-//            uint8_t payload[8] = {0};
-//            CAN_TxHeaderTypeDef tx_header = {0};
-//
-//            uint32_t none;
-//
-//            tx_header.StdId = 0x100;
-//            tx_header.ExtId = DEZHOU_COMMAND_EXTID;
-//            tx_header.IDE = CAN_RTR_DATA;
-//            tx_header.DLC = sizeof(payload);
-//            tx_header.RTR = CAN_RTR_DATA;
-//
-//
-//            HAL_StatusTypeDef retval;
-//            retval = HAL_CAN_AddTxMessage(charger.can, &tx_header, (uint8_t *) &payload, &none);
-            cdi_transmit_channel(&can_debugger,0,(uint8_t*)&last_call,sizeof(last_call));
+            int32_t val = (int32_t )((25.f*inv.resolver.fi));
+            cdi_transmit_channel(&can_debugger,0,(uint8_t*)&val,sizeof(last_call));
+            val = (int32_t )((1.f*inv.resolver.velocity));
+            cdi_transmit_channel(&can_debugger,1,(uint8_t*)&val,sizeof(last_call));
 
             HAL_GPIO_WritePin(X_OUT_GPIO_Port, X_OUT_Pin, false);
 

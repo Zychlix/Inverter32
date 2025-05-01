@@ -20,7 +20,7 @@ class PlotWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self._timer = QTimer(self)
-        self._timer.setInterval(20)
+        self._timer.setInterval(2)
         self._timer.timeout.connect(self.shift)
 
         self._points = QPointList()
