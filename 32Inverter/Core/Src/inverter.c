@@ -151,11 +151,12 @@ void res_read_position(resolver_t *res) {
     HAL_GPIO_WritePin(RD_GPIO_Port, RD_Pin, 1);
     HAL_GPIO_WritePin(RD_GPIO_Port, RD_Pin, 0);
 
-    // static volatile float resolver_offset = -3.141f;
-    static volatile float resolver_offset = -2.9f-3.14152f/2+0.1f;
+     static volatile float resolver_offset = -5.51f;
+//    static volatile float resolver_offset = -2.9f-3.14152f/2+0.1f;  // Silnik w samochodzie
 
     uint16_t pos = spi_read_word(res->spi_handler->Instance) >> 4;
-    res->fi = (float) pos / 4096.f * 2 * (float) M_PI + resolver_offset;
+//    res->fi = (float) pos / 4096.f * 2 * (float) M_PI + resolver_offset;  //w samochodzie
+    res->fi = (1-(float) pos / 4096.f )* 2 * (float) M_PI + resolver_offset;
 
     HAL_GPIO_WritePin(RDVEL_GPIO_Port, RDVEL_Pin, 0);
     HAL_GPIO_WritePin(RD_GPIO_Port, RD_Pin, 1);

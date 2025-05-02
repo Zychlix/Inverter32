@@ -25,7 +25,7 @@
             "channel":
                 [
                     {
-                        "id": 258,
+                        "id": 256,
                         "datatype": "float",
                         "color": "yellow",
                         "label": "A"

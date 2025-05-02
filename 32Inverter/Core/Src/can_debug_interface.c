@@ -23,6 +23,8 @@ CDI_RETURN_VALUE cdi_init(cdi_t * instance)
 
 
 
+
+
     return 0;
 }
 

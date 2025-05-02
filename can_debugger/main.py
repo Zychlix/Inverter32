@@ -5,70 +5,115 @@ import struct
 
 import json
 
-from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout
+from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QSizePolicy, QCheckBox, QDoubleSpinBox, QSpacerItem
 from PySide6.QtCore import Qt, QThread, QObject, Signal, Slot, QTimer, QPointF
 from PySide6.QtCharts import QChartView, QChart, QValueAxis, QLineSeries
 
 
 from can import CANUSB, CANUSB_SPEED
 
-class PlotterWidget(QChartView):
+class PlotterWidget(QWidget):
     def __init__(self, parent):
         super().__init__(parent)
-        self.setChart(QChart())
 
+        self.channels = []
+
+        self.setup_ui()    
+        self.setup_chart()    
+        self.setup_scaling()
+
+
+    def setup_ui(self):
+        self.setLayout(QHBoxLayout())
+        self.chart = QChart()
+        self.view = QChartView(self)
+        self.view.setChart(self.chart)
+        self.layout().addWidget(self.view)
+
+        self.setSizePolicy(QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding))
+        self.view.setSizePolicy(QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding))
+
+    def setup_chart(self):
         self.xAxis = QValueAxis()
         self.yAxis = QValueAxis()
 
-        self.chart().addAxis(self.xAxis, Qt.AlignBottom)
-        self.chart().addAxis(self.yAxis, Qt.AlignLeft)
+        self.chart.addAxis(self.xAxis, Qt.AlignBottom)
+        self.chart.addAxis(self.yAxis, Qt.AlignLeft)
 
-        self.setRubberBand(QChartView.RectangleRubberBand)
+        self.view.setRubberBand(QChartView.RectangleRubberBand)
 
+    def setup_scaling(self):
+        self.scaling_widget = QWidget()
+        self.layout().addWidget(self.scaling_widget)
+        self.scaling_layout = QVBoxLayout()
 
-        self.minimum = 1e20
-        self.maximum = -1e20
-        self.max_time = 0
+        self.auto_x_check = QCheckBox("Auto Time", self.scaling_widget)
+        self.scaling_layout.addWidget(self.auto_x_check)
+        self.auto_x_check.setChecked(True)
+        self.auto_y_check = QCheckBox("Auto Value", self.scaling_widget)
+        self.scaling_layout.addWidget(self.auto_y_check)
+        self.auto_y_check.setChecked(True)
+        self.time_spin = QDoubleSpinBox(self.scaling_widget)
+        self.scaling_layout.addWidget(self.time_spin)
 
+        self.scaling_spacer = QSpacerItem(1, 1, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+        self.scaling_layout.addItem(self.scaling_spacer)
 
-    def range(self, minimum, maximum, max_time):
-        self.minimum = min(self.minimum, minimum)
-        self.maximum = max(self.maximum, maximum)
-        self.max_time = max(self.max_time, max_time)
+        self.scaling_widget.setLayout(self.scaling_layout)
 
-        self.xAxis.setRange(self.max_time-20,self.max_time)
-        self.yAxis.setRange(self.minimum, self.maximum)
+    def range(self):
+        if self.auto_x_check.isChecked():
+            min_time = min((channel.min_time for channel in self.channels))
+            max_time = max((channel.max_time for channel in self.channels))
+            if min_time - max_time == 0:
+                max_time = min_time + 1e-10
+            self.xAxis.setRange(min_time, max_time)
+
+        if self.auto_y_check.isChecked():
+            min_value = min((channel.min_value for channel in self.channels))
+            max_value = max((channel.max_value for channel in self.channels))
+            if min_value - max_value == 0:
+                max_value = min_value + 1e-10
+            self.yAxis.setRange(min_value, max_value)
+
+        if self.time_spin.value() > 0:
+            max_time = max((channel.max_time for channel in self.channels))
+            min_time = max_time - self.time_spin.value()
+            self.xAxis.setRange(min_time, max_time)
 
 class Channel():
     def __init__(self, plotter: PlotterWidget):
         self.plotter = plotter
+        self.plotter.channels.append(self)
 
         self.series = QLineSeries()
         self.series.useOpenGL()
-        self.plotter.chart().addSeries(self.series)
+        self.plotter.chart.addSeries(self.series)
         self.series.attachAxis(self.plotter.xAxis)
         self.series.attachAxis(self.plotter.yAxis)
 
-
-
         self.points: list[QPointF] = []
-        self.minimum = 1e20
-        self.maximum = -1e20
-        self.max_time = 0
-
-        self.add_point(0, 0)
+        self.min_time = 1e20
+        self.max_time = -1e20
+        self.min_value = 1e20
+        self.max_value = -1e20
 
     def add_point(self, time, value):
         self.points.append(QPointF(time,value))
-        self.minimum = min(value, self.minimum)
-        self.maximum = max(value, self.maximum)
-        self.max_time = time
         if len(self.points) > 20000:
             self.points.pop(0)
 
     def update_plot(self):
-        self.series.replace(self.points)
-        self.plotter.range(self.minimum, self.maximum,  self.max_time)
+        if self.points:
+            self.series.replace(self.points)
+
+            self.min_time = min((p.x() for p in self.points))
+            self.max_time = max((p.x() for p in self.points))
+            self.min_value = min((p.y() for p in self.points))
+            self.max_value = max((p.y() for p in self.points))
+            self.plotter.range()
+
+        # print(len(self.points))
 
 
 class MainWindow(QMainWindow):
@@ -79,33 +124,21 @@ class MainWindow(QMainWindow):
 
         self.channels: dict[int, Channel] = {}
 
-
-       
-
         self.start_listener()
         self.start_display_update()
 
 
-        self.w = []
+        self.plotters = []
+
+        self.widget = QWidget()
+        self.setCentralWidget(self.widget)
+        self.layout = QVBoxLayout(self.widget)
 
         self.parse_config()
-        # self.w1 = PlotterWidget(self)
-        # self.setCentralWidget(self.w1)
-        # self.w2 = PlotterWidget(self)
 
-        # self.layout = QVBoxLayout()
-        # for i in self.w:
-        #     self.layout.addWidget(w)
-        # self.layout.addWidget(self.w1)
-        # self.layout.addWidget(self.w2)
-        # self.setLayout(self.layout)
-
-        # self.new_channel(0x100, self.w1)
-        # self.new_channel(0x101, self.w2)
 
     def new_channel(self, id: int, label: str, widget: PlotterWidget):
         self.channels[id] = Channel(widget)
-        
 
     def start_listener(self):
         self.listener_thread = QThread()
@@ -140,12 +173,11 @@ class MainWindow(QMainWindow):
         for plot in config["plot"]:
             print(plot)
             w = PlotterWidget(self)
-            self.w.append(w)
+            self.layout.addWidget(w)
+            self.plotters.append(w)
             for channel in plot["channel"]:
                 print(channel)
                 self.new_channel(channel["id"],channel["label"],w)
-
-        self.setCentralWidget(self.w[0])
 
 
 class CanListener(QObject):
@@ -160,6 +192,10 @@ class CanListener(QObject):
     def listen(self):
         while True:
             frame = self.can.get_frame()
+            # print(frame.id)
+            if len(frame.data)!= 4:
+                print("MALFORMED FRAME----------------------------")
+                continue
             value, = struct.unpack("<i", frame.data)
             timestamp = float(time.time()-self.start_time_us)
             self.new_data.emit(frame.id, timestamp, value)

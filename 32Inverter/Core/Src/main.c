@@ -315,9 +315,11 @@ int main(void) {
         chg_config_filters(&charger);
     }
 
-    //Enable CAN debiugging
+
+    HAL_CAN_Start(&hcan);
 
     can_debugger.can = &hcan;
+    //Enable CAN debiugging
     if(cdi_init(&can_debugger))
     {
         printf("CAN Debugger faulty! \r\n");
@@ -423,8 +425,12 @@ int main(void) {
 //        if(inv.throttle_control){
 //            pocieniasianie = -200;
 //        }
+
+    if(inv.throttle_control)
+    {
+
         {
-            if(throttle>=0.20 && inv.throttle_control)
+            if(throttle>=0.20)
             {
                 inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){0, -(throttle-0.20f)*500});
             }
@@ -433,11 +439,12 @@ int main(void) {
                 inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){0, 0});
             }
         }
+    }
 
 
 
 
-        if (HAL_GetTick() - last_call >= 1) {
+        if (HAL_GetTick() - last_call >= 10) {
 
             if(charger_mode)
             {
@@ -459,20 +466,20 @@ int main(void) {
 //                    chg_send_fast_data(&charger);
 //                }
 
-                last_call = HAL_GetTick();
 
             }
+            last_call = HAL_GetTick();
 
 
 //            HAL_GPIO_WritePin(X_OUT_GPIO_Port, X_OUT_Pin, true);
             int32_t val = (int32_t )((25.f*inv.resolver.fi));
-            cdi_transmit_channel(&can_debugger,0,(uint8_t*)&val,sizeof(last_call));
+            cdi_transmit_channel(&can_debugger,0,(uint8_t*)&val,sizeof(val));
             val = (int32_t )((1.f*inv.resolver.velocity));
-            cdi_transmit_channel(&can_debugger,1,(uint8_t*)&val,sizeof(last_call));
+            cdi_transmit_channel(&can_debugger,1,(uint8_t*)&val,sizeof(val));
 
 
 
-            cdi_transmit_channel(&can_debugger,2,(uint8_t*)&inv.resolver.fi,sizeof(inv.resolver.fi));
+//            cdicdi_transmit_channel(&can_debugger,2,(uint8_t*)&inv.resolver.fi,sizeof(inv.resolver.fi));
 
 //            HAL_GPIO_WritePin(X_OUT_GPIO_Port, X_OUT_Pin, false);
 

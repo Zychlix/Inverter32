@@ -72,18 +72,24 @@ for i in range(5):
     else:
         break
 
-fi_electrical = np.linspace(0, 2 * np.pi, 30)
+unwrapping_offset = 0
+
+fi_electrical = np.concatenate((np.linspace(0, 2 * np.pi, 30),np.linspace(2 * np.pi,0, 30) ))
 fi_mechanical = []
 current = 40
 
 for fi_ele in fi_electrical:
     inv.set_ab(current, fi_ele)
     time.sleep(1)
-    fi_mech = inv.res_angle()
-    if fi_mech < 0:
-        fi_mech += 2*np.pi
-    if fi_mech > 2*np.pi:
-        fi_mech -= 2*np.pi
+    fi_mech_orig = inv.res_angle()
+    fi_mech = fi_mech_orig + unwrapping_offset
+    if fi_mechanical and np.abs(fi_mech - fi_mechanical[-1]) > np.pi:
+        unwrapping_offset += np.pi*2*np.sign(fi_mechanical[-1] - fi_mech )
+        fi_mech = fi_mech_orig + unwrapping_offset
+    # if fi_mech < 0:
+    #     fi_mech += 2*np.pi
+    # if fi_mech > 2*np.pi:
+    #     fi_mech -= 2*np.pi
     fi_mechanical.append(fi_mech)
     print(f'{fi_ele:.3f} -> {fi_mech:.3f}')
 
