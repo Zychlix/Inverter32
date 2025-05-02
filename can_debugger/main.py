@@ -2,6 +2,7 @@ import math
 import sys
 import time
 import struct
+from enum import Enum
 
 import json
 
@@ -81,8 +82,21 @@ class PlotterWidget(QWidget):
             min_time = max_time - self.time_spin.value()
             self.xAxis.setRange(min_time, max_time)
 
+class Datatype(Enum):
+    FLOAT=1,
+    INT32=2,
+
+    @classmethod
+    def _missing_(cls, value):
+        if value == "float":
+            return Datatype.FLOAT
+        elif value == "int32":
+            return Datatype.INT32
+        else:
+            return super()._missing_(value)
+
 class Channel():
-    def __init__(self, plotter: PlotterWidget):
+    def __init__(self, plotter: PlotterWidget, datatype: Datatype):
         self.plotter = plotter
         self.plotter.channels.append(self)
 
@@ -92,6 +106,8 @@ class Channel():
         self.series.attachAxis(self.plotter.xAxis)
         self.series.attachAxis(self.plotter.yAxis)
 
+        self.datatype = datatype
+
         self.points: list[QPointF] = []
         self.min_time = 1e20
         self.max_time = -1e20
@@ -99,6 +115,13 @@ class Channel():
         self.max_value = -1e20
 
     def add_point(self, time, value):
+        if self.datatype == Datatype.INT32:
+            value, = struct.unpack("<i", value)
+        elif self.datatype == Datatype.FLOAT:
+            value, = struct.unpack("<f", value)
+        else:
+            return
+
         self.points.append(QPointF(time,value))
         if len(self.points) > 20000:
             self.points.pop(0)
@@ -137,8 +160,8 @@ class MainWindow(QMainWindow):
         self.parse_config()
 
 
-    def new_channel(self, id: int, label: str, widget: PlotterWidget):
-        self.channels[id] = Channel(widget)
+    def new_channel(self, id: int, label: str, widget: PlotterWidget, datatype: Datatype):
+        self.channels[id] = Channel(widget, datatype)
 
     def start_listener(self):
         self.listener_thread = QThread()
@@ -177,11 +200,11 @@ class MainWindow(QMainWindow):
             self.plotters.append(w)
             for channel in plot["channel"]:
                 print(channel)
-                self.new_channel(channel["id"],channel["label"],w)
+                self.new_channel(channel["id"],channel["label"],w,Datatype(channel["datatype"]))
 
 
 class CanListener(QObject):
-    new_data = Signal(int, float, float)
+    new_data = Signal(int, float, bytearray)
 
     def __init__(self):
         super().__init__()
@@ -196,9 +219,8 @@ class CanListener(QObject):
             if len(frame.data)!= 4:
                 print("MALFORMED FRAME----------------------------")
                 continue
-            value, = struct.unpack("<i", frame.data)
             timestamp = float(time.time()-self.start_time_us)
-            self.new_data.emit(frame.id, timestamp, value)
+            self.new_data.emit(frame.id, timestamp, frame.data)
 
 
 

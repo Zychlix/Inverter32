@@ -18,6 +18,8 @@
 
 #define TRACE_FREQUENCY_DIVIDER 16
 
+extern inverter_t inv;
+
 void inv_reset_controllers(inverter_t * inverter)
 {
     inverter->pid_d.integrated = 0;
@@ -224,7 +226,9 @@ static void inv_send_trace_data(inverter_t *inverter) {
     }
 }
 void inv_tick(inverter_t *inverter) {
-    res_read_position(&inverter->resolver); //Change speed calculation method
+
+    HAL_GPIO_WritePin(X_OUT_GPIO_Port, X_OUT_Pin, false);
+//    res_read_position(&inverter->resolver); //Change speed calculation method
     vec_t phi = angle(inverter->resolver.fi);
 
     static volatile abc_t current_abc;
@@ -312,7 +316,9 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 {
     if (hadc->Instance == ADC1)
     {
-        HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, true);
+        HAL_GPIO_WritePin(X_OUT_GPIO_Port, X_OUT_Pin, true);
+        inv_tick(&inv);
+//        res_read_position(&inv.resolver);
     }
 }
 

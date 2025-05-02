@@ -408,7 +408,7 @@ int main(void) {
     charger.setpoint.protection = DEZHOU_BATTERY_PROTECTION;
     charger.setpoint.voltage = 120.f;
     charger.setpoint.current = 10.f;
-//    while(!HAL_GPIO_ReadPin(BRK_IN_PORT,BRK_IN_PIN));
+
     while (1) {
         /* USER CODE END WHILE */
 
@@ -474,9 +474,9 @@ int main(void) {
 //            HAL_GPIO_WritePin(X_OUT_GPIO_Port, X_OUT_Pin, true);
             int32_t val = (int32_t )((25.f*inv.resolver.fi));
             cdi_transmit_channel(&can_debugger,0,(uint8_t*)&val,sizeof(val));
-            val = (int32_t )((1.f*inv.resolver.velocity));
-            cdi_transmit_channel(&can_debugger,1,(uint8_t*)&val,sizeof(val));
-
+            val = (int32_t )(inv.current.x);
+            cdi_transmit_channel(&can_debugger,2,(uint8_t*)&(inv.current.x),sizeof(inv.current.x));
+            cdi_transmit_channel(&can_debugger,3,(uint8_t*)&(inv.current.y),sizeof(inv.current.y));
 
 
 //            cdicdi_transmit_channel(&can_debugger,2,(uint8_t*)&inv.resolver.fi,sizeof(inv.resolver.fi));
@@ -545,7 +545,7 @@ void SystemClock_Config(void) {
 static void MX_ADC1_Init(void) {
 
     /* USER CODE BEGIN ADC1_Init 0 */
-
+    //Current ADC
     /* USER CODE END ADC1_Init 0 */
 
     ADC_MultiModeTypeDef multimode = {0};
@@ -567,7 +567,7 @@ static void MX_ADC1_Init(void) {
     hadc1.Init.ExternalTrigConv = ADC_EXTERNALTRIGCONV_T1_TRGO2;
     hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
     hadc1.Init.NbrOfConversion = 2;
-    hadc1.Init.DMAContinuousRequests = ENABLE;
+    hadc1.Init.DMAContinuousRequests = ENABLE;  //sure?
     hadc1.Init.EOCSelection = ADC_EOC_SEQ_CONV;
     hadc1.Init.LowPowerAutoWait = DISABLE;
     hadc1.Init.Overrun = ADC_OVR_DATA_OVERWRITTEN;
@@ -602,6 +602,8 @@ static void MX_ADC1_Init(void) {
         Error_Handler();
     }
     /* USER CODE BEGIN ADC1_Init 2 */
+
+    HAL_NVIC_SetPriority(ADC1_2_IRQn,0,0);
 
     /* USER CODE END ADC1_Init 2 */
 
@@ -910,6 +912,8 @@ static void MX_TIM1_Init(void) {
     if (HAL_TIM_PWM_Init(&htim1) != HAL_OK) {
         Error_Handler();
     }
+
+
     sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
     sMasterConfig.MasterOutputTrigger2 = TIM_TRGO2_UPDATE;
     sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
@@ -931,6 +935,10 @@ static void MX_TIM1_Init(void) {
         Error_Handler();
     }
     if (HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_3) != HAL_OK) {
+        Error_Handler();
+    }
+
+    if (HAL_TIM_OC_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_4) != HAL_OK) {
         Error_Handler();
     }
     sBreakDeadTimeConfig.OffStateRunMode = TIM_OSSR_DISABLE;
@@ -1131,7 +1139,7 @@ void TIM8_UP_IRQHandler()
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
     if (htim->Instance == TIM1) {
-        inv_tick(&inv);
+//        inv_tick(&inv);
     }
 }
 

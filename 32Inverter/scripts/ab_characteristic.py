@@ -74,7 +74,9 @@ for i in range(5):
 
 unwrapping_offset = 0
 
-fi_electrical = np.concatenate((np.linspace(0, 2 * np.pi, 30),np.linspace(2 * np.pi,0, 30) ))
+N_POINTS = 48
+
+fi_electrical = np.concatenate((np.linspace(0, 2 * np.pi, N_POINTS),np.linspace(2 * np.pi,0, N_POINTS) ))
 fi_mechanical = []
 current = 40
 
