@@ -1,0 +1,40 @@
+
+{
+    "plot":
+    [
+        {
+        "channel":
+            [
+                {
+                    "id": 256,
+                    "datatype": "int32",
+                    "color": "red",
+                    "label": "resolver angle"
+                }, 
+                {
+                    "id": 257,
+                    "datatype": "int32",
+                    "color": "green",
+                    "label": "Template"
+
+                }
+
+            ]
+        },
+        {
+            "channel":
+                [
+                    {
+                        "id": 258,
+                        "datatype": "float",
+                        "color": "yellow",
+                        "label": "A"
+                    }
+    
+                ]
+            }
+    
+
+    ]
+
+}

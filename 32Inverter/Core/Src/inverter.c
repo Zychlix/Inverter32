@@ -223,10 +223,9 @@ static void inv_send_trace_data(inverter_t *inverter) {
     }
 }
 void inv_tick(inverter_t *inverter) {
-    res_read_position(&inverter->resolver);
+    res_read_position(&inverter->resolver); //Change speed calculation method
     vec_t phi = angle(inverter->resolver.fi);
 
-    int32_t val = (int32_t )((25.f*inverter->resolver.fi));
     static volatile abc_t current_abc;
     static volatile vec_t current_ab;
     static volatile vec_t current_dq;
@@ -264,10 +263,16 @@ void inv_tick(inverter_t *inverter) {
         };
 
         pwm = limit_amplitude(pwm, 1);
+
+        //Add phi correction as a function of speed
         pwm = inverseParkTransform(pwm, phi);
+
         static volatile abc_t pwmABC = {0};
         pwmABC = inverseClarkeTransform(pwm);
+
         inv_set_pwm(inverter, pwmABC.a, pwmABC.b, pwmABC.c);
+
+
     } else if (inverter->mode == MODE_AB) {
         inverter->voltage = (vec_t){
             pid_calc(&inverter->pid_a, current_ab.x, inverter->set_value.x),
@@ -306,7 +311,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 {
     if (hadc->Instance == ADC1)
     {
-//        HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, true);
+        HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, true);
     }
 }
 

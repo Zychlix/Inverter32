@@ -3,6 +3,8 @@ import sys
 import time
 import struct
 
+import json
+
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout
 from PySide6.QtCore import Qt, QThread, QObject, Signal, Slot, QTimer, QPointF
 from PySide6.QtCharts import QChartView, QChart, QValueAxis, QLineSeries
@@ -22,6 +24,7 @@ class PlotterWidget(QChartView):
         self.chart().addAxis(self.yAxis, Qt.AlignLeft)
 
         self.setRubberBand(QChartView.RectangleRubberBand)
+
 
         self.minimum = 1e20
         self.maximum = -1e20
@@ -46,10 +49,14 @@ class Channel():
         self.series.attachAxis(self.plotter.xAxis)
         self.series.attachAxis(self.plotter.yAxis)
 
+
+
         self.points: list[QPointF] = []
         self.minimum = 1e20
         self.maximum = -1e20
         self.max_time = 0
+
+        self.add_point(0, 0)
 
     def add_point(self, time, value):
         self.points.append(QPointF(time,value))
@@ -72,23 +79,33 @@ class MainWindow(QMainWindow):
 
         self.channels: dict[int, Channel] = {}
 
+
+       
+
         self.start_listener()
         self.start_display_update()
 
-        self.w1 = PlotterWidget(self)
-        self.setCentralWidget(self.w1)
-        self.w2 = PlotterWidget(self)
+
+        self.w = []
+
+        self.parse_config()
+        # self.w1 = PlotterWidget(self)
+        # self.setCentralWidget(self.w1)
+        # self.w2 = PlotterWidget(self)
 
         # self.layout = QVBoxLayout()
+        # for i in self.w:
+        #     self.layout.addWidget(w)
         # self.layout.addWidget(self.w1)
         # self.layout.addWidget(self.w2)
         # self.setLayout(self.layout)
 
-        self.new_channel(0x100, self.w1)
-        self.new_channel(0x101, self.w2)
+        # self.new_channel(0x100, self.w1)
+        # self.new_channel(0x101, self.w2)
 
-    def new_channel(self, id: int, widget: PlotterWidget):
+    def new_channel(self, id: int, label: str, widget: PlotterWidget):
         self.channels[id] = Channel(widget)
+        
 
     def start_listener(self):
         self.listener_thread = QThread()
@@ -116,6 +133,21 @@ class MainWindow(QMainWindow):
         if channel is not None:
             channel.add_point(timestamp, value)
 
+    def parse_config(self):
+        file = open('config.json')
+        config = json.load(file)
+
+        for plot in config["plot"]:
+            print(plot)
+            w = PlotterWidget(self)
+            self.w.append(w)
+            for channel in plot["channel"]:
+                print(channel)
+                self.new_channel(channel["id"],channel["label"],w)
+
+        self.setCentralWidget(self.w[0])
+
+
 class CanListener(QObject):
     new_data = Signal(int, float, float)
 
@@ -135,6 +167,8 @@ class CanListener(QObject):
 
 
 if __name__ == "__main__":
+
+ 
 
     app = QApplication(sys.argv)
     w = MainWindow()

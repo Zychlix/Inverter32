@@ -348,7 +348,7 @@ int main(void) {
 
 
 
-//    TIM8_init();
+    TIM8_init();
     HAL_Delay(200);
 
 
@@ -374,7 +374,7 @@ int main(void) {
         }
 
         inv_enable(&inv, true); //!!! importante
-        inv.throttle_control = true;
+        inv.throttle_control = false;
 
     } else
     {
@@ -415,18 +415,18 @@ int main(void) {
 
         cli_poll();
         float throttle=inv.adcs.throttleB;
-        float pocieniasianie = inv.resolver.velocity * 0.1;
-        if(pocieniasianie > 200){
-            pocieniasianie = 200;
-        }
-        if(pocieniasianie < -200)
-        if(inv.throttle_control){
-            pocieniasianie = -200;
-        }
+//        float pocieniasianie = inv.resolver.velocity * 0.1;
+//        if(pocieniasianie > 200){
+//            pocieniasianie = 200;
+//        }
+//        if(pocieniasianie < -200)
+//        if(inv.throttle_control){
+//            pocieniasianie = -200;
+//        }
         {
-            if(throttle>=0.20)
+            if(throttle>=0.20 && inv.throttle_control)
             {
-                inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){pocieniasianie, -(throttle-0.20f)*500});
+                inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){0, -(throttle-0.20f)*500});
             }
             else
             {
@@ -464,13 +464,17 @@ int main(void) {
             }
 
 
-            HAL_GPIO_WritePin(X_OUT_GPIO_Port, X_OUT_Pin, true);
+//            HAL_GPIO_WritePin(X_OUT_GPIO_Port, X_OUT_Pin, true);
             int32_t val = (int32_t )((25.f*inv.resolver.fi));
             cdi_transmit_channel(&can_debugger,0,(uint8_t*)&val,sizeof(last_call));
             val = (int32_t )((1.f*inv.resolver.velocity));
             cdi_transmit_channel(&can_debugger,1,(uint8_t*)&val,sizeof(last_call));
 
-            HAL_GPIO_WritePin(X_OUT_GPIO_Port, X_OUT_Pin, false);
+
+
+            cdi_transmit_channel(&can_debugger,2,(uint8_t*)&inv.resolver.fi,sizeof(inv.resolver.fi));
+
+//            HAL_GPIO_WritePin(X_OUT_GPIO_Port, X_OUT_Pin, false);
 
 
 
