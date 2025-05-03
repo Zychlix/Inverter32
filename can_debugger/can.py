@@ -51,11 +51,15 @@ class CANUSB:
         self.__configure_can_interface(speed=speed)
 
     def get_frame(self):
-        received = self.__receive_frame()
-        data = self.__parse_frame(received)  
+        data = None
+        while data is None:
+            received = self.__receive_frame()
+            data = self.__parse_frame(received)  
         return data
     
-    def __parse_frame(self, frame: bytearray) -> CANFrame:
+    def __parse_frame(self, frame: bytearray) -> CANFrame | None:
+        if len(frame)<4:
+            return None
         frame_id, = struct.unpack("<H", frame[2:4])
         data = frame[-(len(frame)-4):-1]
 

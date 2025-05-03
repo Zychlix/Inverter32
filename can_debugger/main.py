@@ -96,7 +96,7 @@ class Datatype(Enum):
             return super()._missing_(value)
 
 class Channel():
-    def __init__(self, plotter: PlotterWidget, datatype: Datatype):
+    def __init__(self, plotter: PlotterWidget, datatype: Datatype, label: str):
         self.plotter = plotter
         self.plotter.channels.append(self)
 
@@ -105,6 +105,8 @@ class Channel():
         self.plotter.chart.addSeries(self.series)
         self.series.attachAxis(self.plotter.xAxis)
         self.series.attachAxis(self.plotter.yAxis)
+
+        self.series.setName(label)
 
         self.datatype = datatype
 
@@ -160,8 +162,8 @@ class MainWindow(QMainWindow):
         self.parse_config()
 
 
-    def new_channel(self, id: int, label: str, widget: PlotterWidget, datatype: Datatype):
-        self.channels[id] = Channel(widget, datatype)
+    def new_channel(self, id: int, label: str, widget: PlotterWidget, datatype: Datatype, name: str):
+        self.channels[id] = Channel(widget, datatype, name)
 
     def start_listener(self):
         self.listener_thread = QThread()
@@ -200,7 +202,7 @@ class MainWindow(QMainWindow):
             self.plotters.append(w)
             for channel in plot["channel"]:
                 print(channel)
-                self.new_channel(channel["id"],channel["label"],w,Datatype(channel["datatype"]))
+                self.new_channel(channel["id"],channel["label"],w,Datatype(channel["datatype"]), channel["label"])
 
 
 class CanListener(QObject):

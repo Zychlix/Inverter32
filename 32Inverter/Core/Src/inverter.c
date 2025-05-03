@@ -310,7 +310,6 @@ void inv_tick(inverter_t *inverter) {
 
     inv_send_trace_data(inverter);
 
-    HAL_GPIO_WritePin(X_OUT_GPIO_Port, X_OUT_Pin, false);
 
 }
 
@@ -318,7 +317,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 {
     if (hadc->Instance == ADC1)
     {
-        HAL_GPIO_WritePin(X_OUT_GPIO_Port, X_OUT_Pin, true);
+//        HAL_GPIO_WritePin(X_OUT_GPIO_Port, X_OUT_Pin, true);
         inv_tick(&inv);
 //        res_read_position(&inv.resolver);
     }
@@ -380,7 +379,7 @@ void inv_enable(inverter_t *inv, bool status) {
             HAL_TIMEx_PWMN_Start(inv->timer, TIM_CHANNEL_2);
             HAL_TIM_PWM_Start(inv->timer, TIM_CHANNEL_3);
             HAL_TIMEx_PWMN_Start(inv->timer, TIM_CHANNEL_3);
-            for(int i = 0; i< 300; i++)
+            for(int i = 0; i< 300; i++)                 //IT CAN'T BE DONE THIS WAY. Add a state machine waiting for it to be done
             {
                 adc4_read(&inv->adcs);
             }

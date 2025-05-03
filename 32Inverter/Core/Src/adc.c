@@ -66,11 +66,13 @@ void adc4_read(adcs_t *adcs){
 
     static volatile float new_vbus;
     new_vbus = (float)((int16_t)data[3] - VBUS_OFFSET) * VBUS_VOLTS_PER_BIT;
+
     exp_filter(&adcs->vbus, new_vbus,INV_VBUS_FILTER_ALPHA);
 
 
     const float INPUT_12V_VOLTS_PER_BIT = VREF / 4095.f * 11;
     adcs->input12V = (float)data[4] * INPUT_12V_VOLTS_PER_BIT;
+//    adcs->input12V = (float)data[4];
 
 }
 

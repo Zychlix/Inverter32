@@ -7,13 +7,13 @@
             [
                 {
                     "id": 256,
-                    "datatype": "int32",
+                    "datatype": "float",
                     "color": "red",
                     "label": "resolver angle"
                 }, 
                 {
                     "id": 257,
-                    "datatype": "int32",
+                    "datatype": "float",
                     "color": "green",
                     "label": "Template"
 
@@ -25,20 +25,26 @@
             "channel":
                 [
                     {
-                        "id": 258,
+                        "id": 260,
                         "datatype": "float",
                         "color": "yellow",
-                        "label": "A"
-                    },
-                    {
-                        "id": 259,
-                        "datatype": "float",
-                        "color": "yellow",
-                        "label": "A"
+                        "label": "VBUS"
                     }
-    
                 ]
-            }
+            },
+            {
+                "channel":
+                    [
+                        {
+                            "id": 259,
+                            "datatype": "float",
+                            "color": "yellow",
+                            "label": "12V"
+                        }
+                
+        
+                    ]
+                }
     
 
     ]

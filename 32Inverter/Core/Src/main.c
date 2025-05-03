@@ -29,6 +29,8 @@
 #include <stdio.h>
 #include <cli.h>
 #include "can_debug_interface.h"
+
+#include "debug.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -43,9 +45,11 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-inverter_t inv = {0};
-chg_t charger = {0};
-cdi_t can_debugger;
+
+
+inverter_t inv = {0};       // Main device instance
+chg_t charger = {0};        // Charger instance.
+cdi_t can_debugger = {0};   // Debugger instance. Sends logs via designated channels corresponding to CAN message IDs
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -130,6 +134,10 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *can)
     chg_message_semaphore(&header, data, &charger);
 }
 
+
+/*
+ * TIM8 is an auxillary interrupt timer. On every tick it calls an INV_SLOW_TICK
+ */
 static void MX_TIM8_Init(void)
 {
 
@@ -252,7 +260,7 @@ int main(void) {
     HAL_Init();
 
     /* USER CODE BEGIN Init */
-    ITM->TER = 0xFFFFFFFFU;
+    ITM->TER = 0xFFFFFFFFU;                         //Enable SWO Trace
     /* USER CODE END Init */
 
     /* Configure the system clock */
@@ -268,7 +276,7 @@ int main(void) {
     MX_CAN_Init();
     MX_SPI1_Init();
     MX_TIM1_Init();
-     MX_USART3_UART_Init();
+    MX_USART3_UART_Init();
     MX_ADC1_Init();
     MX_ADC3_Init();
     MX_ADC4_Init();
@@ -472,13 +480,17 @@ int main(void) {
             }
             last_call = HAL_GetTick();
 
+            HAL_GPIO_WritePin(X_OUT_GPIO_Port, X_OUT_Pin, true);
+
+//            adc4_read(&(inv.adcs));
+            HAL_GPIO_WritePin(X_OUT_GPIO_Port, X_OUT_Pin, false);
 
 //            HAL_GPIO_WritePin(X_OUT_GPIO_Port, X_OUT_Pin, true);
-            int32_t val = (int32_t )((25.f*inv.resolver.fi));
-            cdi_transmit_channel(&can_debugger,0,(uint8_t*)&val,sizeof(val));
-            val = (int32_t )(inv.current.x);
-            cdi_transmit_channel(&can_debugger,2,(uint8_t*)&(inv.current.x),sizeof(inv.current.x));
-            cdi_transmit_channel(&can_debugger,3,(uint8_t*)&(inv.current.y),sizeof(inv.current.y));
+//            cdi_transmit_channel(&can_debugger,0,(uint8_t*)&inv.resolver.fi,sizeof(inv.resolver.fi));
+//            cdi_transmit_channel(&can_debugger,1,(uint8_t*)&(inv.current.x),sizeof(inv.current.x));
+//            cdi_transmit_channel(&can_debugger,2,(uint8_t*)&(inv.current.y),sizeof(inv.current.y));
+            cdi_transmit_channel(&can_debugger,3,(uint8_t*)&(inv.adcs.input12V),sizeof(inv.adcs.input12V));
+            cdi_transmit_channel(&can_debugger,4,(uint8_t*)&(inv.adcs.vbus),sizeof(inv.adcs.vbus));
 
 
 //            cdicdi_transmit_channel(&can_debugger,2,(uint8_t*)&inv.resolver.fi,sizeof(inv.resolver.fi));
@@ -728,10 +740,10 @@ static void MX_ADC3_Init(void) {
 }
 
 /**
-  * @brief ADC4 Initialization Function
-  * @param None
-  * @retval None
+  * @brief ADC4 is responsible for reading voltage value
   */
+
+
 static void MX_ADC4_Init(void) {
 
     /* USER CODE BEGIN ADC4_Init 0 */
@@ -769,7 +781,7 @@ static void MX_ADC4_Init(void) {
     sConfig.Channel = ADC_CHANNEL_1;
     sConfig.Rank = ADC_REGULAR_RANK_1;
     sConfig.SingleDiff = ADC_SINGLE_ENDED;
-    sConfig.SamplingTime = ADC_SAMPLETIME_601CYCLES_5;
+    sConfig.SamplingTime = ADC_SAMPLETIME_61CYCLES_5;
     sConfig.OffsetNumber = ADC_OFFSET_NONE;
     sConfig.Offset = 0;
     if (HAL_ADC_ConfigChannel(&hadc4, &sConfig) != HAL_OK) {
