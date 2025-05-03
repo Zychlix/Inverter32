@@ -205,6 +205,8 @@ void TIM8_init()
 {
 
     NVIC_SetPriority(TIM8_UP_IRQn,6);
+    HAL_NVIC_SetPriority(TIM8_UP_IRQn,15,15);
+    HAL_NVIC_EnableIRQ(TIM8_UP_IRQn);
     NVIC_EnableIRQ(TIM8_UP_IRQn);
     __HAL_RCC_TIM8_CLK_ENABLE();
 
@@ -230,7 +232,7 @@ void TIM8_init()
 
     HAL_TIM_Base_Start_IT(&htim8);
 
-    HAL_TIMEx_PWMN_Start(&htim8,TIM_CHANNEL_2);
+//    HAL_TIMEx_PWMN_Start(&htim8,TIM_CHANNEL_2);  //It still works somehow??? TODO TODO
 }
 
 /* USER CODE END 0 */
@@ -1130,9 +1132,9 @@ static void MX_GPIO_Init(void) {
 void TIM8_UP_IRQHandler()
 {
     TIM8->SR = 0;
-    HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_10);
+//    HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_10);
     inv_slow_tick(&inv);
-    HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_10);
+//    HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_10);
 
 
 }

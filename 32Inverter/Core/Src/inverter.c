@@ -163,7 +163,7 @@ void res_read_position(resolver_t *res) {
     HAL_GPIO_WritePin(RDVEL_GPIO_Port, RDVEL_Pin, 0);
     HAL_GPIO_WritePin(RD_GPIO_Port, RD_Pin, 1);
     HAL_GPIO_WritePin(RD_GPIO_Port, RD_Pin, 0);
-    int16_t speed = (int16_t) (spi_read_word(res->spi_handler->Instance) & 0xfff0) / 16;
+    int16_t speed = (int16_t) (spi_read_word(res->spi_handler->Instance) & 0xfff0) / 16; // Zrob cos z tym
     res->velocity = speed * 7; // TODO: rad/s, find a better factor
 
     HAL_GPIO_WritePin(RD_GPIO_Port, RD_Pin, 1);
@@ -227,8 +227,8 @@ static void inv_send_trace_data(inverter_t *inverter) {
 }
 void inv_tick(inverter_t *inverter) {
 
-    HAL_GPIO_WritePin(X_OUT_GPIO_Port, X_OUT_Pin, false);
-//    res_read_position(&inverter->resolver); //Change speed calculation method
+
+    res_read_position(&inverter->resolver); //Change speed calculation method
     vec_t phi = angle(inverter->resolver.fi);
 
     static volatile abc_t current_abc;
@@ -309,7 +309,9 @@ void inv_tick(inverter_t *inverter) {
     }
 
     inv_send_trace_data(inverter);
-//    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, false);
+
+    HAL_GPIO_WritePin(X_OUT_GPIO_Port, X_OUT_Pin, false);
+
 }
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
@@ -417,7 +419,8 @@ void inv_set_mode_and_current(inverter_t *inverter, inverter_mode_t mode, vec_t 
 
 void inv_vbus_update(inverter_t * inverter)
 {
-    float current_vbus = inverter->adcs.vbus;
+//    float current_vbus = inverter->adcs.vbus;
+    float current_vbus = 50;
 
     inverter->vbus = current_vbus;
 
