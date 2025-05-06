@@ -17,7 +17,8 @@ const float T_ABSOLUTE_ZERO = 273;
 
 #define INV_TEMP_FILTER_ALPHA 0.01f
 #define INV_THROTTLE_FILTER_ALPHA 0.05f
-#define INV_VBUS_FILTER_ALPHA 0.01f //0.005
+#define INV_SUPPLY_FILTER_ALPHA 0.05f
+#define INV_BUS_VOLTAGE_FILTER_ALPHA 0.01f //0.005
 
 
 void exp_filter(float * output_value, float input, float alpha)
@@ -40,46 +41,54 @@ float convert_ntc_highside(uint16_t raw, float r0_ntc, float r_highside, float v
 }
 
 
-void adc4_read(adcs_t *adcs){
+void adc4_read(inv_inputs_t * inputs){
     static uint16_t data[5];
-    HAL_ADC_Start_DMA(adcs->adc4, (uint32_t *) data, 5);
-    HAL_ADC_PollForConversion(adcs->adc4, 10);
+    HAL_ADC_Start_DMA(inputs->adc4, (uint32_t *) data, 5);
+    HAL_ADC_PollForConversion(inputs->adc4, 10);
 
-    float motor_temp2_current = convert_ntc_highside(data[0],NTC_R0_MOTOR, NTC_R_HIGHSIDE_MOTOR, 3.3f);
-    if(motor_temp2_current>-270)
+    /*
+     * Motor B temperature filter
+     */
+    float motor_b_temp_current = convert_ntc_highside(data[0], NTC_R0_MOTOR, NTC_R_HIGHSIDE_MOTOR, 3.3f);
+    if(motor_b_temp_current > -270)
     {
-        exp_filter(&adcs->motor_temp2, motor_temp2_current, 0.01f); //Why doesnt it work???
+        exp_filter(&inputs->motor_B_temperature, motor_b_temp_current, 0.01f); //Why doesnt it work???
 
     }
 
-//    adcs->motor_temp2 = motor_temp2_current;
-//    adcs->motor_temp2 = convert_ntc(data[0],NTC_R0_MOTOR, NTC_R_LOWSIDE_MOTOR);
-
+    /*
+    * Throttle
+    */
     float throttle_a_current = (float)data[1] / 4095.0f;
     float throttle_b_current = (float)data[2] / 4095.0f;
 
-    exp_filter(&adcs->throttleA, throttle_a_current, INV_THROTTLE_FILTER_ALPHA);
-    exp_filter(&adcs->throttleB, throttle_b_current, INV_THROTTLE_FILTER_ALPHA);
+    exp_filter(&inputs->throttle_a_voltage, throttle_a_current, INV_THROTTLE_FILTER_ALPHA);
+    exp_filter(&inputs->throttle_b_voltage, throttle_b_current, INV_THROTTLE_FILTER_ALPHA);
+
+    /*
+    * Bus voltage
+    */
 
     const float VBUS_VOLTS_PER_BIT = 1.0f/7.0f;
-    const uint16_t VBUS_OFFSET = 480;
+    const uint16_t VBUS_OFFSET = 260;     //480
 
-    static volatile float new_vbus;
-    new_vbus = (float)((int16_t)data[3] - VBUS_OFFSET) * VBUS_VOLTS_PER_BIT;
+    static volatile float hv_voltage_current;
+    hv_voltage_current = (float)((int16_t)data[3] - VBUS_OFFSET) * VBUS_VOLTS_PER_BIT;
 
-    exp_filter(&adcs->vbus, new_vbus,INV_VBUS_FILTER_ALPHA);
+    exp_filter(&inputs->bus_voltage, hv_voltage_current, INV_BUS_VOLTAGE_FILTER_ALPHA);
 
 
     const float INPUT_12V_VOLTS_PER_BIT = VREF / 4095.f * 11;
-    adcs->input12V = (float)data[4] * INPUT_12V_VOLTS_PER_BIT;
-//    adcs->input12V = (float)data[4];
+    static volatile float lv_voltage_current;
+    lv_voltage_current = (float)data[4] * INPUT_12V_VOLTS_PER_BIT;
+    exp_filter(&inputs->supply_voltage, lv_voltage_current , INV_SUPPLY_FILTER_ALPHA);
 
 }
 
-void adc2_read(adcs_t * result)
+void adc2_read(inv_inputs_t * inputs)
 {
-    HAL_ADC_Start(result->adc2);
-    HAL_ADC_PollForConversion(result->adc2,10);
-    float current_temp_value = convert_ntc(HAL_ADC_GetValue(result->adc2), NTC_R0_IGBT,NTC_R_LOWSIDE_IGBT,VREF);
-    exp_filter(&result->transistor1,current_temp_value, INV_TEMP_FILTER_ALPHA);
+    HAL_ADC_Start(inputs->adc2);
+    HAL_ADC_PollForConversion(inputs->adc2,10);
+    float current_temp_value = convert_ntc(HAL_ADC_GetValue(inputs->adc2), NTC_R0_IGBT,NTC_R_LOWSIDE_IGBT,VREF);
+    exp_filter(&inputs->igbt_A_temperature,current_temp_value, INV_TEMP_FILTER_ALPHA);
 }

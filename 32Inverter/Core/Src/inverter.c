@@ -381,7 +381,7 @@ void inv_enable(inv_t *inv, bool status) {
             HAL_TIMEx_PWMN_Start(inv->timer, TIM_CHANNEL_3);
             for(int i = 0; i< 300; i++)                 //IT CAN'T BE DONE THIS WAY. Add a state machine waiting for it to be done
             {
-                adc4_read(&inv->adcs);
+                adc4_read(&inv->inputs);
             }
             inv_reset_controllers(inv);
             inv_clear_fault();
@@ -437,10 +437,10 @@ void inv_vbus_update(inv_t * inverter)
 
 void inv_temperature_check(inv_t * inverter)
 {
-    if( inverter->adcs.transistor1 > INV_MAX_TEMPERATURE_DISABLE)
+    if( inverter->inputs.igbt_A_temperature > INV_MAX_TEMPERATURE_DISABLE)
     {
         inv_enable(inverter,false);
-    } else if ( inverter->adcs.transistor1 < INV_MAX_TEMPERATURE_ENABLE)
+    } else if ( inverter->inputs.igbt_A_temperature < INV_MAX_TEMPERATURE_ENABLE)
     {
 //        inv_enable(inverter, true);
     }
@@ -458,8 +458,8 @@ void inv_slow_tick(inv_t * inverter)
     {
         return;
     }
-    adc4_read(&inverter->adcs);
-    adc2_read(&inverter->adcs);
+    adc4_read(&inverter->inputs);
+    adc2_read(&inverter->inputs);
     //Make it more human
 
 
@@ -476,24 +476,24 @@ void inv_slow_tick(inv_t * inverter)
 //Remember to start the ADCS
 inv_ret_val_t inv_connect_supply(inv_t * inverter)
 {
-    float initial_voltage = inverter->adcs.vbus;
+    float initial_voltage = inverter->inputs.bus_voltage;
     HAL_GPIO_WritePin(inverter->relay_box.precharge_contactor.port, inverter->relay_box.precharge_contactor.pin, 1);
     printf("Precharge engaged \n");
 
     uint32_t start_time = HAL_GetTick();
     uint32_t current_time = start_time;
 
-    adc4_read(&inverter->adcs);
+    adc4_read(&inverter->inputs);
 
-    float current_voltage = inverter->adcs.vbus;
+    float current_voltage = inverter->inputs.bus_voltage;
     float vbus_derivative = 0;
 
-    while(inverter->adcs.vbus < INV_MIN_VOLTAGE_VALUE && (current_time - start_time)<INV_PRECHARGE_WAIT_TIME) //later change to derivative
+    while(inverter->inputs.bus_voltage < INV_MIN_VOLTAGE_VALUE && (current_time - start_time)<INV_PRECHARGE_WAIT_TIME) //later change to derivative
     {
-        adc4_read(&inverter->adcs);
-        vbus_derivative = ((inverter->adcs.vbus - current_voltage)/(float)(HAL_GetTick()-current_time+1));
+        adc4_read(&inverter->inputs);
+        vbus_derivative = ((inverter->inputs.bus_voltage - current_voltage)/(float)(HAL_GetTick()-current_time+1));
         current_time = HAL_GetTick();
-        current_voltage = inverter->adcs.vbus;
+        current_voltage = inverter->inputs.bus_voltage;
         HAL_Delay(1);
 
     }
@@ -512,7 +512,7 @@ inv_ret_val_t inv_connect_supply(inv_t * inverter)
    // if(inverter->adcs.vbus>30)
     //{
         HAL_GPIO_WritePin(inverter->relay_box.main_contactor.port, inverter->relay_box.main_contactor.pin, 0);
-    adc4_read(&inverter->adcs);
+    adc4_read(&inverter->inputs);
 
 
     //}

@@ -97,8 +97,8 @@ static void parse_command(char* str)
         printf("voltage: %fV \n", me.inverter->vbus);
 
     } else if(strcmp(str, "temp") == 0) {
-        printf("Transistor temp: %f C \n",me.inverter->adcs.transistor1);
-        printf("Motor temp: %f C UNCORRECTED\n",me.inverter->adcs.motor_temp2);
+        printf("Transistor A temp: %f C \n",me.inverter->inputs.igbt_A_temperature);
+        printf("Motor B temp: %f C UNCORRECTED\n",me.inverter->inputs.motor_B_temperature);
 
     }else if (sscanf(str, "throttle %c", &c) == 1) {
         /* Sets PI coefficients of current controllers

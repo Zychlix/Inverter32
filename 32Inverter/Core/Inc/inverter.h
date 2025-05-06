@@ -65,21 +65,7 @@ typedef enum
 } inverter_state_t;
 
 
-typedef struct
-{
-    float bus_voltage;
-    float supply_voltage;
-    float throttle_a_voltage;
-    float throttle_b_voltage;
 
-    float motor_A_temperature;
-    float motor_B_temperature;
-
-    float igbt_A_temperature;
-    float igbt_B_temperature;
-    float igbt_C_temperature;
-
-}inv_inputs_t;
 
 typedef struct {
     inverter_state_t state;             //Main state machine state
@@ -118,7 +104,6 @@ typedef struct {
 
     inverter_error_t error_flags;
 
-    adcs_t adcs;
 } inv_t;
 
 

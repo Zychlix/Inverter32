@@ -341,8 +341,8 @@ int main(void) {
     HAL_Delay(10);
     HAL_GPIO_WritePin(RESET_RES_GPIO_Port, RESET_RES_Pin, true);
 
-    inv.adcs.adc4 = &hadc4;
-    inv.adcs.adc2 = &hadc2;
+    inv.inputs.adc4 = &hadc4;
+    inv.inputs.adc2 = &hadc2;
 
     inv.resolver.spi_handler = &hspi1;
     inv.timer = &htim1;
@@ -426,7 +426,7 @@ int main(void) {
 //            inv_set_mode_and_current(&inv, MODE_AB, (vec_t){10,0});
 
         cli_poll();
-        float throttle=inv.adcs.throttleB;
+        float throttle=inv.inputs.throttle_b_voltage;
 //        float pocieniasianie = inv.resolver.velocity * 0.1;
 //        if(pocieniasianie > 200){
 //            pocieniasianie = 200;
@@ -489,8 +489,8 @@ int main(void) {
 //            cdi_transmit_channel(&can_debugger,0,(uint8_t*)&inv.resolver.fi,sizeof(inv.resolver.fi));
 //            cdi_transmit_channel(&can_debugger,1,(uint8_t*)&(inv.current.x),sizeof(inv.current.x));
 //            cdi_transmit_channel(&can_debugger,2,(uint8_t*)&(inv.current.y),sizeof(inv.current.y));
-            cdi_transmit_channel(&can_debugger,3,(uint8_t*)&(inv.adcs.input12V),sizeof(inv.adcs.input12V));
-            cdi_transmit_channel(&can_debugger,4,(uint8_t*)&(inv.adcs.vbus),sizeof(inv.adcs.vbus));
+            cdi_transmit_channel(&can_debugger,3,(uint8_t*)&(inv.inputs.supply_voltage),sizeof(inv.inputs.supply_voltage));
+            cdi_transmit_channel(&can_debugger,4,(uint8_t*)&(inv.inputs.bus_voltage),sizeof(inv.inputs.bus_voltage));
 
 
 //            cdicdi_transmit_channel(&can_debugger,2,(uint8_t*)&inv.resolver.fi,sizeof(inv.resolver.fi));
