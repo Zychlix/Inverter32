@@ -47,7 +47,7 @@
 /* USER CODE BEGIN PM */
 
 
-inverter_t inv = {0};       // Main device instance
+inv_t inv = {0};       // Main device instance
 chg_t charger = {0};        // Charger instance.
 cdi_t can_debugger = {0};   // Debugger instance. Sends logs via designated channels corresponding to CAN message IDs
 /* USER CODE END PM */
@@ -352,10 +352,10 @@ int main(void) {
     CLEAR_BIT(SPI1->CR1, SPI_CR1_BIDIOE);
     SET_BIT(SPI1->CR1, SPI_CR1_SPE);
 
-    inv.io.precharge_contactor.pin = PRECHARGE_OUT_Pin;
-    inv.io.precharge_contactor.port = PRECHARGE_OUT_GPIO_Port;
-    inv.io.main_contactor.pin = MAIN_OUT_Pin;
-    inv.io.main_contactor.port = MAIN_OUT_GPIO_Port;
+    inv.relay_box.precharge_contactor.pin = PRECHARGE_OUT_Pin;
+    inv.relay_box.precharge_contactor.port = PRECHARGE_OUT_GPIO_Port;
+    inv.relay_box.main_contactor.pin = MAIN_OUT_Pin;
+    inv.relay_box.main_contactor.port = MAIN_OUT_GPIO_Port;
 
 
 

@@ -182,7 +182,7 @@ void HAL_GPIO_Init(GPIO_TypeDef  *GPIOx, GPIO_InitTypeDef *GPIO_Init)
   /* Configure the port pins */
   while (((GPIO_Init->Pin) >> position) != 0x00u)
   {
-    /* Get current io position */
+    /* Get current relay_box position */
     iocurrent = (GPIO_Init->Pin) & (1uL << position);
 
     if (iocurrent != 0x00u)
@@ -311,7 +311,7 @@ void HAL_GPIO_DeInit(GPIO_TypeDef  *GPIOx, uint32_t GPIO_Pin)
   /* Configure the port pins */
   while ((GPIO_Pin >> position) != 0x00u)
   {
-    /* Get current io position */
+    /* Get current relay_box position */
     iocurrent = (GPIO_Pin) & (1uL << position);
 
     if (iocurrent != 0x00u)

@@ -12,7 +12,7 @@ static struct
 	UART_HandleTypeDef *huart;
 	char command_buffer[64];
 	uint8_t buffer_size;
-	inverter_t *inverter;
+	inv_t *inverter;
     chg_t * charger;
 } me;
 
@@ -191,7 +191,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 
 /* PUBLIC FUNCTIONS */
 
-void cli_init(UART_HandleTypeDef *huart, inverter_t *inverter, chg_t * charger)
+void cli_init(UART_HandleTypeDef *huart, inv_t *inverter, chg_t * charger)
 {
 	me.huart = huart;
 	me.buffer_size = 0;

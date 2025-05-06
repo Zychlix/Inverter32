@@ -64,18 +64,42 @@ typedef enum
     INV_IDLE,               //Inverter succesfully initialized, awaiting action
 } inverter_state_t;
 
+
+typedef struct
+{
+    float bus_voltage;
+    float supply_voltage;
+    float throttle_a_voltage;
+    float throttle_b_voltage;
+
+    float motor_A_temperature;
+    float motor_B_temperature;
+
+    float igbt_A_temperature;
+    float igbt_B_temperature;
+    float igbt_C_temperature;
+
+}inv_inputs_t;
+
 typedef struct {
-    inverter_state_t state;
+    inverter_state_t state;             //Main state machine state
+
+    inv_inputs_t inputs;                //
 
     bool active;
     bool throttle_control;
-    inv_io_t io;
-    TIM_HandleTypeDef *timer;
-    resolver_t resolver;
     bool voltage_vector_advance;
+    inv_io_t relay_box;
+
+
+    TIM_HandleTypeDef *timer;
+
+    resolver_t resolver;
+
     ADC_HandleTypeDef *current_adc;
     volatile uint16_t raw_current_adc[2];
     uint16_t current_adc_offset[2];
+
     float vbus;
     pi_t pid_d;
     pi_t pid_q;
@@ -84,23 +108,24 @@ typedef struct {
     vec_t current;
     vec_t set_value; /**< Current requested by the module user, can be in alpha-beta or dq space*/
     vec_t smooth_set_current;
-    inverter_mode_t mode; /**< Control mode requested by user */
+    inverter_mode_t motor_control_mode; /**< Control mode requested by user */
     float current_filter_alpha;
     float vbus_filter_alpha;
     vec_t voltage;
+
     iir_filter_t filter_d;
     iir_filter_t filter_q;
 
     inverter_error_t error_flags;
 
     adcs_t adcs;
-} inverter_t;
+} inv_t;
 
 
-inv_ret_val_t inv_init(inverter_t *inverter);
+inv_ret_val_t inv_init(inv_t *inverter);
 
-inv_ret_val_t inv_start(inverter_t * inv);
-void inv_enable(inverter_t *inv, bool status);
+inv_ret_val_t inv_start(inv_t * inv);
+void inv_enable(inv_t *inv, bool status);
 
 void res_read_position(resolver_t *res);
 
@@ -110,19 +135,19 @@ void inv_clear_fault();
 
 void inv_set_fault();
 
-void inv_set_pwm(inverter_t *inverter, float u, float v, float w);
+void inv_set_pwm(inv_t *inverter, float u, float v, float w);
 
-void inv_tick(inverter_t *inverter);
+void inv_tick(inv_t *inverter);
 
-abc_t inv_read_current(inverter_t *inverter);
+abc_t inv_read_current(inv_t *inverter);
 
 void inv_read_vbus();
 
-int32_t inv_calibrate_current(inverter_t *inverter);
+int32_t inv_calibrate_current(inv_t *inverter);
 
-void inv_set_mode_and_current(inverter_t *inverter, inverter_mode_t mode, vec_t current);
+void inv_set_mode_and_current(inv_t *inverter, inverter_mode_t mode, vec_t current);
 
-void inv_slow_tick(inverter_t * inverter);
+void inv_slow_tick(inv_t * inverter);
 
-inv_ret_val_t inv_connect_supply(inverter_t * inverter);
-inv_ret_val_t inv_disconnect_supply(inverter_t * inverter);
+inv_ret_val_t inv_connect_supply(inv_t * inverter);
+inv_ret_val_t inv_disconnect_supply(inv_t * inverter);

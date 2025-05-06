@@ -18,9 +18,9 @@
 
 #define TRACE_FREQUENCY_DIVIDER 16
 
-extern inverter_t inv;
+extern inv_t inv;
 
-void inv_reset_controllers(inverter_t * inverter)
+void inv_reset_controllers(inv_t * inverter)
 {
     inverter->pid_d.integrated = 0;
     inverter->pid_q.integrated = 0;
@@ -28,25 +28,25 @@ void inv_reset_controllers(inverter_t * inverter)
     inverter->pid_b.integrated = 0;
 }
 
-void inv_enable_pwm_outputs(inverter_t *inverter, uint32_t Channel)
+void inv_enable_pwm_outputs(inv_t *inverter, uint32_t Channel)
 {
     inverter->timer->Instance->CCER |= (1 | 1<<2)<<Channel;
 
 }
 
-void inv_disable_pwm_outputs(inverter_t *inverter, uint32_t Channel)
+void inv_disable_pwm_outputs(inv_t *inverter, uint32_t Channel)
 {
     inverter->timer->Instance->CCER &= ~(1 | 1<<2)<<Channel;
 
 }
 
 
-inv_ret_val_t inv_init(inverter_t *inverter) {
+inv_ret_val_t inv_init(inv_t *inverter) {
 
-    if(inverter->io.main_contactor.pin == 0) return INV_FAIL;
-    if(inverter->io.main_contactor.port == 0) return INV_FAIL;
-    if(inverter->io.precharge_contactor.pin == 0) return INV_FAIL;
-    if(inverter->io.precharge_contactor.port == 0)return INV_FAIL;
+    if(inverter->relay_box.main_contactor.pin == 0) return INV_FAIL;
+    if(inverter->relay_box.main_contactor.port == 0) return INV_FAIL;
+    if(inverter->relay_box.precharge_contactor.pin == 0) return INV_FAIL;
+    if(inverter->relay_box.precharge_contactor.port == 0)return INV_FAIL;
 
     TIM_OC_InitTypeDef oc_config;
 
@@ -109,7 +109,7 @@ inv_ret_val_t inv_init(inverter_t *inverter) {
     return INV_OK;
 }
 
-inv_ret_val_t inv_start(inverter_t * inv)
+inv_ret_val_t inv_start(inv_t * inv)
 {
     if(!inv)
 {
@@ -193,7 +193,7 @@ inline float constrain(float x, const float min, const float max) {
 }
 
 
-void inv_set_pwm(inverter_t *inverter, float u, float v, float w) {
+void inv_set_pwm(inv_t *inverter, float u, float v, float w) {
     inverter->timer->Instance->CCR1 = INV_MAX_PWM_PULSE_VAL * (0.5f + u / 2.0f);
     inverter->timer->Instance->CCR2 = INV_MAX_PWM_PULSE_VAL * (0.5f + v / 2.0f);
     inverter->timer->Instance->CCR3 = INV_MAX_PWM_PULSE_VAL * (0.5f + w / 2.0f);
@@ -209,7 +209,7 @@ typedef enum {
     BUS_VOLTAGE
 } graph_channel_t;
 
-static void inv_send_trace_data(inverter_t *inverter) {
+static void inv_send_trace_data(inv_t *inverter) {
     static int tick = 0;
     ++tick;
 
@@ -225,7 +225,7 @@ static void inv_send_trace_data(inverter_t *inverter) {
         swo_send_float(BUS_VOLTAGE, inverter->vbus);
     }
 }
-void inv_tick(inverter_t *inverter) {
+void inv_tick(inv_t *inverter) {
 
 
     res_read_position(&inverter->resolver); //Change speed calculation method
@@ -252,7 +252,7 @@ void inv_tick(inverter_t *inverter) {
     inverter->smooth_set_current.x = (setpoint_alpha * inverter->set_value.x) + (1.0f - setpoint_alpha) * inverter->smooth_set_current.x;
     inverter->smooth_set_current.y = (setpoint_alpha * inverter->set_value.y) + (1.0f - setpoint_alpha) * inverter->smooth_set_current.y;
 
-    if (inverter->mode == MODE_DQ)
+    if (inverter->motor_control_mode == MODE_DQ)
     {
         inverter->voltage = (vec_t){
             pid_calc(&inverter->pid_d, inverter->current.x, inverter->smooth_set_current.x),
@@ -278,7 +278,7 @@ void inv_tick(inverter_t *inverter) {
         inv_set_pwm(inverter, pwmABC.a, pwmABC.b, pwmABC.c);
 
 
-    } else if (inverter->mode == MODE_AB) {
+    } else if (inverter->motor_control_mode == MODE_AB) {
         inverter->voltage = (vec_t){
             pid_calc(&inverter->pid_a, current_ab.x, inverter->set_value.x),
             pid_calc(&inverter->pid_b, current_ab.y, inverter->set_value.y),
@@ -291,7 +291,7 @@ void inv_tick(inverter_t *inverter) {
         pwm = limit_amplitude(pwm, 1);
         abc_t pwmABC = inverseClarkeTransform(pwm);
         inv_set_pwm(inverter, pwmABC.a, pwmABC.b, pwmABC.c);
-    } else if(inverter->mode == MODE_AB_FREQUENCY){
+    } else if(inverter->motor_control_mode == MODE_AB_FREQUENCY){
         static float fi = 0;
 //        fi += 2 * M_PI * inverter->frequency_setpoint / ;
         inverter->voltage = (vec_t){
@@ -323,7 +323,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
     }
 }
 
-int32_t inv_calibrate_current(inverter_t *inverter) {
+int32_t inv_calibrate_current(inv_t *inverter) {
     if (inverter->active) return -1;
 
     const uint16_t avg_cycles = 256;
@@ -354,7 +354,7 @@ int32_t inv_calibrate_current(inverter_t *inverter) {
 }
 
 
-abc_t inv_read_current(inverter_t *inverter) {
+abc_t inv_read_current(inv_t *inverter) {
     const float amps_per_bit = 1.15f;
     const float symmetry_compensation = 1.00f;
     abc_t result;
@@ -366,7 +366,7 @@ abc_t inv_read_current(inverter_t *inverter) {
     return result;
 }
 
-void inv_enable(inverter_t *inv, bool status) {
+void inv_enable(inv_t *inv, bool status) {
     if (status) {
         if(!inv->active)
         {
@@ -408,15 +408,15 @@ void inv_enable(inverter_t *inv, bool status) {
     inv->active = status;
 }
 
-void inv_set_mode_and_current(inverter_t *inverter, inverter_mode_t mode, vec_t current)
+void inv_set_mode_and_current(inv_t *inverter, inverter_mode_t mode, vec_t current)
 {
-    inverter->mode = mode;
+    inverter->motor_control_mode = mode;
     inverter->set_value = current;
 
 
 }
 
-void inv_vbus_update(inverter_t * inverter)
+void inv_vbus_update(inv_t * inverter)
 {
 //    float current_vbus = inverter->adcs.vbus;
     float current_vbus = 50;
@@ -435,7 +435,7 @@ void inv_vbus_update(inverter_t * inverter)
     // }
 }
 
-void inv_temperature_check(inverter_t * inverter)
+void inv_temperature_check(inv_t * inverter)
 {
     if( inverter->adcs.transistor1 > INV_MAX_TEMPERATURE_DISABLE)
     {
@@ -447,7 +447,7 @@ void inv_temperature_check(inverter_t * inverter)
 
 }
 
-void inv_slow_tick(inverter_t * inverter)
+void inv_slow_tick(inv_t * inverter)
 {
     if(!inverter)
     {
@@ -474,10 +474,10 @@ void inv_slow_tick(inverter_t * inverter)
 #define INV_PRECHARGE_WAIT_TIME 5000
 
 //Remember to start the ADCS
-inv_ret_val_t inv_connect_supply(inverter_t * inverter)
+inv_ret_val_t inv_connect_supply(inv_t * inverter)
 {
     float initial_voltage = inverter->adcs.vbus;
-    HAL_GPIO_WritePin(inverter->io.precharge_contactor.port, inverter->io.precharge_contactor.pin, 1);
+    HAL_GPIO_WritePin(inverter->relay_box.precharge_contactor.port, inverter->relay_box.precharge_contactor.pin, 1);
     printf("Precharge engaged \n");
 
     uint32_t start_time = HAL_GetTick();
@@ -501,7 +501,7 @@ inv_ret_val_t inv_connect_supply(inverter_t * inverter)
 
     if(current_time - start_time > INV_PRECHARGE_WAIT_TIME)
     {
-        HAL_GPIO_WritePin(inverter->io.precharge_contactor.port, inverter->io.precharge_contactor.pin, 0);
+        HAL_GPIO_WritePin(inverter->relay_box.precharge_contactor.port, inverter->relay_box.precharge_contactor.pin, 0);
         printf("Contactor engage failed \n");
 
         return INV_PRECHARGE_FAIL;
@@ -511,23 +511,23 @@ inv_ret_val_t inv_connect_supply(inverter_t * inverter)
 
    // if(inverter->adcs.vbus>30)
     //{
-        HAL_GPIO_WritePin(inverter->io.main_contactor.port, inverter->io.main_contactor.pin, 0);
+        HAL_GPIO_WritePin(inverter->relay_box.main_contactor.port, inverter->relay_box.main_contactor.pin, 0);
     adc4_read(&inverter->adcs);
 
 
     //}
     HAL_Delay(50);
-    HAL_GPIO_WritePin(inverter->io.precharge_contactor.port, inverter->io.precharge_contactor.pin, 0);
+    HAL_GPIO_WritePin(inverter->relay_box.precharge_contactor.port, inverter->relay_box.precharge_contactor.pin, 0);
     HAL_Delay(100);
 
     return INV_OK;
 }
-inv_ret_val_t inv_disconnect_supply(inverter_t * inverter)
+inv_ret_val_t inv_disconnect_supply(inv_t * inverter)
 {
 
-    HAL_GPIO_WritePin(inverter->io.main_contactor.port, inverter->io.main_contactor.pin, 1);
+    HAL_GPIO_WritePin(inverter->relay_box.main_contactor.port, inverter->relay_box.main_contactor.pin, 1);
     HAL_Delay(100);
-    HAL_GPIO_WritePin(inverter->io.precharge_contactor.port, inverter->io.precharge_contactor.pin, 0);
+    HAL_GPIO_WritePin(inverter->relay_box.precharge_contactor.port, inverter->relay_box.precharge_contactor.pin, 0);
     printf("Contactor disengaged\n");
 
     HAL_Delay(500);

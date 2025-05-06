@@ -8,7 +8,7 @@
 
 typedef struct {
     float vbus;
-    float throttleA;
+    float throttleA; //Normalize
     float throttleB;
     float input12V;
     float motor_temp2;
@@ -17,6 +17,7 @@ typedef struct {
     ADC_HandleTypeDef *adc4;
     ADC_HandleTypeDef *adc2;
 } adcs_t;
+
 
 void adc4_read(adcs_t *result);
 
