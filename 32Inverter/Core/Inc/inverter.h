@@ -8,7 +8,7 @@
 #include "vectors.h"
 #include "PID.h"
 #include "adc.h"
-
+#include "inverter_state_machine.h"
 #define INV_MAX_PWM_PULSE_VAL 2500
 #define INV_PID_MAX_OUT 100
 #define DEFAULT_CURRENT_FILTER_ALPHA 0.01f
@@ -27,13 +27,6 @@ typedef struct
     inv_pin_t precharge_contactor;
 }inv_io_t;
 
-typedef enum
-{
-    INV_OK,
-    INV_FAIL,
-    INV_PRECHARGE_FAIL
-}inv_ret_val_t ;
-
 typedef struct {
     SPI_HandleTypeDef *spi_handler;
     float fi;
@@ -49,26 +42,35 @@ typedef enum
 
 typedef struct
 {
-    bool transistor_temperature;
-    bool motor_temperature;
-    bool overcurrent;
-    bool low_voltage;
-    bool throttle_input_error;
-    bool spi_error;
-}inverter_error_t;
+    TIM_HandleTypeDef *timer;
 
+    resolver_t resolver;
 
-typedef enum
-{
-    INV_UNINITIALIZED = 0,  //Primary state. Not allowed after using inv_init
-    INV_IDLE,               //Inverter succesfully initialized, awaiting action
-} inverter_state_t;
+    ADC_HandleTypeDef *current_adc;
+    volatile uint16_t raw_current_adc[2];
+    uint16_t current_adc_offset[2];
 
+    float vbus;
+    pi_t pid_d;
+    pi_t pid_q;
+    pi_t pid_a;
+    pi_t pid_b;
+    vec_t current;
+    vec_t set_value; /**< Current requested by the module user, can be in alpha-beta or dq space*/
+    vec_t smooth_set_current;
+    inverter_mode_t motor_control_mode; /**< Control mode requested by user */
+    float current_filter_alpha;
+    float vbus_filter_alpha;
+    vec_t voltage;
 
+    iir_filter_t filter_d;
+    iir_filter_t filter_q;
 
+    inverter_error_t error_flags;
+}inv_foc_controller_t;
 
 typedef struct {
-    inverter_state_t state;             //Main state machine state
+    inverter_status_t state;             //Main state machine state
 
     inv_inputs_t inputs;                //
 

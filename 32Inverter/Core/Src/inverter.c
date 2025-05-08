@@ -20,6 +20,19 @@
 
 extern inv_t inv;
 
+
+inv_ret_val_t inv_state_machine_update(inv_t * inverter)
+{
+    if(inverter == NULL)
+    {
+        return INV_FAIL;
+
+    }
+
+    inverter_status_t current_status = inverter.sta
+    return INV_OK;
+}
+
 void inv_reset_controllers(inv_t * inverter)
 {
     inverter->pid_d.integrated = 0;
@@ -104,7 +117,7 @@ inv_ret_val_t inv_init(inv_t *inverter) {
     inv_set_fault();
     inv_start(inverter);
 
-    inverter->state = INV_IDLE;
+    inverter->state = INV_STATUS_IDLE;
 
     return INV_OK;
 }
@@ -454,7 +467,7 @@ void inv_slow_tick(inv_t * inverter)
         return;
     }
 
-    if (inverter->state == INV_UNINITIALIZED)
+    if (inverter->state == INV_STATUS_INITIALIZED)
     {
         return;
     }
