@@ -3,6 +3,20 @@ import time
 import serial
 import numpy as np
 import matplotlib.pyplot as plt
+from enum import Enum
+import os
+
+class EvaluationType(Enum):
+    D_ANALYSIS = 1
+    Q_ANALYSIS = 2
+
+class Measurement:
+    def __init__(self):
+        self.component = EvaluationType.Q_ANALYSIS
+        self.voltage:float = 0
+        self.frequency:float = 0
+        self.data = []
+        pass
 
 class CommunicationError(Exception):
     def __init__(self, received: str):
@@ -32,20 +46,29 @@ class InverterAPI:
         resp = self.query(f'vf  {frequency:.3f} {current_d:.1f} {current_q:.1f}')
         if not resp.startswith('OK'):
             raise CommunicationError(resp)
+    def arm(self, ):
+        resp = self.query(f'arm')
+        if not resp.startswith('OK'):
+            raise CommunicationError(resp)
+        
     def set_plot_channel(self, channel:int):
         resp = self.query(f'channel  {channel:.1f}')
         if not resp.startswith('OK'):
             raise CommunicationError(resp)
         
-    def set_plot(self, points):
+    def read_osc_data(self, points):
         resp = self.query(f'plot')
-        a = 1
-
+        a = 'a'
         while a:
-            a = self.ser.readline().decode('utf-8').strip()
-            points.append(a)
             if(a.startswith('O') ):
                 return
+            try:
+                a,b = (self.ser.readline().decode('utf-8').strip()).split(';')
+            except:
+                print('End of data stream')
+                return
+            points.append((a,b))
+           
 
     def pi(self, kp: float, ki: float):
         resp = self.query(f'pi a {kp} {ki}')
@@ -76,11 +99,73 @@ class InverterAPI:
             time.sleep(0.5)
 
         raise Exception("Query failed")
+    def get_series(self, series:Measurement):
+        self.set_plot_channel(0)
+        if(series.component == EvaluationType.D_ANALYSIS):
+            inv.set_vf(series.frequency, series.voltage,0)
+        if(series.component  == EvaluationType.Q_ANALYSIS):
+            inv.set_vf(series.frequency, 0, series.voltage)
+        time.sleep(1)
+        self.arm()
+        time.sleep(1)
+        inv.set_vf(series.frequency, 0, 0)
+        data = []
+        self.read_osc_data(series.data)
+        return data
+    
+    def init_folder(self):
+        path = '/home/zychlix/Desktop/silnik/pomiar_'
+        dir_count = 0;
+        new_path = path+str(dir_count)
+        print(new_path)
+
+        Exist = os.path.exists(new_path) 
+        while(Exist):
+            dir_count= dir_count +1
+            new_path = path+str(dir_count)
+            Exist = os.path.exists(new_path) 
+        #clean folder
+
+        self.path = new_path
+        try:
+            os.mkdir(new_path)
+            print(f"Directory '{new_path}' created successfully.")
+        except FileExistsError:
+            print(f"Directory '{new_path}' already exists.")
+        except PermissionError:
+            print(f"Permission denied: Unable to create '{new_path}'.")
+        except Exception as e:
+            print(f"An error occurred: {e}")
+        
+
+
+    def save_csv(self,series:Measurement):
+        name =f'pomiar_{series.frequency:.3f}Hz_{series.voltage:.3f}V'
+        if(type == EvaluationType.Q_ANALYSIS):
+            name+='Q'
+        if(type == EvaluationType.D_ANALYSIS):
+            name+='D'
+        
+        file = open(self.path+'/'+name, "w")
+
+        file.write(f'Test: {series.voltage:.3f}V {series.frequency:.3f}Hz {series.component} Date: {time.ctime()}\r')
+
+
+        for i, data in enumerate(series.data):
+            file.write(f'{str(i)};{data[0]};{data[1]}\r')
+
+        file.close()
+        
+        pass
+
+
+
 
 
 inv = InverterAPI()
 time.sleep(2)
 inv.ping()
+
 
 for i in range(5):
     try:
@@ -94,29 +179,40 @@ for i in range(5):
 
 #Inverter is responsive. Can proceed.
 
+inv.init_folder()
+
 unwrapping_offset = 0
 
-N_POINTS = 2
+N_POINTS = 5
 FREQ_LOW = 10
 FREQ_HIGH = 1000
-freq = np.linspace(0, 1000, N_POINTS)
+freq = np.linspace(10, 1000, N_POINTS)
 fi_mechanical = []
 
 current = 5
 
 inv.set_plot_channel(0) #Y channel
 
-points = []
+#zrob gdzies klase pomiaru, zamiast przekazwyac wszystkie dane z reki jak malpa
 
-inv.set_plot(points)
+series = Measurement()
 
-print(points)
+series.component = EvaluationType.Q_ANALYSIS
+series.voltage = 5;
+series.frequency = 100;
+
+
+
 
 
 for freq_ele in freq:
-    inv.set_vf(freq, 0,current)
-   
-    print(f'{fi_ele:.3f} -> {fi_mech:.3f}')
+    series.frequency = freq_ele
+    points = inv.get_series(series)
+    inv.save_csv(series)    
+    print(f'Series f={freq_ele}Hz saved \r')
+    
+
+
 
 b, a = np.polyfit(fi_electrical, fi_mechanical, deg=1)
 print(a, b)

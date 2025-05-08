@@ -192,7 +192,7 @@ static void parse_command(char* str)
 
     }else if(strcmp(str, "plot") == 0) {
         fdl_return_dataset(me.fdl);
-        printf("OK \n");
+//        printf("OK \n");
 
     }
     else if(sscanf(str, "channel %c", &c) == 1) {

@@ -24,7 +24,7 @@ extern fdl_t fast_data ;
 
 void fdl_acquisition_complete()
 {
-    printf("acquisition complete! \r\n");
+//    printf("acquisition complete! \r\n");
 }
 
 inv_ret_val_t inv_state_machine_update(inv_t * inverter)
