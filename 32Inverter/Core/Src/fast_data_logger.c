@@ -34,6 +34,7 @@ if(instance->armed) {
         instance->input_data_index += 1;
     } else {
         instance->armed = false;
+        instance->input_data_index = 0;
         fdl_acquisition_complete();
     }
 }

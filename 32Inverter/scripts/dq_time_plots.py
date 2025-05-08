@@ -46,7 +46,8 @@ class InverterAPI:
         resp = self.query(f'vf  {frequency:.3f} {current_d:.1f} {current_q:.1f}')
         if not resp.startswith('OK'):
             raise CommunicationError(resp)
-    def arm(self, ):
+    def arm(self):
+        print("arm")
         resp = self.query(f'arm')
         if not resp.startswith('OK'):
             raise CommunicationError(resp)
@@ -57,7 +58,9 @@ class InverterAPI:
             raise CommunicationError(resp)
         
     def read_osc_data(self, points):
+
         resp = self.query(f'plot')
+#        points = []
         a = 'a'
         while a:
             if(a.startswith('O') ):
@@ -100,18 +103,22 @@ class InverterAPI:
 
         raise Exception("Query failed")
     def get_series(self, series:Measurement):
-        self.set_plot_channel(0)
+        
+        series.data = []
         if(series.component == EvaluationType.D_ANALYSIS):
+            self.set_plot_channel(1)
             inv.set_vf(series.frequency, series.voltage,0)
         if(series.component  == EvaluationType.Q_ANALYSIS):
+            self.set_plot_channel(0)
             inv.set_vf(series.frequency, 0, series.voltage)
         time.sleep(1)
         self.arm()
         time.sleep(1)
         inv.set_vf(series.frequency, 0, 0)
-        data = []
         self.read_osc_data(series.data)
-        return data
+        print(len(series.data))
+        
+        return series.data
     
     def init_folder(self):
         path = '/home/zychlix/Desktop/silnik/pomiar_'
@@ -129,6 +136,8 @@ class InverterAPI:
         self.path = new_path
         try:
             os.mkdir(new_path)
+            os.mkdir((new_path+'/D/'))
+            os.mkdir((new_path+'/Q/'))
             print(f"Directory '{new_path}' created successfully.")
         except FileExistsError:
             print(f"Directory '{new_path}' already exists.")
@@ -136,6 +145,8 @@ class InverterAPI:
             print(f"Permission denied: Unable to create '{new_path}'.")
         except Exception as e:
             print(f"An error occurred: {e}")
+        
+
         
 
 
@@ -151,6 +162,7 @@ class InverterAPI:
         file.write(f'Test: {series.voltage:.3f}V {series.frequency:.3f}Hz {series.component} Date: {time.ctime()}\r')
 
 
+       
         for i, data in enumerate(series.data):
             file.write(f'{str(i)};{data[0]};{data[1]}\r')
 
@@ -183,7 +195,7 @@ inv.init_folder()
 
 unwrapping_offset = 0
 
-N_POINTS = 5
+N_POINTS = 20
 FREQ_LOW = 10
 FREQ_HIGH = 1000
 freq = np.linspace(10, 1000, N_POINTS)
@@ -198,21 +210,31 @@ inv.set_plot_channel(0) #Y channel
 series = Measurement()
 
 series.component = EvaluationType.Q_ANALYSIS
-series.voltage = 5;
+series.voltage = 10;
 series.frequency = 100;
 
 
+path = inv.path
 
+inv.path = path + '/Q'
 
 
 for freq_ele in freq:
     series.frequency = freq_ele
-    points = inv.get_series(series)
+    inv.get_series(series)
     inv.save_csv(series)    
     print(f'Series f={freq_ele}Hz saved \r')
     
+inv.path = path + '/D'
+
+series.component = EvaluationType.D_ANALYSIS
 
 
+for freq_ele in freq:
+    series.frequency = freq_ele
+    inv.get_series(series)
+    inv.save_csv(series)    
+    print(f'Series f={freq_ele}Hz saved \r')
 
 b, a = np.polyfit(fi_electrical, fi_mechanical, deg=1)
 print(a, b)

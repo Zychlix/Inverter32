@@ -197,10 +197,10 @@ static void parse_command(char* str)
     }
     else if(sscanf(str, "channel %c", &c) == 1) {
         switch (c) {
-            case 0:
+            case '0':
                 me.fdl->x_channel = CHANNEL_0;  //Y channel
                 break;
-            case 1:
+            case '1':
                 me.fdl->x_channel = CHANNEL_1; //X channel
                 break;
                 printf("OK \n");

@@ -331,7 +331,7 @@ void inv_tick(inv_t *inverter) {
         inv_set_pwm(inverter, pwmABC.a, pwmABC.b, pwmABC.c);
 
 
-        if(fast_data.x_channel==0)
+        if(fast_data.x_channel==CHANNEL_0)
         {
             fdl_data_t data = {inverter->voltage.y,inverter->current.y};
             fdl_add_datapoint(&fast_data, &data);
