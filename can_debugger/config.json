@@ -10,13 +10,6 @@
                     "datatype": "float",
                     "color": "red",
                     "label": "resolver angle"
-                }, 
-                {
-                    "id": 257,
-                    "datatype": "float",
-                    "color": "green",
-                    "label": "Template"
-
                 }
 
             ]

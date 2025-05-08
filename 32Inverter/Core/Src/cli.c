@@ -4,6 +4,7 @@
 #include <string.h>
 #include <inverter.h>
 #include <dcdc_controller.h>
+#include <fast_data_logger.h>
 
 /* PRIVATE VARIABLES */
 
@@ -14,6 +15,7 @@ static struct
 	uint8_t buffer_size;
 	inv_t *inverter;
     chg_t * charger;
+    fdl_t * fdl;
 } me;
 
 /* PRIVATE FUNCTIONS */
@@ -182,7 +184,10 @@ static void parse_command(char* str)
 
 
 
-    } else {
+    } else if(strcmp(str, "arm") == 0) {
+        fdl_arm(me.fdl);
+    }
+    else {
 		printf("Unknown command!\n");
 	}
 }
@@ -200,12 +205,13 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 
 /* PUBLIC FUNCTIONS */
 
-void cli_init(UART_HandleTypeDef *huart, inv_t *inverter, chg_t * charger)
+void cli_init(UART_HandleTypeDef *huart, inv_t *inverter, chg_t * charger, fdl_t * fdl)
 {
 	me.huart = huart;
 	me.buffer_size = 0;
 	me.inverter = inverter;
 	me.charger = charger;
+    me.fdl = fdl;
 
 	HAL_UART_Receive_IT(me.huart, (uint8_t*)me.command_buffer + me.buffer_size, 1);
 }

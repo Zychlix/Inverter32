@@ -29,7 +29,7 @@
 #include <stdio.h>
 #include <cli.h>
 #include "can_debug_interface.h"
-
+#include "fast_data_logger.h"
 #include "debug.h"
 /* USER CODE END Includes */
 
@@ -50,6 +50,7 @@
 inv_t inv = {0};       // Main device instance
 chg_t charger = {0};        // Charger instance.
 cdi_t can_debugger = {0};   // Debugger instance. Sends logs via designated channels corresponding to CAN message IDs
+fdl_t fast_data = {0};
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -243,6 +244,7 @@ void TIM8_init()
 //    HAL_TIMEx_PWMN_Start(&htim8,TIM_CHANNEL_2);  //It still works somehow??? TODO TODO
 }
 
+
 /* USER CODE END 0 */
 
 /**
@@ -310,7 +312,7 @@ int main(void) {
 
 
     //  CAN initialization
-    cli_init(&huart3, &inv,&charger);
+    cli_init(&huart3, &inv,&charger, &fast_data);
     charger.can = &hcan;
 
     charger.power.port = PUMP_OUT_GPIO_Port;
@@ -335,6 +337,7 @@ int main(void) {
         printf("CAN Debugger faulty! \r\n");
     }
 
+    fdl_init(&fast_data);
 
     // enable AD2S1205 resolver
     HAL_GPIO_WritePin(RESET_RES_GPIO_Port, RESET_RES_Pin, false);
@@ -454,7 +457,7 @@ int main(void) {
 
 
 
-        if (HAL_GetTick() - last_call >= 10) {
+        if (HAL_GetTick() - last_call >= 1) {
 
             if(charger_mode)
             {
@@ -491,7 +494,7 @@ int main(void) {
 //            cdi_transmit_channel(&can_debugger,2,(uint8_t*)&(inv.current.y),sizeof(inv.current.y));
             cdi_transmit_channel(&can_debugger,3,(uint8_t*)&(inv.inputs.supply_voltage),sizeof(inv.inputs.supply_voltage));
             cdi_transmit_channel(&can_debugger,4,(uint8_t*)&(inv.inputs.bus_voltage),sizeof(inv.inputs.bus_voltage));
-            cdi_transmit_channel(&can_debugger,0,(uint8_t*)&(inv.voltage.x),sizeof(inv.voltage.x));
+            cdi_transmit_channel(&can_debugger,0,(uint8_t*)&(inv.current.y),sizeof(inv.current.y));
 
 
 //            cdicdi_transmit_channel(&can_debugger,2,(uint8_t*)&inv.resolver.fi,sizeof(inv.resolver.fi));

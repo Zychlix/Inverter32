@@ -11,7 +11,7 @@
 #include "swo_scope.h"
 #include "stm32f3xx_hal_tim_ex.h"
 #include "can_debug_interface.h"
-
+#include "fast_data_logger.h"
 #define INV_MIN_VOLTAGE_HYSTERESIS 5.f
 #define INV_MAX_TEMPERATURE_DISABLE 70.f //C
 #define INV_MAX_TEMPERATURE_ENABLE 65.f //C
@@ -20,6 +20,12 @@
 
 extern inv_t inv;
 extern cdi_t can_debugger;
+extern fdl_t fast_data ;
+
+void fdl_acquisition_complete()
+{
+    printf("acquisition complete! \r\n");
+}
 
 inv_ret_val_t inv_state_machine_update(inv_t * inverter)
 {
@@ -306,7 +312,7 @@ void inv_tick(inv_t *inverter) {
         inv_set_pwm(inverter, pwmABC.a, pwmABC.b, pwmABC.c);
     } else if(inverter->motor_control_mode == MODE_DQ_FREQUENCY){
         static float fi = 0;
-#define INV_LOOP_SPEED 16000.f
+#define INV_LOOP_SPEED 13800.f
         fi += 2.f * 3.14152f * inverter->frequency_setpoint / INV_LOOP_SPEED ;
         if(fi >=2*3.14152f) fi = 0;
         float a = sinf(fi);
@@ -324,10 +330,14 @@ void inv_tick(inv_t *inverter) {
         abc_t pwmABC = inverseClarkeTransform(pwm);
         inv_set_pwm(inverter, pwmABC.a, pwmABC.b, pwmABC.c);
 
+        fdl_data_t data = {inverter->current.x,inverter->current.y};
+        fdl_add_datapoint(&fast_data, &data);
+
     }
 
     inv_send_trace_data(inverter);
 
+    HAL_GPIO_WritePin(X_OUT_GPIO_Port, X_OUT_Pin, false);
 
 }
 
@@ -335,7 +345,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 {
     if (hadc->Instance == ADC1)
     {
-//        HAL_GPIO_WritePin(X_OUT_GPIO_Port, X_OUT_Pin, true);
+        HAL_GPIO_WritePin(X_OUT_GPIO_Port, X_OUT_Pin, true);
         inv_tick(&inv);
 //        res_read_position(&inv.resolver);
     }
