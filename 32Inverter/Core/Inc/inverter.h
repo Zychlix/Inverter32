@@ -14,6 +14,41 @@
 #define DEFAULT_CURRENT_FILTER_ALPHA 0.01f
 #define INV_MIN_VOLTAGE_VALUE 30.f
 
+typedef enum
+{
+    INV_OK,
+    INV_FAIL,
+    INV_PRECHARGE_FAIL
+}inv_ret_val_t ;
+
+
+typedef enum
+{
+    INV_STATUS_INITIALIZED = 0,  //Primary state. Not allowed after using inv_init
+    INV_STATUS_IDLE,               //Inverter succesfully initialized, awaiting action
+} inverter_status_t;
+
+/*
+ * Power box state
+ */
+typedef enum
+{
+    INV_POWER_DISCONNECTED,
+    INV_POWER_PRECHARGE_ENGAGED,
+    INV_POWER_ENGAGED
+}inverter_power_state_t;
+
+typedef struct
+{
+    bool transistor_temperature;
+    bool motor_temperature;
+    bool overcurrent;
+    bool low_voltage;
+    bool throttle_input_error;
+    bool spi_error;
+}inverter_error_t;
+
+
 typedef struct
 {
     uint32_t pin;
@@ -37,7 +72,7 @@ typedef enum
 {
     MODE_AB = 0,
     MODE_DQ,
-    MODE_AB_FREQUENCY,
+    MODE_DQ_FREQUENCY,
 } inverter_mode_t;
 
 typedef struct
@@ -105,6 +140,8 @@ typedef struct {
     iir_filter_t filter_q;
 
     inverter_error_t error_flags;
+
+    float frequency_setpoint;
 
 } inv_t;
 

@@ -491,6 +491,7 @@ int main(void) {
 //            cdi_transmit_channel(&can_debugger,2,(uint8_t*)&(inv.current.y),sizeof(inv.current.y));
             cdi_transmit_channel(&can_debugger,3,(uint8_t*)&(inv.inputs.supply_voltage),sizeof(inv.inputs.supply_voltage));
             cdi_transmit_channel(&can_debugger,4,(uint8_t*)&(inv.inputs.bus_voltage),sizeof(inv.inputs.bus_voltage));
+            cdi_transmit_channel(&can_debugger,0,(uint8_t*)&(inv.voltage.x),sizeof(inv.voltage.x));
 
 
 //            cdicdi_transmit_channel(&can_debugger,2,(uint8_t*)&inv.resolver.fi,sizeof(inv.resolver.fi));

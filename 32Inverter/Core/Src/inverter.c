@@ -19,7 +19,7 @@
 #define TRACE_FREQUENCY_DIVIDER 16
 
 extern inv_t inv;
-
+extern cdi_t can_debugger;
 
 inv_ret_val_t inv_state_machine_update(inv_t * inverter)
 {
@@ -29,7 +29,7 @@ inv_ret_val_t inv_state_machine_update(inv_t * inverter)
 
     }
 
-    inverter_status_t current_status = inverter.sta
+//    inverter_status_t current_status = inverter.sta
     return INV_OK;
 }
 
@@ -304,12 +304,15 @@ void inv_tick(inv_t *inverter) {
         pwm = limit_amplitude(pwm, 1);
         abc_t pwmABC = inverseClarkeTransform(pwm);
         inv_set_pwm(inverter, pwmABC.a, pwmABC.b, pwmABC.c);
-    } else if(inverter->motor_control_mode == MODE_AB_FREQUENCY){
+    } else if(inverter->motor_control_mode == MODE_DQ_FREQUENCY){
         static float fi = 0;
-//        fi += 2 * M_PI * inverter->frequency_setpoint / ;
+#define INV_LOOP_SPEED 16000.f
+        fi += 2.f * 3.14152f * inverter->frequency_setpoint / INV_LOOP_SPEED ;
+        if(fi >=2*3.14152f) fi = 0;
+        float a = sinf(fi);
         inverter->voltage = (vec_t){
-                sin_lut(fi) * inverter->set_value.x,
-                sin_lut(fi) * inverter->set_value.y,
+                a * inverter->set_value.x,
+                a * inverter->set_value.y,
         };
 
         vec_t pwm = {
@@ -317,8 +320,10 @@ void inv_tick(inv_t *inverter) {
                 inverter->voltage.y / inverter->vbus,
         };
         pwm = limit_amplitude(pwm, 1);
+        pwm = inverseParkTransform(pwm, phi);
         abc_t pwmABC = inverseClarkeTransform(pwm);
         inv_set_pwm(inverter, pwmABC.a, pwmABC.b, pwmABC.c);
+
     }
 
     inv_send_trace_data(inverter);

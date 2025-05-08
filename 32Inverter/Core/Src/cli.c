@@ -162,12 +162,21 @@ static void parse_command(char* str)
     } else if(strcmp(str, "chg_info") == 0) {
         chg_print_data(me.charger);
     } else if(sscanf(str, "vf %f %f %f", &arg1, &arg2, &arg3) == 3) {
-        /* Output voltage with a given frequency  in AB mode
+        /* Output voltage with a given frequency  in DQ mode
          * Arguments:
          *  - frequency [Hz]
-         *  - voltage A [V]
-         *  - voltage B [V]
+         *  - voltage amplitude D [V]
+         *  - voltage amplitude Q [V]
          */
+
+        me.inverter->set_value.x = arg2;
+        me.inverter->set_value.y = arg3;
+
+        me.inverter->frequency_setpoint = arg1;
+
+        me.inverter->motor_control_mode = MODE_DQ_FREQUENCY;
+
+        printf("OK \n");
 
 
 
