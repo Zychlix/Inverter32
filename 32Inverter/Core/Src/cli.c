@@ -16,6 +16,8 @@ static struct
 	inv_t *inverter;
     chg_t * charger;
     fdl_t * fdl;
+
+
 } me;
 
 /* PRIVATE FUNCTIONS */
@@ -186,6 +188,25 @@ static void parse_command(char* str)
 
     } else if(strcmp(str, "arm") == 0) {
         fdl_arm(me.fdl);
+        printf("OK \n");
+
+    }else if(strcmp(str, "plot") == 0) {
+        fdl_return_dataset(me.fdl);
+        printf("OK \n");
+
+    }
+    else if(sscanf(str, "channel %c", &c) == 1) {
+        switch (c) {
+            case 0:
+                me.fdl->x_channel = CHANNEL_0;  //Y channel
+                break;
+            case 1:
+                me.fdl->x_channel = CHANNEL_1; //X channel
+                break;
+                printf("OK \n");
+        }
+        printf("OK \n");
+
     }
     else {
 		printf("Unknown command!\n");

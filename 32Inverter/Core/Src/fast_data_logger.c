@@ -1,4 +1,5 @@
 #include "fast_data_logger.h"
+#include "stdio.h"
 
 
 FDL_RETURN_VALUE fdl_init(fdl_t * instance)
@@ -8,6 +9,8 @@ FDL_RETURN_VALUE fdl_init(fdl_t * instance)
     instance->input_data_index = 0; //Data starts from 0
     instance->armed = false;
 
+    instance->x_channel = CHANNEL_0;    //Muxing data. 0-> channel q
+    instance->y_channel = CHANNEL_0;
 
     return 0;
 }
@@ -23,7 +26,6 @@ FDL_RETURN_VALUE fdl_arm(fdl_t * instance)
 
 FDL_RETURN_VALUE fdl_add_datapoint(fdl_t * instance, fdl_data_t * data )
 {
-    if(!instance) return -1;
 if(instance->armed) {
     if (instance->input_data_index < FDL_POINT_COUNT) {
         instance->data[instance->input_data_index].x = data->x;
@@ -41,5 +43,13 @@ if(instance->armed) {
 
 }
 
-FDL_RETURN_VALUE fdl_return_dataset(fdl_t * instance);  //Can be point by point, but whatever
+FDL_RETURN_VALUE fdl_return_dataset(fdl_t * instance)
+{
+    if(!instance) return -1;
+
+    for(int i = 0; i < FDL_POINT_COUNT; i++)
+    {
+        printf("%f;%f\r\n", instance->data[i].x, instance->data[i].y);
+    }
+}
 

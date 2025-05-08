@@ -330,8 +330,17 @@ void inv_tick(inv_t *inverter) {
         abc_t pwmABC = inverseClarkeTransform(pwm);
         inv_set_pwm(inverter, pwmABC.a, pwmABC.b, pwmABC.c);
 
-        fdl_data_t data = {inverter->current.x,inverter->current.y};
-        fdl_add_datapoint(&fast_data, &data);
+
+        if(fast_data.x_channel==0)
+        {
+            fdl_data_t data = {inverter->voltage.y,inverter->current.y};
+            fdl_add_datapoint(&fast_data, &data);
+
+        } else {
+            fdl_data_t data = {inverter->voltage.x,inverter->current.x};
+            fdl_add_datapoint(&fast_data, &data);
+        }
+
 
     }
 
