@@ -18,14 +18,28 @@
 
 #define TRACE_FREQUENCY_DIVIDER 16
 
+#define INV_LOOP_SPEED 13800.f
+
+
 extern inv_t inv;
 extern cdi_t can_debugger;
 extern fdl_t fast_data ;
+
+#define SYSCLK ((64000000))
 
 void fdl_acquisition_complete()
 {
 //    printf("acquisition complete! \r\n");
 }
+
+
+__inline void inv_delay_cycles(uint32_t delay)
+{
+    uint32_t start_time = DWT->CYCCNT;
+    delay = delay*8;
+    while ((DWT->CYCCNT - start_time) < delay);
+}
+
 
 inv_ret_val_t inv_state_machine_update(inv_t * inverter)
 {
@@ -163,11 +177,14 @@ uint16_t spi_read_word(SPI_TypeDef *spi)
     return data;
 }
 
+
+
 void res_read_position(resolver_t *res) {
     // TODO: simplify GPIO toggling
     HAL_GPIO_WritePin(SAMPLE_GPIO_Port, SAMPLE_Pin, 0);
+    inv_delay_cycles(3);
     HAL_GPIO_WritePin(SAMPLE_GPIO_Port, SAMPLE_Pin, 1);
-
+    inv_delay_cycles(3);
     HAL_GPIO_WritePin(RDVEL_GPIO_Port, RDVEL_Pin, 1);
     HAL_GPIO_WritePin(RD_GPIO_Port, RD_Pin, 1);
     HAL_GPIO_WritePin(RD_GPIO_Port, RD_Pin, 0);
@@ -177,10 +194,26 @@ void res_read_position(resolver_t *res) {
 
     uint16_t pos = spi_read_word(res->spi_handler->Instance) >> 4;
 //    res->fi = (float) pos / 4096.f * 2 * (float) M_PI + resolver_offset;  //w samochodzie
-    res->fi = (1-(float) pos / 4096.f )* 2 * (float) M_PI + resolver_offset;
 
-    HAL_GPIO_WritePin(RDVEL_GPIO_Port, RDVEL_Pin, 0);
+
+
+
+
+    float new_fi = (1-(float) pos / 4096.f )* 2 * (float) M_PI + resolver_offset;
+
+    res->derived_velocity_rad_s = (new_fi - res->fi)*INV_LOOP_SPEED;
+    if (res->derived_velocity_rad_s > (float)M_PI * INV_LOOP_SPEED) {
+        res->derived_velocity_rad_s -= 2 * (float)M_PI * INV_LOOP_SPEED;
+    }
+    if (res->derived_velocity_rad_s < -(float)M_PI * INV_LOOP_SPEED) {
+        res->derived_velocity_rad_s += 2 * (float)M_PI * INV_LOOP_SPEED;
+    }
+
+    res->fi = new_fi;
+
     HAL_GPIO_WritePin(RD_GPIO_Port, RD_Pin, 1);
+    inv_delay_cycles(1);
+    HAL_GPIO_WritePin(RDVEL_GPIO_Port, RDVEL_Pin, 0);
     HAL_GPIO_WritePin(RD_GPIO_Port, RD_Pin, 0);
     int16_t speed = (int16_t) (spi_read_word(res->spi_handler->Instance) & 0xfff0) / 16; // Zrob cos z tym
     res->velocity = speed * 7; // TODO: rad/s, find a better factor
@@ -254,18 +287,13 @@ void inv_tick(inv_t *inverter) {
     static volatile vec_t current_ab;
     static volatile vec_t current_dq;
 
-//    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, false);
     current_abc = inv_read_current(inverter);
     current_ab = clarkeTransform(current_abc);
     current_dq = parkTransform(current_ab, phi);
 
     inverter->current.x = iir_filter_calculate(&inverter->filter_d, current_dq.x);
     inverter->current.y = iir_filter_calculate(&inverter->filter_q, current_dq.y);
-    // inverter->current.x = current_dq.x;
-    // inverter->current.y = current_dq.y;
 
-    // inverter->current.x = (inverter->current_filter_alpha * current_dq.x) + (1.0f - inverter->current_filter_alpha) * inverter->current.x;
-    // inverter->current.y = (inverter->current_filter_alpha * current_dq.y) + (1.0f - inverter->current_filter_alpha) * inverter->current.y;
 
     static volatile float setpoint_alpha = 0.02f;
     inverter->smooth_set_current.x = (setpoint_alpha * inverter->set_value.x) + (1.0f - setpoint_alpha) * inverter->smooth_set_current.x;
@@ -278,8 +306,7 @@ void inv_tick(inv_t *inverter) {
             pid_calc(&inverter->pid_q, inverter->current.y, inverter->smooth_set_current.y),
         };
 
-        /*inverter->voltage.x = 0;
-        inverter->voltage.y = inverter->smooth_set_current.y;*/
+
 
         vec_t pwm = {
             inverter->voltage.x / inverter->vbus,
@@ -312,7 +339,6 @@ void inv_tick(inv_t *inverter) {
         inv_set_pwm(inverter, pwmABC.a, pwmABC.b, pwmABC.c);
     } else if(inverter->motor_control_mode == MODE_DQ_FREQUENCY){
         static float fi = 0;
-#define INV_LOOP_SPEED 13800.f
         fi += 2.f * 3.14152f * inverter->frequency_setpoint / INV_LOOP_SPEED ;
         if(fi >=2*3.14152f) fi = 0;
         float a = sinf(fi);

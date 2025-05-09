@@ -457,7 +457,7 @@ int main(void) {
 
 
 
-        if (HAL_GetTick() - last_call >= 1) {
+        if (HAL_GetTick() - last_call >= 10) {
 
             if(charger_mode)
             {
@@ -492,10 +492,9 @@ int main(void) {
 //            cdi_transmit_channel(&can_debugger,0,(uint8_t*)&inv.resolver.fi,sizeof(inv.resolver.fi));
 //            cdi_transmit_channel(&can_debugger,1,(uint8_t*)&(inv.current.x),sizeof(inv.current.x));
 //            cdi_transmit_channel(&can_debugger,2,(uint8_t*)&(inv.current.y),sizeof(inv.current.y));
-            cdi_transmit_channel(&can_debugger,3,(uint8_t*)&(inv.inputs.supply_voltage),sizeof(inv.inputs.supply_voltage));
-            cdi_transmit_channel(&can_debugger,4,(uint8_t*)&(inv.inputs.bus_voltage),sizeof(inv.inputs.bus_voltage));
-            cdi_transmit_channel(&can_debugger,0,(uint8_t*)&(inv.current.y),sizeof(inv.current.y));
-
+//            cdi_transmit_channel(&can_debugger,3,(uint8_t*)&(inv.inputs.supply_voltage),sizeof(inv.inputs.supply_voltage));
+            cdi_transmit_channel(&can_debugger,4,(uint8_t*)&(inv.resolver.fi),sizeof(inv.resolver.fi));
+            cdi_transmit_channel(&can_debugger,0,(uint8_t*)&(inv.resolver.derived_velocity_rad_s),sizeof(inv.resolver.derived_velocity_rad_s));
 
 //            cdicdi_transmit_channel(&can_debugger,2,(uint8_t*)&inv.resolver.fi,sizeof(inv.resolver.fi));
 
