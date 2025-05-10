@@ -31,6 +31,7 @@
 #include "can_debug_interface.h"
 #include "fast_data_logger.h"
 #include "debug.h"
+#include "mtpa.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -489,14 +490,21 @@ int main(void) {
             HAL_GPIO_WritePin(X_OUT_GPIO_Port, X_OUT_Pin, false);
 
 //            HAL_GPIO_WritePin(X_OUT_GPIO_Port, X_OUT_Pin, true);
-//            cdi_transmit_channel(&can_debugger,0,(uint8_t*)&inv.resolver.fi,sizeof(inv.resolver.fi));
-//            cdi_transmit_channel(&can_debugger,1,(uint8_t*)&(inv.current.x),sizeof(inv.current.x));
-//            cdi_transmit_channel(&can_debugger,2,(uint8_t*)&(inv.current.y),sizeof(inv.current.y));
-//            cdi_transmit_channel(&can_debugger,3,(uint8_t*)&(inv.inputs.supply_voltage),sizeof(inv.inputs.supply_voltage));
-            cdi_transmit_channel(&can_debugger,4,(uint8_t*)&(inv.resolver.fi),sizeof(inv.resolver.fi));
-            cdi_transmit_channel(&can_debugger,0,(uint8_t*)&(inv.resolver.derived_velocity_rad_s),sizeof(inv.resolver.derived_velocity_rad_s));
 
-//            cdicdi_transmit_channel(&can_debugger,2,(uint8_t*)&inv.resolver.fi,sizeof(inv.resolver.fi));
+
+
+//            cdi_transmit_channel(&can_debugger,1,(uint8_t*)&(inv.voltage.y),sizeof(inv.voltage.y));
+//            cdi_transmit_channel(&can_debugger,2,(uint8_t*)&(inv.resolver.fi),sizeof(inv.resolver.fi));
+//            cdi_transmit_channel(&can_debugger,0,(uint8_t*)&(inv.resolver.derived_velocity_rad_s),sizeof(inv.resolver.derived_velocity_rad_s));
+
+            volatile static float i_r = 10;
+            volatile static float vmax = 50;
+            volatile static float omega = 50;
+            vec_t mtpa_currents = calculate_mtpa(i_r, vmax, omega);
+
+            cdi_transmit_channel(&can_debugger,1,(uint8_t*)&(inv.voltage.y),sizeof(inv.voltage.y));
+            cdi_transmit_channel(&can_debugger,2,(uint8_t*)&(inv.resolver.fi),sizeof(inv.resolver.fi));
+            cdi_transmit_channel(&can_debugger,0,(uint8_t*)&(inv.resolver.derived_velocity_rad_s),sizeof(inv.resolver.derived_velocity_rad_s));
 
 //            HAL_GPIO_WritePin(X_OUT_GPIO_Port, X_OUT_Pin, false);
 

@@ -20,6 +20,8 @@
 
 #define INV_LOOP_SPEED 13800.f
 
+#define INV_MOTOR_POLES 4
+
 
 extern inv_t inv;
 extern cdi_t can_debugger;
@@ -177,7 +179,20 @@ uint16_t spi_read_word(SPI_TypeDef *spi)
     return data;
 }
 
+#define RES_OFFSET 2*(float) M_PI-5.51f
 
+inline float wrap(float new, float old)
+{
+    if(new-old < -(float) M_PI) {
+        return new + 2 * (float) M_PI;
+    }
+    else if(new-old > (float) M_PI){
+        return new + 2 * -(float) M_PI;
+    } else
+    {
+        return new;
+    }
+}
 
 void res_read_position(resolver_t *res) {
     // TODO: simplify GPIO toggling
@@ -189,11 +204,12 @@ void res_read_position(resolver_t *res) {
     HAL_GPIO_WritePin(RD_GPIO_Port, RD_Pin, 1);
     HAL_GPIO_WritePin(RD_GPIO_Port, RD_Pin, 0);
 
-     static volatile float resolver_offset = -5.51f;
+     static volatile float resolver_offset = RES_OFFSET;
 //    static volatile float resolver_offset = -2.9f-3.14152f/2+0.1f;  // Silnik w samochodzie
 
     uint16_t pos = spi_read_word(res->spi_handler->Instance) >> 4;
-//    res->fi = (float) pos / 4096.f * 2 * (float) M_PI + resolver_offset;  //w samochodzie
+
+    //    res->fi = (float) pos / 4096.f * 2 * (float) M_PI + resolver_offset;  //w samochodzie
 
 
 
@@ -201,12 +217,18 @@ void res_read_position(resolver_t *res) {
 
     float new_fi = (1-(float) pos / 4096.f )* 2 * (float) M_PI + resolver_offset;
 
-    res->derived_velocity_rad_s = (new_fi - res->fi)*INV_LOOP_SPEED;
-    if (res->derived_velocity_rad_s > (float)M_PI * INV_LOOP_SPEED) {
-        res->derived_velocity_rad_s -= 2 * (float)M_PI * INV_LOOP_SPEED;
+
+//    if(new_fi-res->fi>)
+
+//    new_fi = wrap(new_fi, res->fi);
+
+    res->derived_velocity_rad_s = (new_fi - res->fi)*INV_LOOP_SPEED / INV_MOTOR_POLES; // Calculate motor velocity in rad/s
+
+    if (new_fi-res->fi < -(float)M_PI ) {
+        res->derived_velocity_rad_s += 2 * (float)M_PI * INV_LOOP_SPEED/ INV_MOTOR_POLES;
     }
-    if (res->derived_velocity_rad_s < -(float)M_PI * INV_LOOP_SPEED) {
-        res->derived_velocity_rad_s += 2 * (float)M_PI * INV_LOOP_SPEED;
+    if (new_fi-res->fi > (float)M_PI ) {
+        res->derived_velocity_rad_s -= 2 * (float)M_PI * INV_LOOP_SPEED/ INV_MOTOR_POLES;
     }
 
     res->fi = new_fi;
@@ -216,7 +238,7 @@ void res_read_position(resolver_t *res) {
     HAL_GPIO_WritePin(RDVEL_GPIO_Port, RDVEL_Pin, 0);
     HAL_GPIO_WritePin(RD_GPIO_Port, RD_Pin, 0);
     int16_t speed = (int16_t) (spi_read_word(res->spi_handler->Instance) & 0xfff0) / 16; // Zrob cos z tym
-    res->velocity = speed * 7; // TODO: rad/s, find a better factor
+//    res->velocity = speed * 7; // TODO: rad/s, find a better factor
 
     HAL_GPIO_WritePin(RD_GPIO_Port, RD_Pin, 1);
     HAL_GPIO_WritePin(SAMPLE_GPIO_Port, SAMPLE_Pin, 1);
