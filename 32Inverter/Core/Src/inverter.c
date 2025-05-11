@@ -222,13 +222,14 @@ void res_read_position(resolver_t *res) {
 
 //    new_fi = wrap(new_fi, res->fi);
 
-    res->derived_velocity_rad_s = (new_fi - res->fi)*INV_LOOP_SPEED / INV_MOTOR_POLES; // Calculate motor velocity in rad/s
+    res->derived_electrical_velocity_rad_s = (new_fi - res->fi) * INV_LOOP_SPEED;
+    res->derived_mechanical_velocity_rad_s = res->derived_electrical_velocity_rad_s / INV_MOTOR_POLES; // Calculate motor velocity in rad/s
 
     if (new_fi-res->fi < -(float)M_PI ) {
-        res->derived_velocity_rad_s += 2 * (float)M_PI * INV_LOOP_SPEED/ INV_MOTOR_POLES;
+        res->derived_mechanical_velocity_rad_s += 2 * (float)M_PI * INV_LOOP_SPEED / INV_MOTOR_POLES;
     }
     if (new_fi-res->fi > (float)M_PI ) {
-        res->derived_velocity_rad_s -= 2 * (float)M_PI * INV_LOOP_SPEED/ INV_MOTOR_POLES;
+        res->derived_mechanical_velocity_rad_s -= 2 * (float)M_PI * INV_LOOP_SPEED / INV_MOTOR_POLES;
     }
 
     res->fi = new_fi;
@@ -295,7 +296,7 @@ static void inv_send_trace_data(inv_t *inverter) {
         swo_send_float(FI, inverter->resolver.fi);
         swo_send_float(SET_VOLTAGE_D, inverter->voltage.x);
         swo_send_float(SET_VOLTAGE_Q, inverter->voltage.y);
-        swo_send_float(CALCULATED_VELOCITY, inverter->resolver.velocity/100.f);
+//        swo_send_float(CALCULATED_VELOCITY, inverter->resolver.velocity/100.f);
         swo_send_float(BUS_VOLTAGE, inverter->vbus);
     }
 }

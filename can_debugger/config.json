@@ -6,39 +6,31 @@
         "channel":
             [
                 {
-                    "id": 256,
+                    "id": 0,
                     "datatype": "float",
                     "color": "red",
                     "label": "resolver angle"
+                },
+                {
+                    "id": 1,
+                    "datatype": "float",
+                    "color": "yellow",
+                    "label": "voltage"
                 }
 
             ]
         },
         {
             "channel":
-                [
-                    {
-                        "id": 260,
-                        "datatype": "float",
-                        "color": "yellow",
-                        "label": "VBUS"
-                    }
-                ]
-            },
+            [
             {
-                "channel":
-                    [
-                        {
-                            "id": 259,
-                            "datatype": "float",
-                            "color": "yellow",
-                            "label": "12V"
-                        }
-                
-        
-                    ]
-                }
-    
+                "id": 2,
+                "datatype": "float",
+                "color": "yellow",
+                "label": "res fi"
+            }
+        ]
+        }
 
     ]
 

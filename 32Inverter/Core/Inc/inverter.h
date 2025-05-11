@@ -65,8 +65,8 @@ typedef struct
 typedef struct {
     SPI_HandleTypeDef *spi_handler;
     float fi;
-    float velocity;
-    float derived_velocity_rad_s;
+    float derived_electrical_velocity_rad_s;
+    float derived_mechanical_velocity_rad_s; // Mechanical speed. Electrical is this times
 } resolver_t;
 
 typedef enum

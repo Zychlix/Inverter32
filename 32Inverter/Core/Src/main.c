@@ -495,16 +495,19 @@ int main(void) {
 
 //            cdi_transmit_channel(&can_debugger,1,(uint8_t*)&(inv.voltage.y),sizeof(inv.voltage.y));
 //            cdi_transmit_channel(&can_debugger,2,(uint8_t*)&(inv.resolver.fi),sizeof(inv.resolver.fi));
-//            cdi_transmit_channel(&can_debugger,0,(uint8_t*)&(inv.resolver.derived_velocity_rad_s),sizeof(inv.resolver.derived_velocity_rad_s));
-
+//            cdi_transmit_channel(&can_debugger,0,(uint8_t*)&(inv.resolver.derived_mechanical_velocity_rad_s),sizeof(inv.resolver.derived_mechanical_velocity_rad_s));
+            volatile static float voltage;
             volatile static float i_r = 10;
             volatile static float vmax = 50;
             volatile static float omega = 50;
-            vec_t mtpa_currents = calculate_mtpa(i_r, vmax, omega);
+            static vec_t currents;
+            static uint32_t res;
+
+            res = mtpa_complete(i_r, omega, vmax, &currents);
 
             cdi_transmit_channel(&can_debugger,1,(uint8_t*)&(inv.voltage.y),sizeof(inv.voltage.y));
             cdi_transmit_channel(&can_debugger,2,(uint8_t*)&(inv.resolver.fi),sizeof(inv.resolver.fi));
-            cdi_transmit_channel(&can_debugger,0,(uint8_t*)&(inv.resolver.derived_velocity_rad_s),sizeof(inv.resolver.derived_velocity_rad_s));
+            cdi_transmit_channel(&can_debugger, 0, (uint8_t*)&(inv.resolver.derived_mechanical_velocity_rad_s), sizeof(inv.resolver.derived_mechanical_velocity_rad_s));
 
 //            HAL_GPIO_WritePin(X_OUT_GPIO_Port, X_OUT_Pin, false);
 

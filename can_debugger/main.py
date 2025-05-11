@@ -202,7 +202,7 @@ class MainWindow(QMainWindow):
             self.plotters.append(w)
             for channel in plot["channel"]:
                 print(channel)
-                self.new_channel(channel["id"],channel["label"],w,Datatype(channel["datatype"]), channel["label"])
+                self.new_channel(channel["id"]+256,channel["label"],w,Datatype(channel["datatype"]), channel["label"])
 
 
 class CanListener(QObject):
