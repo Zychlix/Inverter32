@@ -99,6 +99,8 @@ typedef struct
     float vbus_filter_alpha;
     vec_t voltage;
 
+
+
     iir_filter_t filter_d;
     iir_filter_t filter_q;
 
@@ -143,6 +145,9 @@ typedef struct {
     inverter_error_t error_flags;
 
     float frequency_setpoint;
+
+    bool _test_mtpa_control;
+    float mtpa_current;
 
 } inv_t;
 

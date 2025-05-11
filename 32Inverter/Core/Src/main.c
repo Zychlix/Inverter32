@@ -502,15 +502,25 @@ int main(void) {
             volatile static float omega = 50;
             static vec_t currents;
             static uint32_t res;
+            static float smooth_velocity;
 
-            res = mtpa_complete(i_r, omega, vmax, &currents);
+            #define VELOCITY_ALPHA 0.1f
+            smooth_velocity = (VELOCITY_ALPHA *  inv.resolver.derived_electrical_velocity_rad_s) + (1.0f - VELOCITY_ALPHA) * smooth_velocity;
 
-            cdi_transmit_channel(&can_debugger,1,(uint8_t*)&(inv.voltage.y),sizeof(inv.voltage.y));
-            cdi_transmit_channel(&can_debugger,2,(uint8_t*)&(inv.resolver.fi),sizeof(inv.resolver.fi));
-            cdi_transmit_channel(&can_debugger, 0, (uint8_t*)&(inv.resolver.derived_mechanical_velocity_rad_s), sizeof(inv.resolver.derived_mechanical_velocity_rad_s));
+            res = mtpa_complete(inv.mtpa_current, smooth_velocity, 60, &currents);
+
+            // Filter the velocity
+
+            cdi_transmit_channel(&can_debugger,0,(uint8_t*)&(currents.x),sizeof(currents.x));
+            cdi_transmit_channel(&can_debugger,1,(uint8_t*)&(currents.y),sizeof(currents.y));
+            cdi_transmit_channel(&can_debugger, 2, (uint8_t*)&(inv.resolver.derived_mechanical_velocity_rad_s), sizeof(inv.resolver.derived_mechanical_velocity_rad_s));
 
 //            HAL_GPIO_WritePin(X_OUT_GPIO_Port, X_OUT_Pin, false);
 
+            if(inv._test_mtpa_control)
+            {
+                inv_set_mode_and_current(&inv, MODE_DQ, currents);
+            }
 
 
 
