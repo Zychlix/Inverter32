@@ -1,26 +1,5 @@
-/* USER CODE BEGIN Header */
-/**
-  ******************************************************************************
-  * @file           : main.c
-  * @brief          : Main program body
-  ******************************************************************************
-  * @attention
-  *
-  * Copyright (c) 2023 STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  ******************************************************************************
-  */
-/* USER CODE END Header */
-/* Includes ------------------------------------------------------------------*/
-#include "main.h"
 
-/* Private includes ----------------------------------------------------------*/
-/* USER CODE BEGIN Includes */
+#include "main.h"
 #include "inverter.h"
 #include "vectors.h"
 //#include "adc.h"
@@ -32,29 +11,15 @@
 #include "fast_data_logger.h"
 #include "debug.h"
 #include "mtpa.h"
-/* USER CODE END Includes */
 
-/* Private typedef -----------------------------------------------------------*/
-/* USER CODE BEGIN PTD */
-
-/* USER CODE END PTD */
-
-/* Private define ------------------------------------------------------------*/
-/* USER CODE BEGIN PD */
-
-/* USER CODE END PD */
-
-/* Private macro -------------------------------------------------------------*/
-/* USER CODE BEGIN PM */
 
 
 inv_t inv = {0};       // Main device instance
 chg_t charger = {0};        // Charger instance.
 cdi_t can_debugger = {0};   // Debugger instance. Sends logs via designated channels corresponding to CAN message IDs
 fdl_t fast_data = {0};
-/* USER CODE END PM */
 
-/* Private variables ---------------------------------------------------------*/
+
 ADC_HandleTypeDef hadc1;
 ADC_HandleTypeDef hadc2;
 ADC_HandleTypeDef hadc3;
@@ -70,12 +35,9 @@ TIM_HandleTypeDef htim1;
 
 UART_HandleTypeDef huart3;
 
-/* USER CODE BEGIN PV */
 TIM_HandleTypeDef htim8;
 
-/* USER CODE END PV */
 
-/* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 
 static void MX_GPIO_Init(void);
@@ -97,21 +59,12 @@ static void MX_ADC3_Init(void);
 static void MX_ADC4_Init(void);
 
 static void MX_ADC2_Init(void);
-/* USER CODE BEGIN PFP */
 
-/* USER CODE END PFP */
 
-/* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 void USB_LP_CAN_RX0_IRQHandler(void)
 {
-    /* USER CODE BEGIN CAN1_RX0_IRQn 0 */
-
-    /* USER CODE END CAN1_RX0_IRQn 0 */
     HAL_CAN_IRQHandler(&hcan);
-    /* USER CODE BEGIN CAN1_RX0_IRQn 1 */
-
-    /* USER CODE END CAN1_RX0_IRQn 1 */
 }
 
 /**
@@ -119,13 +72,9 @@ void USB_LP_CAN_RX0_IRQHandler(void)
   */
 void CAN_RX1_IRQHandler(void)
 {
-    /* USER CODE BEGIN CAN1_RX1_IRQn 0 */
 
-    /* USER CODE END CAN1_RX1_IRQn 0 */
     HAL_CAN_IRQHandler(&hcan);
-    /* USER CODE BEGIN CAN1_RX1_IRQn 1 */
 
-    /* USER CODE END CAN1_RX1_IRQn 1 */
 }
 
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *can)
@@ -143,18 +92,11 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *can)
 static void MX_TIM8_Init(void)
 {
 
-    /* USER CODE BEGIN TIM8_Init 0 */
-
-    /* USER CODE END TIM8_Init 0 */
-
     TIM_ClockConfigTypeDef sClockSourceConfig = {0};
     TIM_MasterConfigTypeDef sMasterConfig = {0};
     TIM_OC_InitTypeDef sConfigOC = {0};
     TIM_BreakDeadTimeConfigTypeDef sBreakDeadTimeConfig = {0};
 
-    /* USER CODE BEGIN TIM8_Init 1 */
-
-    /* USER CODE END TIM8_Init 1 */
     htim8.Instance = TIM8;
     htim8.Init.Prescaler = 64;
     htim8.Init.CounterMode = TIM_COUNTERMODE_UP;
@@ -204,9 +146,7 @@ static void MX_TIM8_Init(void)
     {
         Error_Handler();
     }
-    /* USER CODE BEGIN TIM8_Init 2 */
 
-    /* USER CODE END TIM8_Init 2 */
     HAL_TIM_MspPostInit(&htim8);
 
 }
@@ -238,59 +178,25 @@ void TIM8_init()
         Error_Handler();
     }
     MX_TIM8_Init();
-//    HAL_TIM_Base_Start(&htim8);
 
     HAL_TIM_Base_Start_IT(&htim8);
-
-//    HAL_TIMEx_PWMN_Start(&htim8,TIM_CHANNEL_2);  //It still works somehow??? TODO TODO
 }
 
 
-/* USER CODE END 0 */
-
-/**
-  * @brief  The application entry point.
-  * @retval int
-  */
-int main(void) {
-    /* USER CODE BEGIN 1 */
-
-    /* USER CODE END 1 */
-
-    /* MCU Configuration--------------------------------------------------------*/
-
-    /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-    HAL_Init();
-
-    /* USER CODE BEGIN Init */
-    ITM->TER = 0xFFFFFFFFU;                         //Enable SWO Trace
-    /* USER CODE END Init */
-
-    /* Configure the system clock */
-    SystemClock_Config();
-
-    /* USER CODE BEGIN SysInit */
-    DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
-    /* USER CODE END SysInit */
-
-    /* Initialize all configured peripherals */
-    MX_GPIO_Init();
-    MX_DMA_Init();
-    MX_CAN_Init();
-    MX_SPI1_Init();
-    MX_TIM1_Init();
-    MX_USART3_UART_Init();
-    MX_ADC1_Init();
-    MX_ADC3_Init();
-    MX_ADC4_Init();
-    MX_ADC2_Init();
-    /* USER CODE BEGIN 2 */
-
+void startup_relay_box_init()
+{
+    inv.relay_box.precharge_contactor.pin = PRECHARGE_OUT_Pin;
+    inv.relay_box.precharge_contactor.port = PRECHARGE_OUT_GPIO_Port;
+    inv.relay_box.main_contactor.pin = MAIN_OUT_Pin;
+    inv.relay_box.main_contactor.port = MAIN_OUT_GPIO_Port;
+}
+void startup_gpio_init()
+{
 
     __HAL_RCC_GPIOB_CLK_ENABLE();
     __HAL_RCC_GPIOD_CLK_ENABLE();
-#define BRK_IN_PIN GPIO_PIN_13
-#define BRK_IN_PORT GPIOD
+    #define BRK_IN_PIN GPIO_PIN_13
+    #define BRK_IN_PORT GPIOD
 
     GPIO_InitTypeDef GPIO_InitStruct = {0};
 //    GPIO_InitStruct.Pin = GPIO_PIN_10;
@@ -307,17 +213,62 @@ int main(void) {
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
+    charger.power.port = PUMP_OUT_GPIO_Port;
+    charger.power.pin = PUMP_OUT_Pin;
+}
+void startup_periph_init()
+{
+    inv.resolver.spi_handler = &hspi1;
+
+    inv.current_adc = &hadc1;
+
+    inv.inputs.adc4 = &hadc4;
+    inv.inputs.adc2 = &hadc2;
+
+    inv.timer = &htim1;
+
+    TIM8_init();
+
+}
+
+int main(void) {
+
+    /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+    HAL_Init();
+
+
+    ITM->TER = 0xFFFFFFFFU;                         //Enable SWO Trace
+
+
+    /* Configure the system clock */
+    SystemClock_Config();
+
+    DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
+
+    /* Initialize all configured peripherals */
+    MX_GPIO_Init();
+    MX_DMA_Init();
+    MX_CAN_Init();
+    MX_SPI1_Init();
+    MX_TIM1_Init();
+    MX_USART3_UART_Init();
+    MX_ADC1_Init();
+    MX_ADC3_Init();
+    MX_ADC4_Init();
+    MX_ADC2_Init();
+
+    startup_gpio_init();
+
     bool charger_mode = HAL_GPIO_ReadPin( BRK_IN_PORT, BRK_IN_PIN); // Checks what mode to work in
 
-    printf("Hello World \r\n");
-
+    printf("Inverter32 init begin \r\n");
 
     //  CAN initialization
     cli_init(&huart3, &inv,&charger, &fast_data);
     charger.can = &hcan;
 
-    charger.power.port = PUMP_OUT_GPIO_Port;
-    charger.power.pin = PUMP_OUT_Pin;
+
+
     if(charger_mode)
     {
         if(chg_init(&charger)!= CHG_OK)
@@ -340,31 +291,12 @@ int main(void) {
 
     fdl_init(&fast_data);
 
-    // enable AD2S1205 resolver
-    HAL_GPIO_WritePin(RESET_RES_GPIO_Port, RESET_RES_Pin, false);
-    HAL_Delay(10);
-    HAL_GPIO_WritePin(RESET_RES_GPIO_Port, RESET_RES_Pin, true);
+    startup_periph_init();
 
-    inv.inputs.adc4 = &hadc4;
-    inv.inputs.adc2 = &hadc2;
+    res_init(&inv.resolver);    // enable AD2S1205 resolver
 
-    inv.resolver.spi_handler = &hspi1;
-    inv.timer = &htim1;
-    inv.current_adc = &hadc1;
-    inv.active = 0;
+    startup_relay_box_init();
 
-    CLEAR_BIT(SPI1->CR1, SPI_CR1_BIDIOE);
-    SET_BIT(SPI1->CR1, SPI_CR1_SPE);
-
-    inv.relay_box.precharge_contactor.pin = PRECHARGE_OUT_Pin;
-    inv.relay_box.precharge_contactor.port = PRECHARGE_OUT_GPIO_Port;
-    inv.relay_box.main_contactor.pin = MAIN_OUT_Pin;
-    inv.relay_box.main_contactor.port = MAIN_OUT_GPIO_Port;
-
-
-
-
-    TIM8_init();
     HAL_Delay(200);
 
 
@@ -392,6 +324,9 @@ int main(void) {
         inv_enable(&inv, true); //!!! importante
         inv.throttle_control = false;
 
+        inv_clear_fault();
+
+
     } else
     {
         inv_set_fault();
@@ -402,14 +337,8 @@ int main(void) {
     static volatile uint32_t cycle_period = 0;
     static volatile float cycle_current = 10;
     static volatile float cycle_syf_current = 0;
-/*
-    bool steady = 0;
-    bool direction = 0;
-*/
-    /* USER CODE END 2 */
 
-    /* Infinite loop */
-    /* USER CODE BEGIN WHILE */
+
     uint32_t last_call = 0;
     uint32_t last_slow_data = 0;
 
@@ -424,21 +353,10 @@ int main(void) {
     charger.setpoint.current = 10.f;
 
     while (1) {
-        /* USER CODE END WHILE */
 
-        /* USER CODE BEGIN 3 */
-//            inv_set_mode_and_current(&inv, MODE_AB, (vec_t){10,0});
 
         cli_poll();
         float throttle=inv.inputs.throttle_b_voltage;
-//        float pocieniasianie = inv.resolver.velocity * 0.1;
-//        if(pocieniasianie > 200){
-//            pocieniasianie = 200;
-//        }
-//        if(pocieniasianie < -200)
-//        if(inv.throttle_control){
-//            pocieniasianie = -200;
-//        }
 
     if(inv.throttle_control)
     {
@@ -458,7 +376,7 @@ int main(void) {
 
 
 
-        if (HAL_GetTick() - last_call >= 10) {
+        if (HAL_GetTick() - last_call >= 1) {
 
             if(charger_mode)
             {
@@ -484,18 +402,6 @@ int main(void) {
             }
             last_call = HAL_GetTick();
 
-            HAL_GPIO_WritePin(X_OUT_GPIO_Port, X_OUT_Pin, true);
-
-//            adc4_read(&(inv.adcs));
-            HAL_GPIO_WritePin(X_OUT_GPIO_Port, X_OUT_Pin, false);
-
-//            HAL_GPIO_WritePin(X_OUT_GPIO_Port, X_OUT_Pin, true);
-
-
-
-//            cdi_transmit_channel(&can_debugger,1,(uint8_t*)&(inv.voltage.y),sizeof(inv.voltage.y));
-//            cdi_transmit_channel(&can_debugger,2,(uint8_t*)&(inv.resolver.fi),sizeof(inv.resolver.fi));
-//            cdi_transmit_channel(&can_debugger,0,(uint8_t*)&(inv.resolver.derived_mechanical_velocity_rad_s),sizeof(inv.resolver.derived_mechanical_velocity_rad_s));
             volatile static float voltage;
             volatile static float i_r = 10;
             volatile static float vmax = 50;
@@ -504,10 +410,10 @@ int main(void) {
             static uint32_t res;
             static float smooth_velocity;
 
-            #define VELOCITY_ALPHA 0.1f
+            #define VELOCITY_ALPHA 0.01f
             smooth_velocity = (VELOCITY_ALPHA *  inv.resolver.derived_electrical_velocity_rad_s) + (1.0f - VELOCITY_ALPHA) * smooth_velocity;
 
-            res = mtpa_complete(inv.mtpa_current, smooth_velocity, 60, &currents);
+            //res = mtpa_complete(inv.mtpa_current, smooth_velocity, inv.inputs.bus_voltage, &currents);
 
             // Filter the velocity
 
@@ -527,7 +433,6 @@ int main(void) {
         }
 //        printf("Throttle: %f, press: %f\n", inv.adcs.throttleB, inv.adcs.throttleA );
     }
-    /* USER CODE END 3 */
 }
 
 /**
@@ -1169,7 +1074,7 @@ void TIM8_UP_IRQHandler()
 {
     TIM8->SR = 0;
 //    HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_10);
-    inv_slow_tick(&inv);
+    inv_auxiliary_tick(&inv);
 //    HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_10);
 
 
@@ -1177,7 +1082,7 @@ void TIM8_UP_IRQHandler()
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
     if (htim->Instance == TIM1) {
-//        inv_tick(&inv);
+//        inv_pwm_tick(&inv);
     }
 }
 

@@ -139,7 +139,7 @@ inv_ret_val_t inv_init(inv_t *inverter) {
     inv_set_fault();
     inv_start(inverter);
 
-    inverter->state = INV_STATUS_IDLE;
+    inverter->main_status = INV_STATUS_IDLE;
 
     return INV_OK;
 }
@@ -192,6 +192,16 @@ inline float wrap(float new, float old)
     {
         return new;
     }
+}
+
+void res_init(resolver_t * res)
+{
+    HAL_GPIO_WritePin(RESET_RES_GPIO_Port, RESET_RES_Pin, false);
+    HAL_Delay(10);
+    HAL_GPIO_WritePin(RESET_RES_GPIO_Port, RESET_RES_Pin, true);
+
+    CLEAR_BIT(SPI1->CR1, SPI_CR1_BIDIOE);
+    SET_BIT(SPI1->CR1, SPI_CR1_SPE);
 }
 
 void res_read_position(resolver_t *res) {
@@ -300,7 +310,7 @@ static void inv_send_trace_data(inv_t *inverter) {
         swo_send_float(BUS_VOLTAGE, inverter->vbus);
     }
 }
-void inv_tick(inv_t *inverter) {
+void inv_pwm_tick(inv_t *inverter) {
 
 
     res_read_position(&inverter->resolver); //Change speed calculation method
@@ -404,7 +414,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
     if (hadc->Instance == ADC1)
     {
         HAL_GPIO_WritePin(X_OUT_GPIO_Port, X_OUT_Pin, true);
-        inv_tick(&inv);
+        inv_pwm_tick(&inv);
 //        res_read_position(&inv.resolver);
     }
 }
@@ -505,7 +515,7 @@ void inv_set_mode_and_current(inv_t *inverter, inverter_mode_t mode, vec_t curre
 void inv_vbus_update(inv_t * inverter)
 {
 //    float current_vbus = inverter->adcs.vbus;
-    float current_vbus = 50;
+    float current_vbus = 45;
 
     inverter->vbus = current_vbus;
 
@@ -533,17 +543,17 @@ void inv_temperature_check(inv_t * inverter)
 
 }
 
-void inv_slow_tick(inv_t * inverter)
+
+/*
+ * This function runs in certain intervals. Less often than main tick. Not time critical
+ */
+void inv_auxiliary_tick(inv_t * inverter)
 {
     if(!inverter)
     {
         return;
     }
 
-    if (inverter->state == INV_STATUS_INITIALIZED)
-    {
-        return;
-    }
     adc4_read(&inverter->inputs);
     adc2_read(&inverter->inputs);
     //Make it more human

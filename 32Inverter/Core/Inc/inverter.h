@@ -1,5 +1,6 @@
 #pragma once
 
+#include "inverter_state_machine.h"
 #include "iir_filter.h"
 #include "stdint.h"
 #include "stm32f3xx_hal.h"
@@ -8,7 +9,8 @@
 #include "vectors.h"
 #include "PID.h"
 #include "adc.h"
-#include "inverter_state_machine.h"
+#include "error_log.h"
+
 #define INV_MAX_PWM_PULSE_VAL 2500
 #define INV_PID_MAX_OUT 100
 #define DEFAULT_CURRENT_FILTER_ALPHA 0.01f
@@ -22,11 +24,6 @@ typedef enum
 }inv_ret_val_t ;
 
 
-typedef enum
-{
-    INV_STATUS_INITIALIZED = 0,  //Primary state. Not allowed after using inv_init
-    INV_STATUS_IDLE,               //Inverter succesfully initialized, awaiting action
-} inverter_status_t;
 
 /*
  * Power box state
@@ -76,6 +73,8 @@ typedef enum
     MODE_DQ_FREQUENCY,
 } inverter_mode_t;
 
+
+
 typedef struct
 {
     TIM_HandleTypeDef *timer;
@@ -107,24 +106,25 @@ typedef struct
     inverter_error_t error_flags;
 }inv_foc_controller_t;
 
-typedef struct {
-    inverter_status_t state;             //Main state machine state
+typedef struct INV {
+    inverter_status_t main_status;                //Main state machine state
 
-    inv_inputs_t inputs;                //
+    inv_inputs_t inputs;                    //Input structure
 
     bool active;
     bool throttle_control;
     bool voltage_vector_advance;
-    inv_io_t relay_box;
+    inv_io_t relay_box;                     //Relay IO
 
 
-    TIM_HandleTypeDef *timer;
+    TIM_HandleTypeDef *timer;               //Main PWM timer Handler
 
-    resolver_t resolver;
+    resolver_t resolver;                    //Resolver
 
-    ADC_HandleTypeDef *current_adc;
-    volatile uint16_t raw_current_adc[2];
-    uint16_t current_adc_offset[2];
+    ADC_HandleTypeDef *current_adc;         //Current ADC Handler
+    volatile uint16_t raw_current_adc[2];   //Raw current A B
+    uint16_t current_adc_offset[2];         //Current raw zero
+
 
     float vbus;
     pi_t pid_d;
@@ -152,9 +152,13 @@ typedef struct {
 } inv_t;
 
 
+
+void res_init(resolver_t * res);
+
 inv_ret_val_t inv_init(inv_t *inverter);
 
 inv_ret_val_t inv_start(inv_t * inv);
+
 void inv_enable(inv_t *inv, bool status);
 
 void res_read_position(resolver_t *res);
@@ -167,7 +171,7 @@ void inv_set_fault();
 
 void inv_set_pwm(inv_t *inverter, float u, float v, float w);
 
-void inv_tick(inv_t *inverter);
+void inv_pwm_tick(inv_t *inverter);
 
 abc_t inv_read_current(inv_t *inverter);
 
@@ -177,7 +181,7 @@ int32_t inv_calibrate_current(inv_t *inverter);
 
 void inv_set_mode_and_current(inv_t *inverter, inverter_mode_t mode, vec_t current);
 
-void inv_slow_tick(inv_t * inverter);
+void inv_auxiliary_tick(inv_t * inverter);
 
 inv_ret_val_t inv_connect_supply(inv_t * inverter);
 inv_ret_val_t inv_disconnect_supply(inv_t * inverter);
