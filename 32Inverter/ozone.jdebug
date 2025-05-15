@@ -32,8 +32,8 @@ void OnProjectLoad (void) {
   //
   // User settings
   //
-  File.Open ("/home/zychlix/projekty/Inverter32/32Inverter/cmake-build-debug/32Inverter.elf");
   Edit.SysVar (VAR_HSS_SPEED, 1000000);
+  File.Open ("/home/zychlix/projekty/Inverter32/32Inverter/cmake-build-debug/32Inverter.elf");
 }
 
 /*********************************************************************

@@ -413,14 +413,14 @@ int main(void) {
             #define VELOCITY_ALPHA 0.01f
             smooth_velocity = (VELOCITY_ALPHA *  inv.resolver.derived_electrical_velocity_rad_s) + (1.0f - VELOCITY_ALPHA) * smooth_velocity;
 
-            res = mtpa_complete(inv.mtpa_current, smooth_velocity, inv.inputs.bus_voltage, &currents);
+            res = mtpa_current_controller(inv.mtpa_current, smooth_velocity, inv.vbus, &currents);
 
             static uint32_t canter = 0;
 
-            cdi_transmit_channel(&can_debugger, 0, (uint8_t *) &(currents.x), sizeof(currents.x));
-            cdi_transmit_channel(&can_debugger, 1, (uint8_t *) &(currents.y), sizeof(currents.y));
-            cdi_transmit_channel(&can_debugger, 2, (uint8_t *) &(inv.resolver.derived_mechanical_velocity_rad_s),
-                                     sizeof(inv.resolver.derived_mechanical_velocity_rad_s));
+//            cdi_transmit_channel(&can_debugger, 0, (uint8_t *) &(currents.x), sizeof(currents.x));
+//            cdi_transmit_channel(&can_debugger, 1, (uint8_t *) &(currents.y), sizeof(currents.y));
+//            cdi_transmit_channel(&can_debugger, 2, (uint8_t *) &(inv.resolver.derived_mechanical_velocity_rad_s),
+//                                     sizeof(inv.resolver.derived_mechanical_velocity_rad_s));
 
 
             if(inv._test_mtpa_control)

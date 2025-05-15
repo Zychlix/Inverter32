@@ -1,13 +1,42 @@
 
 
+GraphedExpression="(current_dq).x", Color=#e56a6f, Show=0
+GraphedExpression="(current_dq).y", Color=#35792b, Show=0
+GraphedExpression="((inv).smooth_set_current).x", Color=#769dda
+GraphedExpression="((inv).smooth_set_current).y", Color=#b14f0d
+GraphedExpression="((inv).resolver).derived_electrical_velocity_rad_s", Color=#b3c38e
+GraphedExpression="weakening_enabled", DisplayFormat=DISPLAY_FORMAT_DEC, Color=#ab7b05
+GraphedExpression="dc_link_required", Color=#7fd3b7, Show=0
+GraphedExpression="((inv).inputs).bus_voltage", Color=#50328f, Show=0
+OpenDocument="stm32f3xx_hal_adc_ex.c", FilePath="/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_adc_ex.c", Line=1623
+OpenDocument="mtpa.h", FilePath="/home/zychlix/projekty/Inverter32/32Inverter/Core/Inc/mtpa.h", Line=46
+OpenDocument="inverter.c", FilePath="/home/zychlix/projekty/Inverter32/32Inverter/Core/Src/inverter.c", Line=453
+OpenDocument="startup_stm32f303vctx.s", FilePath="/home/zychlix/projekty/Inverter32/32Inverter/Core/Startup/startup_stm32f303vctx.s", Line=55
+OpenDocument="vectors.c", FilePath="/home/zychlix/projekty/Inverter32/32Inverter/Core/Src/vectors.c", Line=68
+OpenDocument="stm32f3xx_it.c", FilePath="/home/zychlix/projekty/Inverter32/32Inverter/Core/Src/stm32f3xx_it.c", Line=203
+OpenDocument="iir_filter.c", FilePath="/home/zychlix/projekty/Inverter32/32Inverter/Core/Src/iir_filter.c", Line=0
+OpenDocument="stm32f3xx_hal.c", FilePath="/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal.c", Line=281
 OpenDocument="ozone.jdebug", FilePath="/home/zychlix/projekty/Inverter32/32Inverter/ozone.jdebug", Line=0
+OpenDocument="main.c", FilePath="/home/zychlix/projekty/Inverter32/32Inverter/Core/Src/main.c", Line=330
 OpenToolbar="Debug", Floating=0, x=0, y=0
-OpenWindow="Registers 1", DockArea=RIGHT, x=0, y=0, w=300, h=771, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0, FilteredItems=[], RefreshRate=1
-OpenWindow="Memory 1", DockArea=BOTTOM, x=1, y=0, w=806, h=318, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0, EditorAddress=0x0
-OpenWindow="Functions", DockArea=LEFT, x=0, y=0, w=300, h=771, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
-OpenWindow="Console", DockArea=BOTTOM, x=0, y=0, w=796, h=318, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
+OpenWindow="Registers 1", DockArea=RIGHT, x=0, y=2, w=300, h=108, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0, FilteredItems=[], RefreshRate=1
+OpenWindow="Disassembly", DockArea=RIGHT, x=0, y=0, w=300, h=155, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
+OpenWindow="Global Data", DockArea=RIGHT, x=0, y=1, w=300, h=224, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
+OpenWindow="Watched Data 1", DockArea=LEFT, x=0, y=0, w=559, h=364, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
+OpenWindow="Functions", DockArea=LEFT, x=0, y=1, w=559, h=124, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
+OpenWindow="Data Sampling", DockArea=BOTTOM, x=0, y=0, w=1110, h=490, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0, VisibleTab=0, UniformSampleSpacing=0
+OpenWindow="Timeline", DockArea=BOTTOM, x=1, y=0, w=809, h=490, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=1, DataPaneShown=1, PowerPaneShown=0, CodePaneShown=0, PinCursor="Cursor Movable", TimePerDiv="100 s / Div", TimeStampFormat="Time", DataGraphDrawAsPoints=0, DataGraphLegendShown=1, DataGraphUniformSampleSpacing=0, DataGraphLegendPosition="13;172", DataGraphShowNamesAtCursor=0, PowerGraphDrawAsPoints=0, PowerGraphLegendShown=0, PowerGraphAvgFilterTime=Off, PowerGraphAvgFilterLen=Off, PowerGraphUniformSampleSpacing=0, PowerGraphLegendPosition="651;0", CodeGraphLegendShown=0, CodeGraphLegendPosition="570;0"
 SmartViewPlugin="", Page="", Toolbar="Hidden", Window="SmartView 1"
-TableHeader="Functions", SortCol="Name", SortOrder="ASCENDING", VisibleCols=["Name";"Address";"Size";"#Insts";"Class";"Source"], ColWidths=[27;27;27;27;27;100]
+TableHeader="Functions", SortCol="Source", SortOrder="DESCENDING", VisibleCols=["Name";"Address";"Size";"#Insts";"Source"], ColWidths=[218;27;27;27;435]
 TableHeader="Power Sampling", SortCol="None", SortOrder="ASCENDING", VisibleCols=["Index";"Time";"Ch 0"], ColWidths=[100;100;100]
 TableHeader="Registers 1", SortCol="Name", SortOrder="ASCENDING", VisibleCols=["Name";"Value";"Description"], ColWidths=[100;105;259]
 TableHeader="RegisterSelectionDialog", SortCol="None", SortOrder="ASCENDING", VisibleCols=[], ColWidths=[]
+TableHeader="TargetExceptionDialog", SortCol="Name", SortOrder="ASCENDING", VisibleCols=["Name";"Value";"Address";"Description"], ColWidths=[200;100;100;358]
+TableHeader="Data Sampling Table", SortCol="None", SortOrder="ASCENDING", VisibleCols=["Index";"Time";" (current_dq).x";" (current_dq).y";" ((inv).smooth_set_current).x";" ((inv).smooth_set_current).y";" ((inv).resolver).derived_electrical_velocity_rad_s";" weakening_enabled";" dc_link_required";" ((inv).inputs).bus_voltage"], ColWidths=[100;100;100;100;100;100;100;100;100;473]
+TableHeader="Data Sampling Setup", SortCol="Expression", SortOrder="DESCENDING", VisibleCols=["Expression";"Type";"Value";"Min";"Max";"Average";"# Changes";"Min. Change";"Max. Change"], ColWidths=[311;161;100;112;119;100;100;100;100]
+TableHeader="Global Data", SortCol="Name", SortOrder="ASCENDING", VisibleCols=["Name";"Value";"Location";"Size";"Type";"Scope"], ColWidths=[100;100;100;100;100;100]
+TableHeader="Watched Data 1", SortCol="Expression", SortOrder="ASCENDING", VisibleCols=["Expression";"Value";"Location";"Refresh"], ColWidths=[158;100;100;201]
+WatchedExpression="(current_dq).x", Window=Watched Data 1
+WatchedExpression="inv", Window=Watched Data 1
+WatchedExpression="dc_link_required", Window=Watched Data 1
+WatchedExpression="lambda", RefreshRate=1, Window=Watched Data 1

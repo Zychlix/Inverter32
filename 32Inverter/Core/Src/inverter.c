@@ -232,15 +232,17 @@ void res_read_position(resolver_t *res) {
 
 //    new_fi = wrap(new_fi, res->fi);
 
-    res->derived_electrical_velocity_rad_s = (new_fi - res->fi) * INV_LOOP_SPEED;
-    res->derived_mechanical_velocity_rad_s = res->derived_electrical_velocity_rad_s / INV_MOTOR_POLES; // Calculate motor velocity in rad/s
+    float fi_delta = (new_fi - res->fi) ;
 
-    if (new_fi-res->fi < -(float)M_PI ) {
-        res->derived_mechanical_velocity_rad_s += 2 * (float)M_PI * INV_LOOP_SPEED / INV_MOTOR_POLES;
+
+    if (fi_delta < -(float)M_PI ) {
+        fi_delta += 2 * (float)M_PI  ;
     }
-    if (new_fi-res->fi > (float)M_PI ) {
-        res->derived_mechanical_velocity_rad_s -= 2 * (float)M_PI * INV_LOOP_SPEED / INV_MOTOR_POLES;
+    if (fi_delta > (float)M_PI ) {
+        fi_delta  -= 2 * (float)M_PI ;
     }
+    res->derived_electrical_velocity_rad_s = fi_delta * INV_LOOP_SPEED;
+    res->derived_mechanical_velocity_rad_s = res->derived_electrical_velocity_rad_s/ INV_MOTOR_POLES ; // Calculate motor velocity in rad/s
 
     res->fi = new_fi;
 
@@ -520,8 +522,8 @@ void inv_set_mode_and_current(inv_t *inverter, inverter_mode_t mode, vec_t curre
 
 void inv_vbus_update(inv_t * inverter)
 {
-//    float current_vbus = inverter->adcs.vbus;
-    float current_vbus = 50;
+//    float current_vbus = inverter->inputs.bus_voltage;
+    float current_vbus = 40;
 
     inverter->vbus = current_vbus;
 
