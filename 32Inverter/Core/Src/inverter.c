@@ -310,7 +310,11 @@ static void inv_send_trace_data(inv_t *inverter) {
         swo_send_float(BUS_VOLTAGE, inverter->vbus);
     }
 }
+
+static uint32_t start_times[1024];
+
 void inv_pwm_tick(inv_t *inverter) {
+    static uint32_t counter123 = 0;
 
 
     res_read_position(&inverter->resolver); //Change speed calculation method
@@ -406,6 +410,8 @@ void inv_pwm_tick(inv_t *inverter) {
     inv_send_trace_data(inverter);
 
     HAL_GPIO_WritePin(X_OUT_GPIO_Port, X_OUT_Pin, false);
+
+    start_times[(counter123++) % 1024] = DWT->CYCCNT;
 
 }
 
@@ -515,7 +521,7 @@ void inv_set_mode_and_current(inv_t *inverter, inverter_mode_t mode, vec_t curre
 void inv_vbus_update(inv_t * inverter)
 {
 //    float current_vbus = inverter->adcs.vbus;
-    float current_vbus = 45;
+    float current_vbus = 50;
 
     inverter->vbus = current_vbus;
 

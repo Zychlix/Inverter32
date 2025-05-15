@@ -227,7 +227,7 @@ void startup_periph_init()
 
     inv.timer = &htim1;
 
-    TIM8_init();
+
 
 }
 
@@ -306,6 +306,8 @@ int main(void) {
     }
 
 //    inv_connect_supply(&inv); //TODO
+    TIM8_init();
+
 
     HAL_Delay(200);
     if(!charger_mode)
@@ -413,13 +415,21 @@ int main(void) {
             #define VELOCITY_ALPHA 0.01f
             smooth_velocity = (VELOCITY_ALPHA *  inv.resolver.derived_electrical_velocity_rad_s) + (1.0f - VELOCITY_ALPHA) * smooth_velocity;
 
-            //res = mtpa_complete(inv.mtpa_current, smooth_velocity, inv.inputs.bus_voltage, &currents);
+            res = mtpa_complete(inv.mtpa_current, smooth_velocity, inv.inputs.bus_voltage, &currents);
 
             // Filter the velocity
 
-            cdi_transmit_channel(&can_debugger,0,(uint8_t*)&(currents.x),sizeof(currents.x));
-            cdi_transmit_channel(&can_debugger,1,(uint8_t*)&(currents.y),sizeof(currents.y));
-            cdi_transmit_channel(&can_debugger, 2, (uint8_t*)&(inv.resolver.derived_mechanical_velocity_rad_s), sizeof(inv.resolver.derived_mechanical_velocity_rad_s));
+            //HAL_Delay(9);
+            static uint32_t canter = 0;
+            canter++;
+
+            cdi_transmit_channel(&can_debugger, 0, (uint8_t *) &(currents.x), sizeof(currents.x));
+            cdi_transmit_channel(&can_debugger, 1, (uint8_t *) &(currents.y), sizeof(currents.y));
+            cdi_transmit_channel(&can_debugger, 2, (uint8_t *) &(inv.resolver.derived_mechanical_velocity_rad_s),
+                                     sizeof(inv.resolver.derived_mechanical_velocity_rad_s));
+            if ((canter & 15) == 0) {
+
+            }
 
 //            HAL_GPIO_WritePin(X_OUT_GPIO_Port, X_OUT_Pin, false);
 
