@@ -4,7 +4,8 @@ typedef enum INV_STATUS
 {
     INV_STATUS_UNINITIALIZED = 0,  //Primary state. Not allowed after using inv_init
     INV_STATUS_IDLE,               //Inverter succesfully initialized, awaiting action
-    INV_STATUS_DRIVE
+    INV_STATUS_DRIVE,
+    INV_STATUS_CHARGING
 } inverter_status_t;
 
 typedef enum

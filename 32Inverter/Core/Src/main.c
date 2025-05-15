@@ -227,8 +227,6 @@ void startup_periph_init()
 
     inv.timer = &htim1;
 
-
-
 }
 
 int main(void) {
@@ -417,21 +415,13 @@ int main(void) {
 
             res = mtpa_complete(inv.mtpa_current, smooth_velocity, inv.inputs.bus_voltage, &currents);
 
-            // Filter the velocity
-
-            //HAL_Delay(9);
             static uint32_t canter = 0;
-            canter++;
 
             cdi_transmit_channel(&can_debugger, 0, (uint8_t *) &(currents.x), sizeof(currents.x));
             cdi_transmit_channel(&can_debugger, 1, (uint8_t *) &(currents.y), sizeof(currents.y));
             cdi_transmit_channel(&can_debugger, 2, (uint8_t *) &(inv.resolver.derived_mechanical_velocity_rad_s),
                                      sizeof(inv.resolver.derived_mechanical_velocity_rad_s));
-            if ((canter & 15) == 0) {
 
-            }
-
-//            HAL_GPIO_WritePin(X_OUT_GPIO_Port, X_OUT_Pin, false);
 
             if(inv._test_mtpa_control)
             {

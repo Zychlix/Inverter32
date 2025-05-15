@@ -56,6 +56,23 @@ inv_state_ret_val_t inv_command_state(inv_t * instance, inv_command_t command)
                 }
             }
 
+        case INV_COMMAND_CHARGE:
+
+            if(instance->main_status == INV_STATUS_IDLE)
+            {
+                transition_effect = inv_transition_idle_charge(instance);
+            }
+
+            if(transition_effect == 0)
+            {
+                return_value = INV_STATE_RET_OK;
+                instance->main_status = INV_STATUS_CHARGING;
+            } else
+            {
+                log_info("initialized to charge failure");
+                return_value = INV_STATE_RET_FAIL;
+            }
+
 
 
             break;

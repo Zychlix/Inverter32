@@ -8,7 +8,7 @@
 
 const float VREF = 3.3f;
 const float NTC_V_HIGH = 5.0f;
-const float NTC_BETA = 3500; // TODO: CZY MOŻE 3300?
+const float NTC_BETA = 3375;
 const float NTC_R0_IGBT = 5e3f;
 const float NTC_R0_MOTOR = 47e3f;
 const float NTC_R_LOWSIDE_IGBT = 680;
