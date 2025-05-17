@@ -9,7 +9,7 @@
 //MCD Motor Current Dispatcher
 
 static volatile float lambda = ((0.05f)); // To be designated
-#define LAMBDA 0.06f// approx 43.7V per 162 rad/s
+#define LAMBDA 0.05f// approx 43.7V per 162 rad/s
 
 #define CONVERGANCE 1.f
 #define POLE_COUNT  ((4))
@@ -101,31 +101,6 @@ float calculate_required_vbus(vec_t mtpa_current, float omega)
     return omega*sqrtf((mtpa_current.y*L_q)*(mtpa_current.y*L_q)+(L_d*mtpa_current.x+LAMBDA)*(L_d*mtpa_current.x+LAMBDA));
 }
 
-uint32_t calculate_mtpa_weakening_regime(float i_r, float v_max, float omega, vec_t *output)
-{
-    float root = (LAMBDA*L_d)*(LAMBDA*L_d)-(L_d*L_d- L_q*L_q)*(LAMBDA*LAMBDA+L_q*L_q*i_r*i_r-v_max*v_max/(omega*omega));
-
-    if(root< 0 ){
-        __asm__("nop");
-        return MTPA_FAIL;
-    }
-
-    float i_d = (-LAMBDA*L_d + sqrtf(root))/(L_d*L_d-L_q*L_q);
-    if(i_d < -fabsf(i_r)){
-        i_d = -fabsf(i_r);
-    }
-
-    root = i_r*i_r-i_d*i_d;
-    if(root< 0 ){
-        __asm__("nop");
-        return MTPA_FAIL;
-    }
-
-    float i_q = sqrtf(root);
-
-    *output = (vec_t){i_d,i_q};
-    return MTPA_OK;
-}
 
 
 float mtpa_get_im(float T_ref,float  I_max)

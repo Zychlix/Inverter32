@@ -73,7 +73,9 @@ inv_state_ret_val_t inv_command_state(inv_t * instance, inv_command_t command)
                 return_value = INV_STATE_RET_FAIL;
             }
 
-
+        case INV_COMMAND_IDLE:
+            inv_enable(instance, false);
+            instance->main_status = INV_STATUS_IDLE;
 
             break;
 
@@ -82,3 +84,4 @@ inv_state_ret_val_t inv_command_state(inv_t * instance, inv_command_t command)
     }
     return  return_value;
 }
+

@@ -113,6 +113,7 @@ typedef struct INV {
 
     bool active;
     bool throttle_control;
+    bool adc_readings_ready;
     bool voltage_vector_advance;
     inv_io_t relay_box;                     //Relay IO
 

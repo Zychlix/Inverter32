@@ -13,8 +13,8 @@
 #include "can_debug_interface.h"
 #include "fast_data_logger.h"
 #define INV_MIN_VOLTAGE_HYSTERESIS 5.f
-#define INV_MAX_TEMPERATURE_DISABLE 70.f //C
-#define INV_MAX_TEMPERATURE_ENABLE 65.f //C
+#define INV_MAX_TEMPERATURE_DISABLE 50.f //C
+#define INV_MAX_TEMPERATURE_ENABLE 45.f //C
 
 #define TRACE_FREQUENCY_DIVIDER 16
 
@@ -137,6 +137,7 @@ inv_ret_val_t inv_init(inv_t *inverter) {
     inverter->pid_b.max_out = INV_PID_MAX_OUT;
 
     inv_set_fault();
+    inv.adc_readings_ready = false;
     inv_start(inverter);
 
     inverter->main_status = INV_STATUS_IDLE;
@@ -435,6 +436,8 @@ int32_t inv_calibrate_current(inv_t *inverter) {
     sum[0] = 0;
     sum[1] = 0;
     HAL_Delay(1);
+
+//    while (!inverter->adc_readings_ready);
     for (int i = 0; i < avg_cycles; i++) {
         HAL_ADC_Start_DMA(inverter->current_adc,sum,2);
         HAL_ADC_PollForConversion(inverter->current_adc, 100);
@@ -474,15 +477,13 @@ void inv_enable(inv_t *inv, bool status) {
     if (status) {
         if(!inv->active)
         {
-//            inv_enable_pwm_outputs(inv, TIM_CHANNEL_1);
-//            inv_enable_pwm_outputs(inv, TIM_CHANNEL_2);
-//            inv_enable_pwm_outputs(inv, TIM_CHANNEL_3);
             HAL_TIM_PWM_Start(inv->timer, TIM_CHANNEL_1);
             HAL_TIMEx_PWMN_Start(inv->timer, TIM_CHANNEL_1);
             HAL_TIM_PWM_Start(inv->timer, TIM_CHANNEL_2);
             HAL_TIMEx_PWMN_Start(inv->timer, TIM_CHANNEL_2);
             HAL_TIM_PWM_Start(inv->timer, TIM_CHANNEL_3);
             HAL_TIMEx_PWMN_Start(inv->timer, TIM_CHANNEL_3);
+
             for(int i = 0; i< 300; i++)                 //IT CAN'T BE DONE THIS WAY. Add a state machine waiting for it to be done
             {
                 adc4_read(&inv->inputs);
@@ -497,9 +498,6 @@ void inv_enable(inv_t *inv, bool status) {
         {
             inv_set_fault();
             inv_reset_controllers(inv);
-//            inv_disable_pwm_outputs(inv, TIM_CHANNEL_1);
-//            inv_disable_pwm_outputs(inv, TIM_CHANNEL_2);
-//            inv_disable_pwm_outputs(inv, TIM_CHANNEL_3);
             HAL_TIM_PWM_Stop(inv->timer, TIM_CHANNEL_1);
             HAL_TIMEx_PWMN_Stop(inv->timer, TIM_CHANNEL_1);
             HAL_TIM_PWM_Stop(inv->timer, TIM_CHANNEL_2);
@@ -527,26 +525,24 @@ void inv_vbus_update(inv_t * inverter)
 
     inverter->vbus = current_vbus;
 
-    // if(current_vbus < INV_MIN_VOLTAGE_VALUE)
-    // {
-    //     inv_enable(inverter,false);
-    // }
-    // else
-    // if(current_vbus > INV_MIN_VOLTAGE_VALUE + INV_MIN_VOLTAGE_HYSTERESIS )
-    // {
-    //
-    //     inv_enable(inverter,true);
-    // }
+    if(inverter->inputs.bus_voltage < 30.f)
+    {
+        #ifdef BENCH_DEBUG_MODE
+        inv_command_state(inverter, INV_COMMAND_IDLE);
+        #endif
+    }
+
 }
 
 void inv_temperature_check(inv_t * inverter)
 {
     if( inverter->inputs.igbt_A_temperature > INV_MAX_TEMPERATURE_DISABLE)
     {
+        #ifdef BENCH_DEBUG_MODE
+        inv_command_state(inverter,INV_COMMAND_IDLE);
         inv_enable(inverter,false);
-    } else if ( inverter->inputs.igbt_A_temperature < INV_MAX_TEMPERATURE_ENABLE)
-    {
-//        inv_enable(inverter, true);
+        #endif
+
     }
 
 }
@@ -557,21 +553,35 @@ void inv_temperature_check(inv_t * inverter)
  */
 void inv_auxiliary_tick(inv_t * inverter)
 {
+    volatile static uint32_t tick_counter = 0;
+
     if(!inverter)
     {
         return;
     }
+
 
     adc4_read(&inverter->inputs);
     adc2_read(&inverter->inputs);
     //Make it more human
 
 
-     inv_vbus_update(inverter);
+    inv_vbus_update(inverter);
     inv_temperature_check(inverter);
 
 
+    //Signal that ADC reading has already acquired enough samples
+    if(tick_counter > 20)
+    {
+        inv.adc_readings_ready = true;
+    }
 
+//    if(tick_counter%10)
+//    {
+//        printf(" test %d \r\n", tick_counter);
+//    }
+
+    tick_counter++;
 }
 
 
@@ -613,9 +623,8 @@ inv_ret_val_t inv_connect_supply(inv_t * inverter)
     HAL_Delay(500);
 
 
-   // if(inverter->adcs.vbus>30)
-    //{
-        HAL_GPIO_WritePin(inverter->relay_box.main_contactor.port, inverter->relay_box.main_contactor.pin, 0);
+
+    HAL_GPIO_WritePin(inverter->relay_box.main_contactor.port, inverter->relay_box.main_contactor.pin, 0);
     adc4_read(&inverter->inputs);
 
 

@@ -2,7 +2,6 @@
 #include "main.h"
 #include "inverter.h"
 #include "vectors.h"
-//#include "adc.h"
 #include "dcdc_controller.h"
 #include "oscilloscope.h"
 #include <stdio.h>
@@ -12,7 +11,7 @@
 #include "debug.h"
 #include "mtpa.h"
 
-
+#define BENCH_DEBUG_MODE 0
 
 inv_t inv = {0};       // Main device instance
 chg_t charger = {0};        // Charger instance.
@@ -257,7 +256,6 @@ int main(void) {
 
     startup_gpio_init();
 
-    bool charger_mode = HAL_GPIO_ReadPin( BRK_IN_PORT, BRK_IN_PIN); // Checks what mode to work in
 
     printf("Inverter32 init begin \r\n");
 
@@ -266,6 +264,7 @@ int main(void) {
     charger.can = &hcan;
 
 
+    bool charger_mode = HAL_GPIO_ReadPin( BRK_IN_PORT, BRK_IN_PIN); // Checks what mode to work in
 
     if(charger_mode)
     {
@@ -293,9 +292,8 @@ int main(void) {
 
     res_init(&inv.resolver);    // enable AD2S1205 resolver
 
-    startup_relay_box_init();
 
-    HAL_Delay(200);
+    startup_relay_box_init();
 
 
     if (inv_init(&inv) != INV_OK) {
@@ -303,40 +301,35 @@ int main(void) {
         Error_Handler();
     }
 
-//    inv_connect_supply(&inv); //TODO
-    TIM8_init();
+    TIM8_init();    //Enable slow tick
+
 
 
     HAL_Delay(200);
     if(!charger_mode)
     {
 
-        inv_enable(&inv, false);
         HAL_Delay(200);
 
         if (inv_calibrate_current(&inv)) {
             printf("Current calibration failed\n");
-            //Error_Handler();
+            Error_Handler();
         } else {
             printf("Current calibration completed %d %d\n", inv.current_adc_offset[0], inv.current_adc_offset[1]);
         }
 
-        inv_enable(&inv, true); //!!! importante
-        inv.throttle_control = false;
-
-        inv_clear_fault();
-
-
     } else
     {
-        inv_set_fault();
+        inv_enable(&inv, false);
     }
 
+    inv.throttle_control = false;
 
 
-    static volatile uint32_t cycle_period = 0;
-    static volatile float cycle_current = 10;
-    static volatile float cycle_syf_current = 0;
+
+    while(!inv.adc_readings_ready);
+
+//    inv_connect_supply(&inv); //TODO
 
 
     uint32_t last_call = 0;
@@ -351,6 +344,9 @@ int main(void) {
     charger.setpoint.protection = DEZHOU_BATTERY_PROTECTION;
     charger.setpoint.voltage = 120.f;
     charger.setpoint.current = 10.f;
+
+
+    inv_enable(&inv, true);
 
     while (1) {
 
@@ -415,7 +411,7 @@ int main(void) {
 
             volatile static mtpa_parameters params = {.Omega = 100, .T_ref = 50.f,.V_bus = 40.f, .I_q = 0};
 
-            res = mtpa_current_controller_newton(inv.mtpa_setpoint, 100, smooth_velocity, inv.vbus, &currents);
+            res = mtpa_current_controller_newton(inv.mtpa_setpoint, 25.f, smooth_velocity, inv.vbus, &currents);
 //            res = mtpa_current_controller_newton(t_ref, 200, omega, inv.vbus, &currents);
 
 
