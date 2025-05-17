@@ -16,6 +16,7 @@
 #define DEFAULT_CURRENT_FILTER_ALPHA 0.01f
 #define INV_MIN_VOLTAGE_VALUE 30.f
 
+
 typedef enum
 {
     INV_OK,
@@ -156,13 +157,15 @@ typedef struct INV {
 
 void res_init(resolver_t * res);
 
+void res_read_position(resolver_t *res);
+
+
 inv_ret_val_t inv_init(inv_t *inverter);
 
 inv_ret_val_t inv_start(inv_t * inv);
 
-void inv_enable(inv_t *inv, bool status);
+void inv_enable(inv_t *inverter, bool status);
 
-void res_read_position(resolver_t *res);
 
 bool inv_get_fault();
 
@@ -170,19 +173,24 @@ void inv_clear_fault();
 
 void inv_set_fault();
 
-void inv_set_pwm(inv_t *inverter, float u, float v, float w);
 
-void inv_pwm_tick(inv_t *inverter);
+void inv_set_pwm(inv_t *inverter, float u, float v, float w);
 
 abc_t inv_read_current(inv_t *inverter);
 
-void inv_read_vbus();
-
 int32_t inv_calibrate_current(inv_t *inverter);
 
+void inv_read_vbus();
+
 void inv_set_mode_and_current(inv_t *inverter, inverter_mode_t mode, vec_t current);
+
+
+
+void inv_pwm_tick(inv_t *inverter);
 
 void inv_auxiliary_tick(inv_t * inverter);
 
 inv_ret_val_t inv_connect_supply(inv_t * inverter);
 inv_ret_val_t inv_disconnect_supply(inv_t * inverter);
+
+float inv_get_throttle(inv_t * inverter);

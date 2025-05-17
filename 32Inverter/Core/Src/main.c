@@ -234,7 +234,8 @@ int main(void) {
     HAL_Init();
 
 
-    ITM->TER = 0xFFFFFFFFU;                         //Enable SWO Trace
+    //Enable SWO Trace
+    ITM->TER = 0xFFFFFFFFU;
 
 
     /* Configure the system clock */
@@ -254,6 +255,7 @@ int main(void) {
     MX_ADC4_Init();
     MX_ADC2_Init();
 
+    //Initialize GPIO
     startup_gpio_init();
 
 
@@ -279,33 +281,41 @@ int main(void) {
 
     HAL_CAN_Start(&hcan);
 
+    //Enable CAN debugging
     can_debugger.can = &hcan;
-    //Enable CAN debiugging
     if(cdi_init(&can_debugger))
     {
-        printf("CAN Debugger faulty! \r\n");
+        log_info("CAN Debugger faulty!");
     }
 
-    fdl_init(&fast_data);
+    //Init oscilloscope
+    if(fdl_init(&fast_data))
+    {
+        log_info("Oscilloscope init fail");
+    }
 
+    //Fill various peripherial structures
     startup_periph_init();
 
+    //Initialize resolver and its SPI interface
     res_init(&inv.resolver);    // enable AD2S1205 resolver
 
-
+    //Fill GPIO structure
     startup_relay_box_init();
 
 
+    //Main init function
     if (inv_init(&inv) != INV_OK) {
         printf("Initialization failed\n");
         Error_Handler();
     }
 
-    TIM8_init();    //Enable slow tick
-
+    //Enable slow tick
+    TIM8_init();
 
 
     HAL_Delay(200);
+
     if(!charger_mode)
     {
 
@@ -329,79 +339,72 @@ int main(void) {
 
     while(!inv.adc_readings_ready);
 
-//    inv_connect_supply(&inv); //TODO
+    #ifndef BENCH_DEBUG_MODE
+    inv_connect_supply(&inv);
+    #endif
 
+    //Issue
 
-    uint32_t last_call = 0;
-    uint32_t last_slow_data = 0;
+    printf("Bus voltage: %f \r\n", inv.vbus);
+    printf("Aux voltage: %f \r\n", inv.inputs.supply_voltage);
 
-    chg_command(&charger, CHG_CMD_ENABLE);
-
-    printf("Bus voltage: %f \n", inv.vbus);
     printf("ready\n >\n");
+
+    //Issue charger enabled state machine command
+    chg_command(&charger, CHG_CMD_ENABLE);
 
     charger.setpoint.mode = DEZHOU_MODE_CHARGING;
     charger.setpoint.protection = DEZHOU_BATTERY_PROTECTION;
     charger.setpoint.voltage = 120.f;
     charger.setpoint.current = 10.f;
 
-
     inv_enable(&inv, true);
 
+    uint32_t last_call = 0;
+
+    //Main loop
     while (1) {
 
 
         cli_poll();
         float throttle=inv.inputs.throttle_b_voltage;
 
-    if(inv.throttle_control)
-    {
-
+        if(inv.throttle_control)
         {
-            if(throttle>=0.20)
+
             {
-                inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){0, -(throttle-0.20f)*500});
-            }
-            else
-            {
-                inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){0, 0});
+                if(throttle>=0.20)
+                {
+                    inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){0, -(throttle-0.20f)*500});
+                }
+                else
+                {
+                    inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){0, 0});
+                }
             }
         }
-    }
-
-
-
 
         if (HAL_GetTick() - last_call >= 1) {
 
             if(charger_mode)
             {
-
-
-
-
-
                 chg_state_machine_update(&charger);
 
-
 //                chg_print_data(&charger);
-
 //                chg_send_data(&charger);  TODO
-
-//
 //                if(charger.fast_data_enabled)
 //                {
 //                    chg_send_fast_data(&charger);
 //                }
-
-
             }
+
             last_call = HAL_GetTick();
 
             volatile static float i_r = 10;
             volatile static float vmax = 50;
             volatile static float omega = 50;
             volatile static float t_ref = 50;
+
             static vec_t currents;
             static uint32_t res;
             static float smooth_velocity;
@@ -412,16 +415,10 @@ int main(void) {
             volatile static mtpa_parameters params = {.Omega = 100, .T_ref = 50.f,.V_bus = 40.f, .I_q = 0};
 
             res = mtpa_current_controller_newton(inv.mtpa_setpoint, 25.f, smooth_velocity, inv.vbus, &currents);
-//            res = mtpa_current_controller_newton(t_ref, 200, omega, inv.vbus, &currents);
-
 
             static uint32_t canter = 0;
 
-//            cdi_transmit_channel(&can_debugger, 0, (uint8_t *) &(currents.x), sizeof(currents.x));
-//            cdi_transmit_channel(&can_debugger, 1, (uint8_t *) &(currents.y), sizeof(currents.y));
-//            cdi_transmit_channel(&can_debugger, 2, (uint8_t *) &(inv.resolver.derived_mechanical_velocity_rad_s),
-//                                     sizeof(inv.resolver.derived_mechanical_velocity_rad_s));
-
+//           cdi_transmit_channel(&can_debugger, 0, (uint8_t *) &(currents.x), sizeof(currents.x));
 
             if(inv._test_mtpa_control)
             {

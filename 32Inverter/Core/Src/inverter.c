@@ -473,41 +473,41 @@ abc_t inv_read_current(inv_t *inverter) {
     return result;
 }
 
-void inv_enable(inv_t *inv, bool status) {
+void inv_enable(inv_t *inverter, bool status) {
     if (status) {
-        if(!inv->active)
+        if(!inverter->active)
         {
-            HAL_TIM_PWM_Start(inv->timer, TIM_CHANNEL_1);
-            HAL_TIMEx_PWMN_Start(inv->timer, TIM_CHANNEL_1);
-            HAL_TIM_PWM_Start(inv->timer, TIM_CHANNEL_2);
-            HAL_TIMEx_PWMN_Start(inv->timer, TIM_CHANNEL_2);
-            HAL_TIM_PWM_Start(inv->timer, TIM_CHANNEL_3);
-            HAL_TIMEx_PWMN_Start(inv->timer, TIM_CHANNEL_3);
+            HAL_TIM_PWM_Start(inverter->timer, TIM_CHANNEL_1);
+            HAL_TIMEx_PWMN_Start(inverter->timer, TIM_CHANNEL_1);
+            HAL_TIM_PWM_Start(inverter->timer, TIM_CHANNEL_2);
+            HAL_TIMEx_PWMN_Start(inverter->timer, TIM_CHANNEL_2);
+            HAL_TIM_PWM_Start(inverter->timer, TIM_CHANNEL_3);
+            HAL_TIMEx_PWMN_Start(inverter->timer, TIM_CHANNEL_3);
 
             for(int i = 0; i< 300; i++)                 //IT CAN'T BE DONE THIS WAY. Add a state machine waiting for it to be done
             {
-                adc4_read(&inv->inputs);
+                adc4_read(&inverter->inputs);
             }
-            inv_reset_controllers(inv);
+            inv_reset_controllers(inverter);
             inv_clear_fault();
 
         }
 
     } else {
-        if(inv->active)
+        if(inverter->active)
         {
             inv_set_fault();
-            inv_reset_controllers(inv);
-            HAL_TIM_PWM_Stop(inv->timer, TIM_CHANNEL_1);
-            HAL_TIMEx_PWMN_Stop(inv->timer, TIM_CHANNEL_1);
-            HAL_TIM_PWM_Stop(inv->timer, TIM_CHANNEL_2);
-            HAL_TIMEx_PWMN_Stop(inv->timer, TIM_CHANNEL_2);
-            HAL_TIM_PWM_Stop(inv->timer, TIM_CHANNEL_3);
-            HAL_TIMEx_PWMN_Stop(inv->timer, TIM_CHANNEL_3);
+            inv_reset_controllers(inverter);
+            HAL_TIM_PWM_Stop(inverter->timer, TIM_CHANNEL_1);
+            HAL_TIMEx_PWMN_Stop(inverter->timer, TIM_CHANNEL_1);
+            HAL_TIM_PWM_Stop(inverter->timer, TIM_CHANNEL_2);
+            HAL_TIMEx_PWMN_Stop(inverter->timer, TIM_CHANNEL_2);
+            HAL_TIM_PWM_Stop(inverter->timer, TIM_CHANNEL_3);
+            HAL_TIMEx_PWMN_Stop(inverter->timer, TIM_CHANNEL_3);
         }
 
     }
-    inv->active = status;
+    inverter->active = status;
 }
 
 void inv_set_mode_and_current(inv_t *inverter, inverter_mode_t mode, vec_t current)
@@ -646,4 +646,19 @@ inv_ret_val_t inv_disconnect_supply(inv_t * inverter)
     HAL_Delay(500);
 
     return INV_OK;
+}
+
+#define INV_THROTTLE_THRESHOLD 0.2f
+#define INV_THROTTLE_TRIGGER 1.5f
+
+float inv_get_throttle(inv_t * inverter)
+{
+    float input = (inverter->inputs.throttle_b_voltage - INV_THROTTLE_THRESHOLD)/(INV_THROTTLE_TRIGGER-INV_THROTTLE_THRESHOLD);
+
+    if(input>1.f) input = 1.f;
+    if(input<1.f) input = 0.f;
+
+    return input;
+
+
 }
