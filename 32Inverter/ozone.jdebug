@@ -22,12 +22,12 @@ void OnProjectLoad (void) {
   //
   // Dialog-generated settings
   //
-  Project.AddPathSubstitute ("/home/kris", "$(ProjectDir)");
-  Project.AddPathSubstitute ("/home/kris", "$(ProjectDir)");
   Project.SetDevice ("STM32F303VC");
-  Project.SetHostIF ("USB", "51016597");
+  Project.SetHostIF ("USB", "156001647");
   Project.SetTargetIF ("SWD");
   Project.SetTIFSpeed ("4 MHz");
+  Project.AddPathSubstitute ("/home/kris", "$(ProjectDir)");
+  Project.AddPathSubstitute ("/home/kris", "$(ProjectDir)");
   Project.AddSvdFile ("$(InstallDir)/Config/CPU/Cortex-M4F.svd");
   //
   // User settings

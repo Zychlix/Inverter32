@@ -413,7 +413,12 @@ int main(void) {
             #define VELOCITY_ALPHA 0.01f
             smooth_velocity = (VELOCITY_ALPHA *  inv.resolver.derived_electrical_velocity_rad_s) + (1.0f - VELOCITY_ALPHA) * smooth_velocity;
 
-            res = mtpa_current_controller(inv.mtpa_current, smooth_velocity, inv.vbus, &currents);
+            volatile static mtpa_parameters params = {.Omega = 100, .T_ref = 50.f,.V_bus = 40.f, .I_q = 0};
+            res = mtpa_current_controller_newton(inv.mtpa_current, smooth_velocity, inv.vbus, &currents);
+
+            volatile static float calculated_Iq = 10.f;
+            #define MTPA_ITER 5
+            res = mtpa_newton(params, &calculated_Iq, MTPA_ITER);
 
             static uint32_t canter = 0;
 
