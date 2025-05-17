@@ -147,7 +147,7 @@ typedef struct INV {
     float frequency_setpoint;
 
     bool _test_mtpa_control;
-    float mtpa_current;
+    float mtpa_setpoint;
 
 } inv_t;
 

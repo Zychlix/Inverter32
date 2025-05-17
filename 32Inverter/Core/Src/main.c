@@ -402,10 +402,10 @@ int main(void) {
             }
             last_call = HAL_GetTick();
 
-            volatile static float voltage;
             volatile static float i_r = 10;
             volatile static float vmax = 50;
             volatile static float omega = 50;
+            volatile static float t_ref = 50;
             static vec_t currents;
             static uint32_t res;
             static float smooth_velocity;
@@ -414,11 +414,10 @@ int main(void) {
             smooth_velocity = (VELOCITY_ALPHA *  inv.resolver.derived_electrical_velocity_rad_s) + (1.0f - VELOCITY_ALPHA) * smooth_velocity;
 
             volatile static mtpa_parameters params = {.Omega = 100, .T_ref = 50.f,.V_bus = 40.f, .I_q = 0};
-            res = mtpa_current_controller_newton(inv.mtpa_current, smooth_velocity, inv.vbus, &currents);
 
-            volatile static float calculated_Iq = 10.f;
-            #define MTPA_ITER 5
-            res = mtpa_newton(params, &calculated_Iq, MTPA_ITER);
+            res = mtpa_current_controller_newton(inv.mtpa_setpoint, 100, smooth_velocity, inv.vbus, &currents);
+//            res = mtpa_current_controller_newton(t_ref, 200, omega, inv.vbus, &currents);
+
 
             static uint32_t canter = 0;
 

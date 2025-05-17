@@ -263,13 +263,13 @@ bool inv_get_fault() {
 
 void inv_clear_fault() {
     HAL_GPIO_WritePin(FAULT_RST_GPIO_Port, FAULT_RST_Pin, true);
-    HAL_Delay(1);
+    HAL_Delay(10);
     HAL_GPIO_WritePin(FAULT_RST_GPIO_Port, FAULT_RST_Pin, false);
 }
 
 void inv_set_fault() {
     HAL_GPIO_WritePin(GPIO_A_GPIO_Port, GPIO_A_Pin, true);
-    HAL_Delay(1);
+    HAL_Delay(10);
     HAL_GPIO_WritePin(GPIO_A_GPIO_Port, GPIO_A_Pin, false);
 }
 

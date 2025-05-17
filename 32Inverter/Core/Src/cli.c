@@ -209,7 +209,7 @@ static void parse_command(char* str)
     } else if (sscanf(str, "mtpa %f", &arg1) )
     {
         me.inverter->_test_mtpa_control = true;
-        me.inverter->mtpa_current = arg1;
+        me.inverter->mtpa_setpoint = arg1;
         if(arg1 == 0)
         {
             me.inverter->_test_mtpa_control = false;

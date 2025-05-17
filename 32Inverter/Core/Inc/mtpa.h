@@ -9,7 +9,7 @@
 //MCD Motor Current Dispatcher
 
 static volatile float lambda = ((0.05f)); // To be designated
-#define LAMBDA 0.05f// approx 43.7V per 162 rad/s
+#define LAMBDA 0.06f// approx 43.7V per 162 rad/s
 
 #define CONVERGANCE 1.f
 #define POLE_COUNT  ((4))
@@ -20,12 +20,13 @@ static volatile float lambda = ((0.05f)); // To be designated
 
 #define MTPA_I0     ((300.f))
 
-#define MTPA_A ((9 * POLE_COUNT*POLE_COUNT * (L_q*L_q)*(L_q*L_q)*(L_q*L_q) * (OMEGA*OMEGA)))
+#define MTPA_A ((9 * POLE_COUNT*POLE_COUNT * (L_d - L_q)*(L_d - L_q)*(L_q*L_q) * (OMEGA*OMEGA)))
 #define MTPA_B 0
 #define MTPA_C (9 * (POLE_COUNT *POLE_COUNT) * (LAMBDA*LAMBDA) * (L_q *L_q) * (OMEGA *OMEGA) - 9* (POLE_COUNT *POLE_COUNT) * (L_d-L_q)*(L_d-L_q) * (VBUS*VBUS))
-#define MTPA_D (12 * T_REF * POLE_COUNT * LAMBDA * L_d * L_q*OMEGA *OMEGA)
+#define MTPA_D (-12 * T_REF * POLE_COUNT * LAMBDA * L_d * L_q*OMEGA *OMEGA)
 #define MTPA_E (4 * T_REF *T_REF * L_d *L_d * OMEGA *OMEGA)
 
+#define MTPA_NEWTON_ITERATIONS ((10))
 
 #define MTPA_OK ((0))
 #define MTPA_FAIL ((-1))
@@ -40,23 +41,23 @@ typedef struct
 
 float mtpa_expression(mtpa_parameters p)
 {
-    return MTPA_A * (I_Q *I_Q*I_Q*I_Q) + MTPA_C * I_Q * I_Q - MTPA_D * I_Q + MTPA_E;
+    return MTPA_A * (I_Q *I_Q*I_Q*I_Q) + MTPA_C * I_Q * I_Q + MTPA_D * I_Q + MTPA_E;
 }
 float mtpa_derivative_expression(mtpa_parameters p)
 {
-    return 4 * MTPA_A *(I_Q*I_Q*I_Q) + 2 * MTPA_C * I_Q - MTPA_D;
+    return 4 * MTPA_A *(I_Q*I_Q*I_Q) + 2 * MTPA_C * I_Q + MTPA_D;
 }
 
-uint32_t mtpa_newton(mtpa_parameters parameters, float* I_q, int iterations)    // Iq is treated as first solution, also as a return value
+uint32_t mtpa_newton(mtpa_parameters parameters, float* I_q)    // Iq is treated as first solution, also as a return value
 {
     parameters.I_q= MTPA_I0;    //Important
-    float delta_I = 0;
-    for(int i = 0; i< iterations; i++)
+    float delta_I = CONVERGANCE+1;
+    for(int i = 0; (i< MTPA_NEWTON_ITERATIONS); i++)
 
     {
         delta_I = -mtpa_expression(parameters)/ mtpa_derivative_expression(parameters);
         parameters.I_q += delta_I;
-        printf("Newton i: %d, %f  \r\n", i, delta_I);
+        //printf("Newton i: %d, %f  \r\n", i, delta_I);
     }
     if (delta_I*delta_I >CONVERGANCE*CONVERGANCE)   //ABS(delta_I)>CONVERGENCE
     {
@@ -126,49 +127,25 @@ uint32_t calculate_mtpa_weakening_regime(float i_r, float v_max, float omega, ve
     return MTPA_OK;
 }
 
-uint32_t mtpa_current_controller(float i_m, float omega, float v_m, vec_t * output)
+
+float mtpa_get_im(float T_ref,float  I_max)
 {
-    static volatile bool weakening_enabled;
-
-    vec_t result_current={0,0};
-    uint32_t return_value = calculate_mtpa(i_m,&result_current);
-    if(return_value == MTPA_FAIL)
+    float Im_ref = 2.f * T_ref /( 3.f * POLE_COUNT * LAMBDA);
+    if(Im_ref > I_max)
     {
-        *output = (vec_t){0,0};
-        return MTPA_FAIL;
+        return I_max;
     }
-
-    static volatile float dc_link_required = 0;
-    dc_link_required = calculate_required_vbus(result_current, omega);
-
-    if(dc_link_required < v_m)      //Under base speed
-    {
-        weakening_enabled = false;
-        *output = result_current;
-        return MTPA_OK;
-    }
-
-    return_value = calculate_mtpa_weakening_regime(i_m, v_m, omega, &result_current);
-    //In omega > omega_m regime
-    if( return_value == MTPA_FAIL)
-    {
-        *output = (vec_t){0,0};
-        return MTPA_FAIL;
-    }
-
-    weakening_enabled = true;
-    *output = result_current;
-    return MTPA_OK;
-
-
+    return Im_ref;
 }
 
-uint32_t mtpa_current_controller_newton(float i_m, float omega, float v_m, vec_t * output)
+uint32_t mtpa_current_controller_newton(float t_ref, float i_m, float omega, float v_m, vec_t * output)
 {
     static volatile bool weakening_enabled;
 
+    float i_ref = mtpa_get_im(t_ref,i_m);
+
     vec_t result_current={0,0};
-    uint32_t return_value = calculate_mtpa(i_m,&result_current);
+    uint32_t return_value = calculate_mtpa(i_ref,&result_current);
     if(return_value == MTPA_FAIL)
     {
         *output = (vec_t){0,0};
@@ -185,16 +162,29 @@ uint32_t mtpa_current_controller_newton(float i_m, float omega, float v_m, vec_t
         return MTPA_OK;
     }
 
-    return_value = calculate_mtpa_weakening_regime(i_m, v_m, omega, &result_current);
-    //In omega > omega_m regime
-    if( return_value == MTPA_FAIL)
+    mtpa_parameters parameters = {.Omega = omega, .V_bus = v_m, .T_ref = t_ref};
+
+    float mtpa_i_q_weakening, mtpa_i_d_weakening = 0;
+    return_value = mtpa_newton(parameters,&mtpa_i_q_weakening);
+
+    if(return_value == MTPA_FAIL)
     {
         *output = (vec_t){0,0};
         return MTPA_FAIL;
     }
 
+    float root = i_ref*i_ref-mtpa_i_q_weakening*mtpa_i_q_weakening;
+
+    if(root<0)
+    {
+        *output = (vec_t){0,0};
+        return MTPA_FAIL;
+    }
+
+    mtpa_i_d_weakening = -sqrtf(root);
+    *output = (vec_t){mtpa_i_d_weakening, mtpa_i_q_weakening};
+
     weakening_enabled = true;
-    *output = result_current;
     return MTPA_OK;
 
 
