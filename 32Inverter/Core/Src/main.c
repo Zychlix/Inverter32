@@ -13,6 +13,9 @@
 
 #define BENCH_DEBUG_MODE 0
 
+
+#define TIM8_PERIOD ((100))
+
 inv_t inv = {0};       // Main device instance
 chg_t charger = {0};        // Charger instance.
 cdi_t can_debugger = {0};   // Debugger instance. Sends logs via designated channels corresponding to CAN message IDs
@@ -99,7 +102,7 @@ static void MX_TIM8_Init(void)
     htim8.Instance = TIM8;
     htim8.Init.Prescaler = 64;
     htim8.Init.CounterMode = TIM_COUNTERMODE_UP;
-    htim8.Init.Period = 1000;
+    htim8.Init.Period = TIM8_PERIOD;
     htim8.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
     htim8.Init.RepetitionCounter = 10-1;
     htim8.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
@@ -316,36 +319,30 @@ int main(void) {
 
     HAL_Delay(200);
 
-    if(!charger_mode)
-    {
-
-        HAL_Delay(200);
-
-        if (inv_calibrate_current(&inv)) {
-            printf("Current calibration failed\n");
-            Error_Handler();
-        } else {
-            printf("Current calibration completed %d %d\n", inv.current_adc_offset[0], inv.current_adc_offset[1]);
-        }
-
-    } else
-    {
-        inv_enable(&inv, false);
+    //
+    if (inv_calibrate_current(&inv)) {
+        log_info("Current calibration failed");
+        Error_Handler();
+    } else {
+        printf("Current calibration completed %d %d\n", inv.current_adc_offset[0], inv.current_adc_offset[1]);
     }
 
+
+    //Disable throttle control.
     inv.throttle_control = false;
+    inv._test_mtpa_control = true;
 
 
-
+    //Wait until enough ADC samples have been acquired
     while(!inv.adc_readings_ready);
 
     #ifndef BENCH_DEBUG_MODE
     inv_connect_supply(&inv);
     #endif
 
-    //Issue
 
-    printf("Bus voltage: %f \r\n", inv.vbus);
+    //Print status
+    printf("Inverter vbus voltage: %f \r\n", inv.vbus);
     printf("Aux voltage: %f \r\n", inv.inputs.supply_voltage);
 
     printf("ready\n >\n");
@@ -366,23 +363,11 @@ int main(void) {
     while (1) {
 
 
+        //Check for incoming serial commands
         cli_poll();
-        float throttle=inv.inputs.throttle_b_voltage;
 
-        if(inv.throttle_control)
-        {
 
-            {
-                if(throttle>=0.20)
-                {
-                    inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){0, -(throttle-0.20f)*500});
-                }
-                else
-                {
-                    inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){0, 0});
-                }
-            }
-        }
+
 
         if (HAL_GetTick() - last_call >= 1) {
 
@@ -409,23 +394,45 @@ int main(void) {
             static uint32_t res;
             static float smooth_velocity;
 
+            //Velocity filter
             #define VELOCITY_ALPHA 0.01f
             smooth_velocity = (VELOCITY_ALPHA *  inv.resolver.derived_electrical_velocity_rad_s) + (1.0f - VELOCITY_ALPHA) * smooth_velocity;
 
-            volatile static mtpa_parameters params = {.Omega = 100, .T_ref = 50.f,.V_bus = 40.f, .I_q = 0};
+            #define MTPA_MAX_CURRENT ((25.f))
+            #define MTPA_MAX_TORQUE ((50.f))
 
-            res = mtpa_current_controller_newton(inv.mtpa_setpoint, 25.f, smooth_velocity, inv.vbus, &currents);
+            //Throttle handling
 
-            static uint32_t canter = 0;
+            float throttle=inv.inputs.throttle_b_voltage;
 
-//           cdi_transmit_channel(&can_debugger, 0, (uint8_t *) &(currents.x), sizeof(currents.x));
-
-            if(inv._test_mtpa_control)
+            if(inv.throttle_control)
             {
-                inv_set_mode_and_current(&inv, MODE_DQ, currents);
+
+                if(inv._test_mtpa_control)
+                {
+                    if(throttle>=0.20)
+                    {
+                        res = mtpa_current_controller_newton(throttle*MTPA_MAX_TORQUE, MTPA_MAX_CURRENT, smooth_velocity, inv.vbus, &currents);
+                    } else
+                    {
+                        res = mtpa_current_controller_newton(0.f, MTPA_MAX_CURRENT, smooth_velocity, inv.vbus, &currents);
+                    }
+                    inv_set_mode_and_current(&inv, MODE_DQ, currents);
+                }
+                else
+                {
+                    if(throttle>=0.20)
+                    {
+                        inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){0, -(throttle-0.20f)*500});
+                    }
+                    else
+                    {
+                        inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){0, 0});
+                    }
+                }
             }
 
-
+//           cdi_transmit_channel(&can_debugger, 0, (uint8_t *) &(currents.x), sizeof(currents.x));
 
         }
 //        printf("Throttle: %f, press: %f\n", inv.adcs.throttleB, inv.adcs.throttleA );

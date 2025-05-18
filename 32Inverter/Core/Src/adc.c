@@ -48,7 +48,7 @@ void adc4_read(inv_inputs_t * inputs){
     }
     static uint16_t data[5];
     HAL_ADC_Start_DMA(inputs->adc4, (uint32_t *) data, 5);
-    HAL_ADC_PollForConversion(inputs->adc4, 1);
+//    HAL_ADC_PollForConversion(inputs->adc4, 1);
 
     /*
      * Motor B temperature filter
@@ -99,7 +99,7 @@ void adc2_read(inv_inputs_t * inputs)
     }
 
     HAL_ADC_Start(inputs->adc2);
-    HAL_ADC_PollForConversion(inputs->adc2,1);
+//    HAL_ADC_PollForConversion(inputs->adc2,1);
     float current_temp_value = convert_ntc(HAL_ADC_GetValue(inputs->adc2), NTC_R0_IGBT,NTC_R_LOWSIDE_IGBT,VREF);
-    exp_filter(&inputs->igbt_A_temperature,current_temp_value, INV_TEMP_FILTER_ALPHA);
+    exp_filter(&inputs->igbt_A_temperature,current_temp_value, INV_TEMP_FILTER_ALPHA);  //T3
 }

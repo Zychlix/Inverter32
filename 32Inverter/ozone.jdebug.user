@@ -1,44 +1,59 @@
 
 
 
-Breakpoint=/home/zychlix/projekty/Inverter32/32Inverter/Core/Inc/mtpa.h:55, State=BP_STATE_ON
-Breakpoint=/home/zychlix/projekty/Inverter32/32Inverter/Core/Inc/mtpa.h:64:5, State=BP_STATE_DISABLED
-Breakpoint=/home/zychlix/projekty/Inverter32/32Inverter/Core/Inc/mtpa.h:66, State=BP_STATE_ON
+Breakpoint=/home/zychlix/projekty/Inverter32/32Inverter/Core/Src/main.c:330, State=BP_STATE_ON
+Breakpoint=/home/zychlix/projekty/Inverter32/32Inverter/Core/Src/main.c:354:9, State=BP_STATE_DISABLED
+Breakpoint=/home/zychlix/projekty/Inverter32/32Inverter/Core/Src/main.c:414:13, State=BP_STATE_DISABLED
+Breakpoint=/home/zychlix/projekty/Inverter32/32Inverter/Core/Src/inverter.c:564:5, State=BP_STATE_DISABLED
 GraphedExpression="((inv).smooth_set_current).x", Color=#e56a6f
 GraphedExpression="((inv).smooth_set_current).y", Color=#35792b
 GraphedExpression="((inv).resolver).derived_electrical_velocity_rad_s", DisplayFormat=DISPLAY_FORMAT_DEC, Color=#769dda, Show=0
 GraphedExpression="weakening_enabled", Color=#b14f0d, Show=0
 GraphedExpression="dc_link_required", Color=#b3c38e, Show=0
-GraphedExpression="(inv).vbus", Color=#ab7b05
-OpenDocument="main.c", FilePath="/home/zychlix/projekty/Inverter32/32Inverter/Core/Src/main.c", Line=224
-OpenDocument="mtpa.h", FilePath="/home/zychlix/projekty/Inverter32/32Inverter/Core/Inc/mtpa.h", Line=46
-OpenDocument="inverter.c", FilePath="/home/zychlix/projekty/Inverter32/32Inverter/Core/Src/inverter.c", Line=453
-OpenDocument="startup_stm32f303vctx.s", FilePath="/home/zychlix/projekty/Inverter32/32Inverter/Core/Startup/startup_stm32f303vctx.s", Line=57
+GraphedExpression="(inv).vbus", Color=#ab7b05, Show=0
+OpenDocument="stm32f3xx_hal_tim.c", FilePath="/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.c", Line=472
+OpenDocument="PID.c", FilePath="/home/zychlix/projekty/Inverter32/32Inverter/Core/Src/PID.c", Line=0
+OpenDocument="cli.c", FilePath="/home/zychlix/projekty/Inverter32/32Inverter/Core/Src/cli.c", Line=208
+OpenDocument="stm32f3xx_it.c", FilePath="/home/zychlix/projekty/Inverter32/32Inverter/Core/Src/stm32f3xx_it.c", Line=83
+OpenDocument="inverter.c", FilePath="/home/zychlix/projekty/Inverter32/32Inverter/Core/Src/inverter.c", Line=504
+OpenDocument="startup_stm32f303vctx.s", FilePath="/home/zychlix/projekty/Inverter32/32Inverter/Core/Startup/startup_stm32f303vctx.s", Line=48
+OpenDocument="adc.c", FilePath="/home/zychlix/projekty/Inverter32/32Inverter/Core/Src/adc.c", Line=20
+OpenDocument="mtpa.h", FilePath="/home/zychlix/projekty/Inverter32/32Inverter/Core/Inc/mtpa.h", Line=48
+OpenDocument="main.c", FilePath="/home/zychlix/projekty/Inverter32/32Inverter/Core/Src/main.c", Line=217
 OpenDocument="vectors.c", FilePath="/home/zychlix/projekty/Inverter32/32Inverter/Core/Src/vectors.c", Line=68
-OpenDocument="ozone.jdebug", FilePath="/home/zychlix/projekty/Inverter32/32Inverter/ozone.jdebug", Line=0
 OpenDocument="iir_filter.c", FilePath="/home/zychlix/projekty/Inverter32/32Inverter/Core/Src/iir_filter.c", Line=0
-OpenDocument="stm32f3xx_hal.c", FilePath="/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal.c", Line=284
-OpenDocument="stm32f3xx_hal_adc_ex.c", FilePath="/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_adc_ex.c", Line=1623
+OpenDocument="stm32f3xx_hal.c", FilePath="/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal.c", Line=353
+OpenDocument="stm32f3xx_hal_adc_ex.c", FilePath="/home/zychlix/projekty/Inverter32/32Inverter/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_adc_ex.c", Line=7223
 OpenToolbar="Debug", Floating=0, x=0, y=0
-OpenWindow="Registers 1", DockArea=RIGHT, x=0, y=1, w=710, h=292, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0, FilteredItems=[], RefreshRate=1
-OpenWindow="Disassembly", DockArea=FLOATING, x=1210, y=0, w=710, h=116, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
-OpenWindow="Global Data", DockArea=RIGHT, x=0, y=0, w=710, h=292, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
-OpenWindow="Watched Data 1", DockArea=LEFT, x=0, y=0, w=559, h=427, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
-OpenWindow="Functions", DockArea=LEFT, x=0, y=1, w=559, h=157, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
-OpenWindow="Data Sampling", DockArea=BOTTOM, x=0, y=0, w=690, h=350, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0, VisibleTab=0, UniformSampleSpacing=0
-OpenWindow="Timeline", DockArea=BOTTOM, x=1, y=0, w=1229, h=350, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=1, DataPaneShown=1, PowerPaneShown=0, CodePaneShown=0, PinCursor="Cursor Movable", TimePerDiv="1 s / Div", TimeStampFormat="Time", DataGraphDrawAsPoints=0, DataGraphLegendShown=1, DataGraphUniformSampleSpacing=0, DataGraphLegendPosition="13;0", DataGraphShowNamesAtCursor=0, PowerGraphDrawAsPoints=0, PowerGraphLegendShown=0, PowerGraphAvgFilterTime=Off, PowerGraphAvgFilterLen=Off, PowerGraphUniformSampleSpacing=0, PowerGraphLegendPosition="629;0", CodeGraphLegendShown=0, CodeGraphLegendPosition="646;0"
+OpenWindow="Registers 1", DockArea=RIGHT, x=0, y=1, w=710, h=314, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0, FilteredItems=[], RefreshRate=1
+OpenWindow="Global Data", DockArea=RIGHT, x=0, y=0, w=710, h=630, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
+OpenWindow="Watched Data 1", DockArea=LEFT, x=0, y=0, w=559, h=678, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
+OpenWindow="Functions", DockArea=LEFT, x=0, y=1, w=559, h=266, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
+OpenWindow="Data Sampling", DockArea=BOTTOM, x=0, y=0, w=920, h=350, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0, VisibleTab=0, UniformSampleSpacing=0
+OpenWindow="Timeline", DockArea=BOTTOM, x=1, y=0, w=1639, h=350, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=1, DataPaneShown=1, PowerPaneShown=0, CodePaneShown=0, PinCursor="Cursor Movable", TimePerDiv="1 s / Div", TimeStampFormat="Time", DataGraphDrawAsPoints=0, DataGraphLegendShown=1, DataGraphUniformSampleSpacing=0, DataGraphLegendPosition="386;29", DataGraphShowNamesAtCursor=0, PowerGraphDrawAsPoints=0, PowerGraphLegendShown=0, PowerGraphAvgFilterTime=Off, PowerGraphAvgFilterLen=Off, PowerGraphUniformSampleSpacing=0, PowerGraphLegendPosition="1050;0", CodeGraphLegendShown=0, CodeGraphLegendPosition="1067;0"
 SmartViewPlugin="", Page="", Toolbar="Hidden", Window="SmartView 1"
 TableHeader="Global Data", SortCol="Name", SortOrder="ASCENDING", VisibleCols=["Name";"Value";"Location";"Size";"Type";"Scope"], ColWidths=[100;100;100;100;100;194]
-TableHeader="Functions", SortCol="Source", SortOrder="DESCENDING", VisibleCols=["Name";"Address";"Size";"#Insts";"Source"], ColWidths=[218;27;27;27;244]
-TableHeader="Data Sampling Table", SortCol="None", SortOrder="ASCENDING", VisibleCols=["Index";"Time";" ((inv).smooth_set_current).x";" ((inv).smooth_set_current).y";" ((inv).resolver).derived_electrical_velocity_rad_s";" weakening_enabled";" dc_link_required";" (inv).vbus"], ColWidths=[100;100;100;100;100;100;100;100]
-TableHeader="Data Sampling Setup", SortCol="Expression", SortOrder="DESCENDING", VisibleCols=["Expression";"Type";"Value";"Min";"Max";"Average";"# Changes";"Min. Change";"Max. Change"], ColWidths=[311;161;112;100;112;105;100;119;112]
 TableHeader="Power Sampling", SortCol="None", SortOrder="ASCENDING", VisibleCols=["Index";"Time";"Ch 0"], ColWidths=[100;100;100]
 TableHeader="Registers 1", SortCol="Name", SortOrder="ASCENDING", VisibleCols=["Name";"Value";"Description"], ColWidths=[100;105;489]
-TableHeader="Watched Data 1", SortCol="Expression", SortOrder="ASCENDING", VisibleCols=["Expression";"Value";"Location";"Refresh"], ColWidths=[158;100;100;185]
 TableHeader="RegisterSelectionDialog", SortCol="None", SortOrder="ASCENDING", VisibleCols=[], ColWidths=[]
 TableHeader="TargetExceptionDialog", SortCol="Name", SortOrder="ASCENDING", VisibleCols=["Name";"Value";"Address";"Description"], ColWidths=[200;100;100;358]
-Tracepoint=/home/zychlix/projekty/Inverter32/32Inverter/Core/Inc/mtpa.h:77:1, State=On
+TableHeader="Watched Data 1", SortCol="Expression", SortOrder="ASCENDING", VisibleCols=["Expression";"Value";"Location";"Refresh"], ColWidths=[158;181;100;120]
+TableHeader="Functions", SortCol="Source", SortOrder="DESCENDING", VisibleCols=["Name";"Address";"Size";"#Insts";"Source"], ColWidths=[218;27;27;27;244]
+TableHeader="Data Sampling Table", SortCol="None", SortOrder="ASCENDING", VisibleCols=["Index";"Time";" ((inv).smooth_set_current).x";" ((inv).smooth_set_current).y";" ((inv).resolver).derived_electrical_velocity_rad_s";" weakening_enabled";" dc_link_required";" (inv).vbus"], ColWidths=[100;100;100;100;100;100;100;100]
+TableHeader="Data Sampling Setup", SortCol="Expression", SortOrder="DESCENDING", VisibleCols=["Expression";"Type";"Value";"Min";"Max";"Average";"# Changes";"Min. Change";"Max. Change"], ColWidths=[311;161;100;105;100;100;100;100;100]
+Tracepoint=/home/zychlix/projekty/Inverter32/32Inverter/Core/Inc/mtpa.h:78:1, State=On
 WatchedExpression="(current_dq).x", Window=Watched Data 1
 WatchedExpression="inv", RefreshRate=1, Window=Watched Data 1
 WatchedExpression="dc_link_required", Window=Watched Data 1
 WatchedExpression="lambda", RefreshRate=1, Window=Watched Data 1
+WatchedExpression="omega", Window=Watched Data 1
+WatchedExpression="params", Window=Watched Data 1
+WatchedExpression="calculated_Iq", Window=Watched Data 1
+WatchedExpression="res", Window=Watched Data 1
+WatchedExpression="params", Window=Watched Data 1
+WatchedExpression="currents", Window=Watched Data 1
+WatchedExpression="mtpa_setpoint", Window=Watched Data 1
+WatchedExpression="smooth_velocity", Window=Watched Data 1
+WatchedExpression="t_ref", Window=Watched Data 1
+WatchedExpression="parameters.I_q", Window=Watched Data 1
+WatchedExpression="delta_I", Window=Watched Data 1
