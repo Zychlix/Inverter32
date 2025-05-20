@@ -220,8 +220,8 @@ void res_read_position(resolver_t *res) {
     HAL_GPIO_WritePin(RD_GPIO_Port, RD_Pin, 1);
     HAL_GPIO_WritePin(RD_GPIO_Port, RD_Pin, 0);
 
-     static volatile float resolver_offset = RES_OFFSET;
-//    static volatile float resolver_offset = -2.9f-3.14152f/2+0.1f;  // Silnik w samochodzie
+//     static volatile float resolver_offset = RES_OFFSET;
+    static volatile float resolver_offset = -2.9f-3.14152f/2+0.1f;  // Silnik w samochodzie
 
     uint16_t pos = spi_read_word(res->spi_handler->Instance) >> 4;
 
@@ -231,7 +231,8 @@ void res_read_position(resolver_t *res) {
 
 
 
-    float new_fi = (1-(float) pos / 4096.f )* 2 * (float) M_PI + resolver_offset;
+//    float new_fi = (1-(float) pos / 4096.f )* 2 * (float) M_PI + resolver_offset;
+    float new_fi = ((float) pos / 4096.f )* 2 * (float) M_PI + resolver_offset;
 
 
 //    if(new_fi-res->fi>)
