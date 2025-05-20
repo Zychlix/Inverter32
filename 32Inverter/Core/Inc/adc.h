@@ -7,6 +7,10 @@
 #include "stm32f3xx.h"
 #include "stdbool.h"
 
+
+#define BRK_IN_PIN GPIO_PIN_13
+#define BRK_IN_PORT GPIOD
+
 typedef struct
 {
     float bus_voltage;
@@ -26,6 +30,8 @@ typedef struct
 
     bool igbt_temperature_high;
 
+    bool charger_switch;    //Charger enabled
+
 }inv_inputs_t;
 
 
@@ -33,3 +39,5 @@ typedef struct
 void adc4_read(inv_inputs_t * inputs);
 
 void adc2_read(inv_inputs_t * inputs);
+
+void io_read(inv_inputs_t * inputs);

@@ -88,13 +88,17 @@ static void parse_command(char* str)
         inv_connect_supply(me.inverter);
     } else if(strcmp(str, "disengage") == 0) {
         inv_disconnect_supply(me.inverter);
+        inv_command_state_issue(me.inverter, INV_COMMAND_IDLE);
+
 
     } else if(strcmp(str, "enable") == 0) {
-        inv_enable(me.inverter,true);
+//        inv_enable(me.inverter,true);
+        inv_command_state_issue(me.inverter, INV_COMMAND_DRIVE);
         printf("ok\n");
 
     } else if(strcmp(str, "disable") == 0) {
-        inv_enable(me.inverter,false);
+//        inv_enable(me.inverter,false);
+        inv_command_state_issue(me.inverter, INV_COMMAND_IDLE);
         printf("ok\n");
 
     } else if(strcmp(str, "voltage") == 0) {
@@ -123,46 +127,46 @@ static void parse_command(char* str)
 
         }
         }else if (sscanf(str, "charger %c %f", &c, &arg1) == 2) {
-        /*Charger control
-         *
-         *
-         */
+            /*Charger control
+             *
+             *
+             */
 
-        if (c == 'v')
-        {
-
-            me.charger->setpoint.voltage = arg1;
-        }
-
-        if (c == 'a')
-        {
-
-            me.charger->setpoint.current = arg1;
-        }
-        if(c == 'm')
-        {
-            if(arg1>0)
+            if (c == 'v')
             {
-                me.charger->setpoint.mode = DEZHOU_MODE_CHARGING;
-            } else
-            {
-                me.charger->setpoint.mode = DEZHOU_MODE_HEATING;
+
+                me.charger->setpoint.voltage = arg1;
             }
-        }
 
-        if(c == 'p')
-        {
-            if(arg1>0)
+            if (c == 'a')
             {
-                me.charger->setpoint.protection = DEZHOU_BATTERY_OPEN_CHARGING;
-            } else
-            {
-                me.charger->setpoint.protection = DEZHOU_BATTERY_PROTECTION;
+
+                me.charger->setpoint.current = arg1;
             }
-        }
+            if(c == 'm')
+            {
+                if(arg1>0)
+                {
+                    me.charger->setpoint.mode = DEZHOU_MODE_CHARGING;
+                } else
+                {
+                    me.charger->setpoint.mode = DEZHOU_MODE_HEATING;
+                }
+            }
+
+            if(c == 'p')
+            {
+                if(arg1>0)
+                {
+                    me.charger->setpoint.protection = DEZHOU_BATTERY_OPEN_CHARGING;
+                } else
+                {
+                    me.charger->setpoint.protection = DEZHOU_BATTERY_PROTECTION;
+                }
+            }
 
 
-        printf("OK \n");
+            printf("OK \n");
     } else if(strcmp(str, "chg_info") == 0) {
         chg_print_data(me.charger);
     } else if(sscanf(str, "vf %f %f %f", &arg1, &arg2, &arg3) == 3) {
@@ -215,7 +219,26 @@ static void parse_command(char* str)
             me.inverter->_test_mtpa_control = false;
         }
         printf("OK \n");
-    }
+    } else if(strcmp(str, "status") == 0) {
+        printf("Inverter status:");
+        switch (me.inverter->main_status) {
+            case INV_STATUS_IDLE:
+                printf("INV_STATUS_IDLE\r\n");
+                break;
+            case INV_STATUS_CHARGING:
+                printf("INV_STATUS_CHARGING\r\n");
+                break;
+            case INV_STATUS_DRIVE:
+                printf("INV_STATUS_DRIVE\r\n");
+                break;
+            case INV_STATUS_UNINITIALIZED:
+                printf("INV_STATUS_UNINITIALIZED\r\n");
+                break;
+            default:
+                break;
+        }
+
+        }
     else {
 		printf("Unknown command!\n");
 	}

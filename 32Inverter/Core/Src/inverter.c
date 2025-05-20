@@ -573,6 +573,7 @@ void inv_auxiliary_tick(inv_t * inverter)
 
     adc4_read(&inverter->inputs);
     adc2_read(&inverter->inputs);
+    io_read(&inverter->inputs);
     //Make it more human
 
     env_update(&inverter->stimuli);

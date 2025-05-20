@@ -103,3 +103,8 @@ void adc2_read(inv_inputs_t * inputs)
     float current_temp_value = convert_ntc(HAL_ADC_GetValue(inputs->adc2), NTC_R0_IGBT,NTC_R_LOWSIDE_IGBT,VREF);
     exp_filter(&inputs->igbt_A_temperature,current_temp_value, INV_TEMP_FILTER_ALPHA);  //T3
 }
+
+void io_read(inv_inputs_t * inputs)
+{
+    inputs->charger_switch =  !HAL_GPIO_ReadPin( BRK_IN_PORT, BRK_IN_PIN);
+}

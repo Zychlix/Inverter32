@@ -25,7 +25,6 @@ void env_temperature_check(env_t * instance)
     {
         instance->transistor_temperature_high = true;
         env_overtemperature_rising_handler();
-        printf("duba \r\n");
     }
 
     if(instance->transistor_temperature_high && !temperature_too_high_new)
@@ -60,6 +59,30 @@ void env_voltage_check(env_t * instance)
     }
 }
 
+void env_charger_check(env_t * instance)
+{
+    bool charger_state_new = instance->inputs->charger_switch;
+
+    if(instance->charger_enabled)
+    {
+        if(!charger_state_new)
+        {
+            env_charger_enable();
+            instance->charger_enabled = false;
+            //If button was depressed
+        }
+    } else
+    {
+        if(charger_state_new)
+        {
+            env_charger_disable();
+            instance->charger_enabled = true;
+
+            //If button was depressed
+        }
+    }
+}
+
 env_ret_val_t  env_update(env_t * instance)
 {
     if(!instance)
@@ -75,6 +98,8 @@ env_ret_val_t  env_update(env_t * instance)
     env_temperature_check(instance);
 
     env_voltage_check(instance);
+
+    env_charger_check(instance);
 
     return ENV_OK;
 

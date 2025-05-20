@@ -197,8 +197,7 @@ void startup_gpio_init()
 
     __HAL_RCC_GPIOB_CLK_ENABLE();
     __HAL_RCC_GPIOD_CLK_ENABLE();
-    #define BRK_IN_PIN GPIO_PIN_13
-    #define BRK_IN_PORT GPIOD
+
 
     GPIO_InitTypeDef GPIO_InitStruct = {0};
 //    GPIO_InitStruct.Pin = GPIO_PIN_10;
@@ -355,7 +354,7 @@ int main(void) {
     charger.setpoint.voltage = 120.f;
     charger.setpoint.current = 10.f;
 
-    inv_enable(&inv, true);
+    inv_command_state_issue(&inv,INV_COMMAND_DRIVE);
 
     uint32_t last_call = 0;
 
@@ -369,19 +368,19 @@ int main(void) {
         //Dispatch urgent calls
         inv_dispatcher(&inv);
 
+        //
+        inv_command_state_executor(&inv);
+
 
         if (HAL_GetTick() - last_call >= 1) {
 
-            if(charger_mode)
+            if(inv.main_status == INV_STATUS_CHARGING)
             {
                 chg_state_machine_update(&charger);
 
 //                chg_print_data(&charger);
-//                chg_send_data(&charger);  TODO
-//                if(charger.fast_data_enabled)
-//                {
-//                    chg_send_fast_data(&charger);
-//                }
+                chg_send_data(&charger);
+
             }
 
             last_call = HAL_GetTick();
@@ -394,7 +393,7 @@ int main(void) {
             #define VELOCITY_ALPHA 0.01f
             smooth_velocity = (VELOCITY_ALPHA *  inv.resolver.derived_electrical_velocity_rad_s) + (1.0f - VELOCITY_ALPHA) * smooth_velocity;
 
-            #define MTPA_MAX_CURRENT ((25.f))
+            #define MTPA_MAX_CURRENT ((40.f))
             #define MTPA_MAX_TORQUE ((50.f))
 
             //Throttle handling

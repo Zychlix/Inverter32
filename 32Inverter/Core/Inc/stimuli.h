@@ -4,12 +4,12 @@
 
 //This library contains event handlers
 
-#define INV_MAX_TEMPERATURE_DISABLE 50.f //C
+#define INV_MAX_TEMPERATURE_DISABLE 35.f //C
 #define INV_MAX_TEMPERATURE_ENABLE 45.f //C
 
 #define ENV_MIN_VBUS_VALUE 30.f
 #define ENV_MAX_VBUS_VALUE 200.f
-#define ENV_VBUS_HYSTERESIS 10.f
+#define ENV_VBUS_HYSTERESIS 3.f
 
 
 typedef enum
@@ -25,6 +25,7 @@ typedef struct ENVIRONMENT_T
     inv_inputs_t * inputs;
     bool transistor_temperature_high;
     bool vbus_in_range;
+    bool charger_enabled;
     bool power_connected;
     bool accelerator_error;
 
@@ -44,3 +45,7 @@ void env_overtemperature_rising_handler();
 void env_overtemperature_falling_handler();
 void env_vbus_out_of_range_handler();
 void env_vbus_in_range_handler();
+
+void env_charger_enable();
+void env_charger_disable();
+

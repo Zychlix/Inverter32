@@ -47,6 +47,7 @@ inv_state_ret_val_t inv_command_state_executor(inv_t * instance)
                     return_value = INV_STATE_RET_FAIL;
                 }
             }
+            instance->current_command = INV_COMMAND_NO_COMMAND;
             break;
 
 
@@ -67,36 +68,52 @@ inv_state_ret_val_t inv_command_state_executor(inv_t * instance)
                     log_info("initialized to drive failure");
                     return_value = INV_STATE_RET_FAIL;
                 }
+            } else
+            {
+                log_info("Inverter not in idle. Cannot proceed to DRIVE");
+
             }
+            instance->current_command = INV_COMMAND_NO_COMMAND;
+            break;
 
         case INV_COMMAND_CHARGE:
 
             if(instance->main_status == INV_STATUS_IDLE)
             {
                 transition_effect = inv_transition_idle_charge(instance);
-            }
 
-            if(transition_effect == 0)
-            {
-                return_value = INV_STATE_RET_OK;
-                instance->main_status = INV_STATUS_CHARGING;
-            } else
-            {
-                log_info("initialized to charge failure");
-                return_value = INV_STATE_RET_FAIL;
+                if(transition_effect == 0)
+                {
+                    return_value = INV_STATE_RET_OK;
+                    instance->main_status = INV_STATUS_CHARGING;
+                }
+                else
+                {
+                    log_info("initialized to charge failure");
+                    return_value = INV_STATE_RET_FAIL;
+                }
             }
+            else
+            {
+                log_info("Inverter not in Idle");
+                return_value = INV_STATE_RET_INVALID_TRANSITION;
+            }
+            instance->current_command = INV_COMMAND_NO_COMMAND;
+            break;
 
         case INV_COMMAND_IDLE:
             inv_enable(instance, false);
             instance->main_status = INV_STATUS_IDLE;
-
+            instance->current_command = INV_COMMAND_NO_COMMAND;
+            break;
+        case INV_COMMAND_NO_COMMAND:
             break;
 
         default:
             log_info("Invalid inverter state command");
     }
 
-    instance->current_command = INV_COMMAND_NO_COMMAND;
+
     return  return_value;
 }
 
