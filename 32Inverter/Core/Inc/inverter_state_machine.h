@@ -19,4 +19,9 @@ INV_TRANSITION_RET_VAL inv_transition_idle_charge(inv_t * instance);
  */
 
 
-inv_state_ret_val_t inv_command_state(inv_t * instance, inv_command_t command);
+
+inv_state_ret_val_t inv_command_state_issue(inv_t * instance, inv_command_t command);
+
+inv_state_ret_val_t  inv_command_state_executor(inv_t * instance);
+
+inv_state_ret_val_t inv_dispatcher(inv_t * instance);

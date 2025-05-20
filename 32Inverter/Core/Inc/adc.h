@@ -5,6 +5,7 @@
 #pragma once
 
 #include "stm32f3xx.h"
+#include "stdbool.h"
 
 typedef struct
 {
@@ -23,18 +24,10 @@ typedef struct
     ADC_HandleTypeDef *adc4;
     ADC_HandleTypeDef *adc2;
 
+    bool igbt_temperature_high;
+
 }inv_inputs_t;
 
-typedef struct {
-    float vbus;
-    float throttleA; //Normalize
-    float throttleB;
-    float input12V;
-    float motor_temp2;
-
-    float transistor1;
-
-} adcs_t;
 
 
 void adc4_read(inv_inputs_t * inputs);

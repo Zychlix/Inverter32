@@ -14,6 +14,7 @@ typedef enum
     INV_STATE_RET_NO_EFFECT,
     INV_STATE_RET_INVALID_TRANSITION,
     INV_STATE_RET_FAIL,
+    INV_STATE_COMMAND_BUFFER_FULL
 
 }inv_state_ret_val_t ;      //State machine errors
 
@@ -28,7 +29,8 @@ typedef enum
 
 typedef enum
 {
-    INV_COMMAND_INITIALIZE = 0,     //Set up the inverter
+    INV_COMMAND_NO_COMMAND= 0,     //Set up the inverter
+    INV_COMMAND_INITIALIZE ,     //Set up the inverter
     INV_COMMAND_DRIVE,              //Inverter in driving mode. PWM activated
     INV_COMMAND_CHARGE,             //Inverter charging
     INV_COMMAND_IDLE,               //Inverter neither charging nor driveing. Safe state
@@ -36,3 +38,4 @@ typedef enum
 }inv_command_t;
 
 #define INV_TRANSITION_RET_VAL int32_t
+

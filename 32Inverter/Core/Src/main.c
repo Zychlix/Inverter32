@@ -335,9 +335,9 @@ int main(void) {
 
     //Wait until enough ADC samples have been acquired
     while(!inv.adc_readings_ready);
+    inv_connect_supply(&inv);
 
     #ifndef BENCH_DEBUG_MODE
-    inv_connect_supply(&inv);
     #endif
 
 
@@ -366,7 +366,8 @@ int main(void) {
         //Check for incoming serial commands
         cli_poll();
 
-
+        //Dispatch urgent calls
+        inv_dispatcher(&inv);
 
 
         if (HAL_GetTick() - last_call >= 1) {
@@ -384,11 +385,6 @@ int main(void) {
             }
 
             last_call = HAL_GetTick();
-
-            volatile static float i_r = 10;
-            volatile static float vmax = 50;
-            volatile static float omega = 50;
-            volatile static float t_ref = 50;
 
             static vec_t currents;
             static uint32_t res;
@@ -1078,7 +1074,9 @@ void TIM8_UP_IRQHandler()
 {
     TIM8->SR = 0;
 //    HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_10);
+    HAL_GPIO_WritePin(X_OUT_GPIO_Port, X_OUT_Pin,1);
     inv_auxiliary_tick(&inv);
+    HAL_GPIO_WritePin(X_OUT_GPIO_Port, X_OUT_Pin,0);
 //    HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_10);
 
 

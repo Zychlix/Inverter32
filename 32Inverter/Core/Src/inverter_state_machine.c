@@ -7,14 +7,27 @@
 
 typedef enum INV_STATUS inverter_status_t;
 
+inv_state_ret_val_t inv_command_state_issue(inv_t * instance, inv_command_t command)
+{
+    if(!instance)
+        return INV_STATE_RET_FAIL;
+    if(instance->current_command != INV_COMMAND_NO_COMMAND)
+    {
+        return INV_STATE_COMMAND_BUFFER_FULL;
+    }
 
-inv_state_ret_val_t inv_command_state(inv_t * instance, inv_command_t command)
+    instance->current_command = command;
+
+    return INV_STATE_RET_OK;
+}
+
+inv_state_ret_val_t inv_command_state_executor(inv_t * instance)
 {
     inv_state_ret_val_t return_value = INV_STATE_RET_NO_EFFECT;
 
     INV_TRANSITION_RET_VAL transition_effect;
 
-    switch (command) {
+    switch (instance->current_command) {
 
         case INV_COMMAND_INITIALIZE:
             /*
@@ -82,6 +95,17 @@ inv_state_ret_val_t inv_command_state(inv_t * instance, inv_command_t command)
         default:
             log_info("Invalid inverter state command");
     }
+
+    instance->current_command = INV_COMMAND_NO_COMMAND;
     return  return_value;
 }
 
+inv_state_ret_val_t inv_dispatcher(inv_t * instance)
+{
+    if(instance->order_shutdown)
+    {
+        instance->order_shutdown = false;
+        inv_disconnect_supply(instance);
+        inv_enable(instance,false);
+    }
+}

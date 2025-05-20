@@ -12,9 +12,10 @@
 #include "stm32f3xx_hal_tim_ex.h"
 #include "can_debug_interface.h"
 #include "fast_data_logger.h"
+#include "stimuli.h"
 #define INV_MIN_VOLTAGE_HYSTERESIS 5.f
-#define INV_MAX_TEMPERATURE_DISABLE 50.f //C
-#define INV_MAX_TEMPERATURE_ENABLE 45.f //C
+
+
 
 #define TRACE_FREQUENCY_DIVIDER 16
 
@@ -137,13 +138,17 @@ inv_ret_val_t inv_init(inv_t *inverter) {
     inverter->pid_b.max_out = INV_PID_MAX_OUT;
 
     inv_set_fault();
-    inv.adc_readings_ready = false;
+    inverter->adc_readings_ready = false;
     inv_start(inverter);
 
     inverter->main_status = INV_STATUS_IDLE;
 
+    env_init(&inverter->stimuli);
+    inverter->stimuli.inputs = &inverter->inputs;
+
     return INV_OK;
 }
+
 
 inv_ret_val_t inv_start(inv_t * inv)
 {
@@ -412,7 +417,7 @@ void inv_pwm_tick(inv_t *inverter) {
 
     inv_send_trace_data(inverter);
 
-    HAL_GPIO_WritePin(X_OUT_GPIO_Port, X_OUT_Pin, false);
+//    HAL_GPIO_WritePin(X_OUT_GPIO_Port, X_OUT_Pin, false);
 
     start_times[(counter123++) % 1024] = DWT->CYCCNT;
 
@@ -422,7 +427,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 {
     if (hadc->Instance == ADC1)
     {
-        HAL_GPIO_WritePin(X_OUT_GPIO_Port, X_OUT_Pin, true);
+//        HAL_GPIO_WritePin(X_OUT_GPIO_Port, X_OUT_Pin, true);
         inv_pwm_tick(&inv);
 //        res_read_position(&inv.resolver);
     }
@@ -498,6 +503,7 @@ void inv_enable(inv_t *inverter, bool status) {
         {
             inv_set_fault();
             inv_reset_controllers(inverter);
+            inverter->set_value = (vec_t){0,0};
             HAL_TIM_PWM_Stop(inverter->timer, TIM_CHANNEL_1);
             HAL_TIMEx_PWMN_Stop(inverter->timer, TIM_CHANNEL_1);
             HAL_TIM_PWM_Stop(inverter->timer, TIM_CHANNEL_2);
@@ -520,8 +526,10 @@ void inv_set_mode_and_current(inv_t *inverter, inverter_mode_t mode, vec_t curre
 
 void inv_vbus_update(inv_t * inverter)
 {
-//    float current_vbus = inverter->inputs.bus_voltage;
-    float current_vbus = 40;
+    float current_vbus = inverter->inputs.bus_voltage;
+#ifdef BENCH_DEBUG_MODE
+//    float current_vbus = 40;
+#endif
 
     inverter->vbus = current_vbus;
 
@@ -555,6 +563,8 @@ void inv_auxiliary_tick(inv_t * inverter)
 {
     volatile static uint32_t tick_counter = 0;
 
+//    HAL_GPIO_WritePin(GPIO)
+
     if(!inverter)
     {
         return;
@@ -565,9 +575,10 @@ void inv_auxiliary_tick(inv_t * inverter)
     adc2_read(&inverter->inputs);
     //Make it more human
 
+    env_update(&inverter->stimuli);
+
 
     inv_vbus_update(inverter);
-    inv_temperature_check(inverter);
 
 
     //Signal that ADC reading has already acquired enough samples
@@ -575,6 +586,7 @@ void inv_auxiliary_tick(inv_t * inverter)
     {
         inv.adc_readings_ready = true;
     }
+
 
 //    if(tick_counter%10)
 //    {
@@ -600,12 +612,10 @@ inv_ret_val_t inv_connect_supply(inv_t * inverter)
     adc4_read(&inverter->inputs);
 
     float current_voltage = inverter->inputs.bus_voltage;
-    float vbus_derivative = 0;
 
-    while(inverter->inputs.bus_voltage < INV_MIN_VOLTAGE_VALUE && (current_time - start_time)<INV_PRECHARGE_WAIT_TIME) //later change to derivative
+    while(inverter->inputs.bus_voltage < ENV_MIN_VBUS_VALUE && (current_time - start_time) < INV_PRECHARGE_WAIT_TIME) //later change to derivative
     {
-        adc4_read(&inverter->inputs);
-        vbus_derivative = ((inverter->inputs.bus_voltage - current_voltage)/(float)(HAL_GetTick()-current_time+1));
+
         current_time = HAL_GetTick();
         current_voltage = inverter->inputs.bus_voltage;
         HAL_Delay(1);
@@ -613,25 +623,23 @@ inv_ret_val_t inv_connect_supply(inv_t * inverter)
     }
 
 
-    if(current_time - start_time > INV_PRECHARGE_WAIT_TIME)
+    if(inverter->inputs.bus_voltage < ENV_MIN_VBUS_VALUE)
     {
         HAL_GPIO_WritePin(inverter->relay_box.precharge_contactor.port, inverter->relay_box.precharge_contactor.pin, 0);
-        printf("Contactor engage failed \n");
 
+        inverter->power_status = INV_POWER_DISCONNECTED;
+        log_info("Precharge failed. TIMEOUT");
         return INV_PRECHARGE_FAIL;
     }
     HAL_Delay(500);
 
+    HAL_GPIO_WritePin(inverter->relay_box.main_contactor.port, inverter->relay_box.main_contactor.pin, 0);  //Contactor enabled
 
-
-    HAL_GPIO_WritePin(inverter->relay_box.main_contactor.port, inverter->relay_box.main_contactor.pin, 0);
-    adc4_read(&inverter->inputs);
-
-
-    //}
     HAL_Delay(50);
     HAL_GPIO_WritePin(inverter->relay_box.precharge_contactor.port, inverter->relay_box.precharge_contactor.pin, 0);
     HAL_Delay(100);
+
+    inverter->power_status = INV_POWER_ENGAGED;
 
     return INV_OK;
 }
@@ -642,6 +650,7 @@ inv_ret_val_t inv_disconnect_supply(inv_t * inverter)
     HAL_Delay(100);
     HAL_GPIO_WritePin(inverter->relay_box.precharge_contactor.port, inverter->relay_box.precharge_contactor.pin, 0);
     printf("Contactor disengaged\n");
+    inverter->power_status = INV_POWER_DISCONNECTED;
 
     HAL_Delay(500);
 
@@ -662,3 +671,4 @@ float inv_get_throttle(inv_t * inverter)
 
 
 }
+

@@ -10,11 +10,12 @@
 #include "PID.h"
 #include "adc.h"
 #include "error_log.h"
+#include "stimuli.h"
 
 #define INV_MAX_PWM_PULSE_VAL 2500
 #define INV_PID_MAX_OUT 100
 #define DEFAULT_CURRENT_FILTER_ALPHA 0.01f
-#define INV_MIN_VOLTAGE_VALUE 30.f
+
 
 
 typedef enum
@@ -31,7 +32,7 @@ typedef enum
  */
 typedef enum
 {
-    INV_POWER_DISCONNECTED,
+    INV_POWER_DISCONNECTED = 0 ,
     INV_POWER_PRECHARGE_ENGAGED,
     INV_POWER_ENGAGED
 }inverter_power_state_t;
@@ -76,6 +77,7 @@ typedef enum
 
 
 
+
 typedef struct
 {
     TIM_HandleTypeDef *timer;
@@ -109,9 +111,12 @@ typedef struct
 
 typedef struct INV {
     inverter_status_t main_status;                //Main state machine state
+    inverter_power_state_t power_status;          //Power box status
+    inv_command_t current_command;
 
     inv_inputs_t inputs;                    //Input structure
 
+    bool order_shutdown;
     bool active;
     bool throttle_control;
     bool adc_readings_ready;
@@ -150,6 +155,8 @@ typedef struct INV {
 
     bool _test_mtpa_control;
     float mtpa_setpoint;
+
+    env_t stimuli;
 
 } inv_t;
 
