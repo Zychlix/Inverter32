@@ -38,6 +38,7 @@ void fdl_acquisition_complete()
 
 __inline void inv_delay_cycles(uint32_t delay)
 {
+    DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
     uint32_t start_time = DWT->CYCCNT;
     delay = delay*8;
     while ((DWT->CYCCNT - start_time) < delay);
@@ -156,6 +157,8 @@ inv_ret_val_t inv_start(inv_t * inv)
 {
     return INV_FAIL;
 }
+
+
 
     HAL_TIM_Base_Start_IT(inv->timer);
 

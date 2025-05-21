@@ -235,7 +235,8 @@ int main(void) {
     /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
     HAL_Init();
 
-
+    CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
+    DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
     //Enable SWO Trace
     ITM->TER = 0xFFFFFFFFU;
 
@@ -243,7 +244,6 @@ int main(void) {
     /* Configure the system clock */
     SystemClock_Config();
 
-    DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
 
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
@@ -270,15 +270,15 @@ int main(void) {
 
     bool charger_mode = HAL_GPIO_ReadPin( BRK_IN_PORT, BRK_IN_PIN); // Checks what mode to work in
 
-    if(charger_mode)
-    {
-        if(chg_init(&charger)!= CHG_OK)
-        {
-            printf("Charger init error");
-            Error_Handler();
-        }
-        chg_config_filters(&charger);
-    }
+//    if(charger_mode)
+//    {
+//        if(chg_init(&charger)!= CHG_OK)
+//        {
+//            printf("Charger init error");
+//            Error_Handler();
+//        }
+//        chg_config_filters(&charger);
+//    }
 
 
     HAL_CAN_Start(&hcan);
@@ -298,6 +298,7 @@ int main(void) {
 
     //Fill various peripherial structures
     startup_periph_init();
+
 
     //Initialize resolver and its SPI interface
     res_init(&inv.resolver);    // enable AD2S1205 resolver
@@ -328,7 +329,7 @@ int main(void) {
 
 
     //Disable throttle control.
-    inv.throttle_control = false;
+    inv.throttle_control = true;
     inv._test_mtpa_control = true;
 
 
