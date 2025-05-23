@@ -4,10 +4,10 @@
 
 //This library contains event handlers
 
-#define INV_MAX_TEMPERATURE_DISABLE 35.f //C
+#define INV_MAX_TEMPERATURE_DISABLE 45.f //C
 #define INV_MAX_TEMPERATURE_ENABLE 45.f //C
 
-#define ENV_MIN_VBUS_VALUE 30.f
+#define ENV_MIN_VBUS_VALUE 110.f
 #define ENV_MAX_VBUS_VALUE 200.f
 #define ENV_VBUS_HYSTERESIS 3.f
 

@@ -68,7 +68,7 @@ typedef enum
 
 } chg_command_t;
 
-typedef struct
+typedef struct CHG
 {
 //    bool active; //Is dcdc controller running
     CAN_HandleTypeDef *can;
@@ -94,6 +94,9 @@ chg_ret_val_t static chg_switch_power(chg_t * instance, bool power); //Turn on o
 chg_ret_val_t chg_init(chg_t * instance);
 
 void chg_config_filters(chg_t *chg);
+
+void chg_deactivate_filters(chg_t * chg);
+
 
 chg_ret_val_t chg_establish_connection(chg_t * instance); //The charger gets into idle state
 

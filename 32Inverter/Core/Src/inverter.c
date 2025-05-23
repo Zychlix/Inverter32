@@ -662,15 +662,15 @@ inv_ret_val_t inv_disconnect_supply(inv_t * inverter)
     return INV_OK;
 }
 
-#define INV_THROTTLE_THRESHOLD 0.2f
-#define INV_THROTTLE_TRIGGER 1.5f
+#define INV_THROTTLE_THRESHOLD 0.15f
+#define INV_THROTTLE_TRIGGER 0.48f
 
 float inv_get_throttle(inv_t * inverter)
 {
     float input = (inverter->inputs.throttle_b_voltage - INV_THROTTLE_THRESHOLD)/(INV_THROTTLE_TRIGGER-INV_THROTTLE_THRESHOLD);
 
     if(input>1.f) input = 1.f;
-    if(input<1.f) input = 0.f;
+    if(input<0.f) input = 0.f;
 
     return input;
 

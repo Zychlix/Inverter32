@@ -74,7 +74,7 @@ void adc4_read(inv_inputs_t * inputs){
     */
 
     const float VBUS_VOLTS_PER_BIT = 1.0f/7.0f;
-    const uint16_t VBUS_OFFSET = 260;     //480
+    const uint16_t VBUS_OFFSET = 260+10*7;     //480
 
     static volatile float hv_voltage_current;
     hv_voltage_current = (float)((int16_t)data[3] - VBUS_OFFSET) * VBUS_VOLTS_PER_BIT;

@@ -1,9 +1,5 @@
 #include "inverter_state_machine.h"
-//
-//inv_ret_val_t inv_state_machine_update(int * inverter)
-//{
-//
-//}
+
 
 typedef enum INV_STATUS inverter_status_t;
 
@@ -103,6 +99,11 @@ inv_state_ret_val_t inv_command_state_executor(inv_t * instance)
 
         case INV_COMMAND_IDLE:
             inv_enable(instance, false);
+            if(instance->main_status == INV_STATUS_CHARGING)
+            {
+                inv_transition_charge_idle(instance);
+            }
+
             instance->main_status = INV_STATUS_IDLE;
             instance->current_command = INV_COMMAND_NO_COMMAND;
             break;

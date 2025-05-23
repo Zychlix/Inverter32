@@ -11,6 +11,7 @@
 #include "adc.h"
 #include "error_log.h"
 #include "stimuli.h"
+#include "dcdc_controller.h"
 
 #define INV_MAX_PWM_PULSE_VAL 2500
 #define INV_PID_MAX_OUT 100
@@ -158,6 +159,7 @@ typedef struct INV {
 
     env_t stimuli;
 
+    chg_t *charger;
 } inv_t;
 
 

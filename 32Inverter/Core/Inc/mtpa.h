@@ -8,8 +8,8 @@
 
 //MCD Motor Current Dispatcher
 
-static volatile float lambda = ((0.05f)); // To be designated
-#define LAMBDA 0.05f// approx 43.7V per 162 rad/s
+static volatile float lambda = ((0.06f)); // To be designated
+#define LAMBDA ((0.0601f))// approx 43.7V per 162 rad/s
 
 #define CONVERGANCE 1.f
 #define POLE_COUNT  ((4))
@@ -18,7 +18,7 @@ static volatile float lambda = ((0.05f)); // To be designated
 #define I_Q         ((p.I_q))
 #define T_REF       ((p.T_ref))
 
-#define MTPA_I0     ((300.f))
+#define MTPA_I0     ((400.f))
 
 #define MTPA_A ((9 * POLE_COUNT*POLE_COUNT * (L_d - L_q)*(L_d - L_q)*(L_q*L_q) * (OMEGA*OMEGA)))
 #define MTPA_B 0

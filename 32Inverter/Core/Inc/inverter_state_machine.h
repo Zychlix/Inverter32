@@ -2,9 +2,11 @@
 #include "inverter_state_machine_defs.h"
 #include "stdint.h"
 #include "inverter.h"
+#include "dcdc_controller.h"
+
 
 typedef struct INV inv_t;
-
+typedef struct CHG chg_t;
 
 
 /*
@@ -13,6 +15,7 @@ typedef struct INV inv_t;
 INV_TRANSITION_RET_VAL inv_transition_uninitialized_idle( inv_t * instance);
 INV_TRANSITION_RET_VAL inv_transition_idle_drive(inv_t * instance);
 INV_TRANSITION_RET_VAL inv_transition_idle_charge(inv_t * instance);
+INV_TRANSITION_RET_VAL inv_transition_charge_idle(inv_t * instance);
 
 /*
  * End of transition handlers

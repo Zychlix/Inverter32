@@ -270,14 +270,12 @@ int main(void) {
 
     bool charger_mode = HAL_GPIO_ReadPin( BRK_IN_PORT, BRK_IN_PIN); // Checks what mode to work in
 
-//    if(charger_mode)
-//    {
-//        if(chg_init(&charger)!= CHG_OK)
-//        {
-//            printf("Charger init error");
-//            Error_Handler();
-//        }
-//        chg_config_filters(&charger);
+//          init charger power and whatnot
+        if(chg_init(&charger)!= CHG_OK)
+        {
+            printf("Charger init error");
+            Error_Handler();
+        }
 //    }
 
 
@@ -306,6 +304,7 @@ int main(void) {
     //Fill GPIO structure
     startup_relay_box_init();
 
+    inv.charger = &charger;
 
     //Main init function
     if (inv_init(&inv) != INV_OK) {
@@ -352,7 +351,7 @@ int main(void) {
 
     charger.setpoint.mode = DEZHOU_MODE_CHARGING;
     charger.setpoint.protection = DEZHOU_BATTERY_PROTECTION;
-    charger.setpoint.voltage = 120.f;
+    charger.setpoint.voltage = 160.f;
     charger.setpoint.current = 10.f;
 
     inv_command_state_issue(&inv,INV_COMMAND_DRIVE);
@@ -366,14 +365,20 @@ int main(void) {
         //Check for incoming serial commands
         cli_poll();
 
-        //Dispatch urgent calls
+        //Dispatch urgent, blocking calls
         inv_dispatcher(&inv);
 
         //
         inv_command_state_executor(&inv);
 
+        static float smooth_velocity;
 
-        if (HAL_GetTick() - last_call >= 1) {
+        //Velocity filter
+        #define VELOCITY_ALPHA 0.01f
+        smooth_velocity = (VELOCITY_ALPHA *  inv.resolver.derived_electrical_velocity_rad_s) + (1.0f - VELOCITY_ALPHA) * smooth_velocity;
+
+
+        if (HAL_GetTick() - last_call >= 10) {
 
             if(inv.main_status == INV_STATUS_CHARGING)
             {
@@ -388,36 +393,33 @@ int main(void) {
 
             static vec_t currents;
             static uint32_t res;
-            static float smooth_velocity;
 
-            //Velocity filter
-            #define VELOCITY_ALPHA 0.01f
-            smooth_velocity = (VELOCITY_ALPHA *  inv.resolver.derived_electrical_velocity_rad_s) + (1.0f - VELOCITY_ALPHA) * smooth_velocity;
 
-            #define MTPA_MAX_CURRENT ((40.f))
-            #define MTPA_MAX_TORQUE ((50.f))
+            #define MTPA_MAX_CURRENT ((400.f))
+            #define MTPA_MAX_TORQUE ((150.f))
 
             //Throttle handling
 
-            float throttle=inv.inputs.throttle_b_voltage;
+            float throttle= inv_get_throttle(&inv);
 
             if(inv.throttle_control)
             {
 
                 if(inv._test_mtpa_control)
                 {
-                    if(throttle>=0.20)
+                    if(throttle>=0.0)
                     {
                         res = mtpa_current_controller_newton(throttle*MTPA_MAX_TORQUE, MTPA_MAX_CURRENT, smooth_velocity, inv.vbus, &currents);
                     } else
                     {
                         res = mtpa_current_controller_newton(0.f, MTPA_MAX_CURRENT, smooth_velocity, inv.vbus, &currents);
                     }
+                    currents.y = -currents.y;
                     inv_set_mode_and_current(&inv, MODE_DQ, currents);
                 }
                 else
                 {
-                    if(throttle>=0.20)
+                    if(throttle>=0.01)
                     {
                         inv_set_mode_and_current(&inv, MODE_DQ, (vec_t){0, -(throttle-0.20f)*500});
                     }
@@ -431,7 +433,7 @@ int main(void) {
 //           cdi_transmit_channel(&can_debugger, 0, (uint8_t *) &(currents.x), sizeof(currents.x));
 
         }
-//        printf("Throttle: %f, press: %f\n", inv.adcs.throttleB, inv.adcs.throttleA );
+//        printf("Throttle: %f, press: %f\n", inv_get_throttle(&inv), 0 );
     }
 }
 

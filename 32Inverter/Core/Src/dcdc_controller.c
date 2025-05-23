@@ -103,6 +103,25 @@ void chg_config_filters(chg_t *chg) {
     HAL_CAN_ActivateNotification(hcan1, CAN_IT_RX_FIFO0_MSG_PENDING);
 }
 
+void chg_deactivate_filters(chg_t *chg)
+{
+    CAN_HandleTypeDef * hcan1 = chg->can;
+
+    CAN_FilterTypeDef sFilterConfig = {0};
+    sFilterConfig.FilterActivation = ENABLE;
+
+    sFilterConfig.FilterBank = 0;
+    HAL_CAN_ConfigFilter(hcan1, &sFilterConfig);
+
+
+    sFilterConfig.FilterBank = 1;
+    HAL_CAN_ConfigFilter(hcan1, &sFilterConfig);
+
+
+    sFilterConfig.FilterBank = 2;
+    HAL_CAN_ConfigFilter(hcan1, &sFilterConfig);
+}
+
 
 uint16_t swap_endianness_16(uint16_t value) {
     return (value >> 8) | (value << 8);
