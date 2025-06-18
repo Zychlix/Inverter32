@@ -32,6 +32,7 @@ INV_TRANSITION_RET_VAL inv_transition_idle_charge(inv_t * instance)
     {
 
         chg_config_filters(instance->charger);
+//        instance->charger->setpoint.protection = DEZHOU_BATTERY_OPEN_CHARGING;
 
         return 0;
 
@@ -43,7 +44,10 @@ INV_TRANSITION_RET_VAL inv_transition_idle_charge(inv_t * instance)
 
 INV_TRANSITION_RET_VAL inv_transition_charge_idle(inv_t * instance)
 {
-    chg_deactivate_filters(instance->charger);
+
+
+    instance->charger->setpoint.protection = DEZHOU_BATTERY_PROTECTION;  //Wait for it to be sent
+//    chg_deactivate_filters(instance->charger);
 
 
     return 0;

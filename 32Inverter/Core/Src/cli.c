@@ -100,6 +100,10 @@ static void parse_command(char* str)
 //        inv_enable(me.inverter,false);
         inv_command_state_issue(me.inverter, INV_COMMAND_IDLE);
         printf("ok\n");
+    } else if(strcmp(str, "chenable") == 0) {
+//        inv_enable(me.inverter,false);
+        inv_command_state_issue(me.inverter, INV_COMMAND_CHARGE);
+        printf("ok\n");
 
     } else if(strcmp(str, "voltage") == 0) {
         printf("voltage: %fV \n", me.inverter->vbus);

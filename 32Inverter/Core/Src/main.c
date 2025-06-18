@@ -378,13 +378,13 @@ int main(void) {
         smooth_velocity = (VELOCITY_ALPHA *  inv.resolver.derived_electrical_velocity_rad_s) + (1.0f - VELOCITY_ALPHA) * smooth_velocity;
 
 
-        if (HAL_GetTick() - last_call >= 10) {
+        if (HAL_GetTick() - last_call >= 100) {
 
             if(inv.main_status == INV_STATUS_CHARGING)
             {
                 chg_state_machine_update(&charger);
 
-//                chg_print_data(&charger);
+                chg_print_data(&charger);
                 chg_send_data(&charger);
 
             }

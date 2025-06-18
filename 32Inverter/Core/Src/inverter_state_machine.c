@@ -74,7 +74,7 @@ inv_state_ret_val_t inv_command_state_executor(inv_t * instance)
 
         case INV_COMMAND_CHARGE:
 
-            if(instance->main_status == INV_STATUS_IDLE)
+            if(instance->main_status == INV_STATUS_IDLE || 1) //TODO quick hack
             {
                 transition_effect = inv_transition_idle_charge(instance);
 
