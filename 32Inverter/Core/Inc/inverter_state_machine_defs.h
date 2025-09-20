@@ -5,7 +5,7 @@ typedef enum INV_STATUS
     INV_STATUS_UNINITIALIZED = 0,  //Primary state. Not allowed after using inv_init
     INV_STATUS_IDLE,               //Inverter succesfully initialized, awaiting action
     INV_STATUS_DRIVE,
-    INV_STATUS_CHARGING
+    INV_STATUS_CHARGE_READY
 } inverter_status_t;
 
 typedef enum
@@ -32,7 +32,7 @@ typedef enum
     INV_COMMAND_NO_COMMAND= 0,     //Set up the inverter
     INV_COMMAND_INITIALIZE ,     //Set up the inverter
     INV_COMMAND_DRIVE,              //Inverter in driving mode. PWM activated
-    INV_COMMAND_CHARGE,             //Inverter charging
+    INV_COMMAND_CHARGE_READY,             //Inverter charging
     INV_COMMAND_IDLE,               //Inverter neither charging nor driveing. Safe state
 
 }inv_command_t;

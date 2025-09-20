@@ -6,6 +6,10 @@
 #include "dezhou_charger_can.h"
 #include "stm32f3xx.h"
 
+
+#define CHG_TICK_MAX_TIMEOUT ((1000))
+
+
 typedef enum
 {
     CHG_OK,
@@ -86,7 +90,8 @@ typedef struct CHG
 
 //    bool slow_data_enabled;
 //    bool fast_data_enabled;
-
+    uint32_t last_received_time;
+    bool can_stream_active;
 } chg_t;
 
 chg_ret_val_t static chg_switch_power(chg_t * instance, bool power); //Turn on or off the charger

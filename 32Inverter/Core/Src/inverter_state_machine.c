@@ -72,16 +72,16 @@ inv_state_ret_val_t inv_command_state_executor(inv_t * instance)
             instance->current_command = INV_COMMAND_NO_COMMAND;
             break;
 
-        case INV_COMMAND_CHARGE:
+        case INV_COMMAND_CHARGE_READY:
 
             if(instance->main_status == INV_STATUS_IDLE || 1) //TODO quick hack
             {
-                transition_effect = inv_transition_idle_charge(instance);
+                transition_effect = inv_transition_idle_charge_ready(instance);
 
                 if(transition_effect == 0)
                 {
                     return_value = INV_STATE_RET_OK;
-                    instance->main_status = INV_STATUS_CHARGING;
+                    instance->main_status = INV_STATUS_CHARGE_READY;
                 }
                 else
                 {
@@ -99,7 +99,7 @@ inv_state_ret_val_t inv_command_state_executor(inv_t * instance)
 
         case INV_COMMAND_IDLE:
             inv_enable(instance, false);
-            if(instance->main_status == INV_STATUS_CHARGING)
+            if(instance->main_status == INV_STATUS_CHARGE_READY)
             {
                 inv_transition_charge_idle(instance);
             }

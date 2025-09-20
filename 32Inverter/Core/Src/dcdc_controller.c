@@ -47,6 +47,9 @@ chg_ret_val_t chg_init(chg_t *instance) {
 
 void chg_message_semaphore(CAN_RxHeaderTypeDef *pHeader, uint8_t aData[], chg_t *charger) {
     uint32_t message_id = pHeader->ExtId;
+
+    charger->last_received_time = HAL_GetTick(); //Refresh last received timestamp
+
     switch (message_id) {
         case DEZHOU_STATUS_EXTID:
             if (pHeader->DLC == sizeof(dezhou_status_frame_t))
@@ -62,6 +65,7 @@ void chg_message_semaphore(CAN_RxHeaderTypeDef *pHeader, uint8_t aData[], chg_t 
     }
 }
 
+// Check if it only catches Charger can
 void chg_config_filters(chg_t *chg) {
     CAN_HandleTypeDef *hcan1 = chg->can;
 
@@ -244,6 +248,7 @@ void chg_print_data(chg_t * instance)
     printf("    Temperature too high: %d\n", instance->telemetry.over_temperature);
     printf("    Battery error: %d\n", instance->telemetry.battery_error);
     printf("    Supply error: %d\n", instance->telemetry.ac_error);
+    printf("    Last message: %d\n", instance->last_received_time);
 
 }
 
@@ -260,6 +265,9 @@ chg_ret_val_t static chg_switch_power(chg_t * instance, bool power)
 chg_ret_val_t chg_state_machine_update(chg_t * instance)
 {
     chg_refresh_data_struct(instance);
+    uint32_t current_tick = HAL_GetTick();
+
+    bool ready = (current_tick - instance->last_received_time)<CHG_TICK_MAX_TIMEOUT;
 
     switch (instance->current_command) {
         case CHG_CMD_ENABLE:
@@ -336,3 +344,4 @@ chg_ret_val_t chg_command(chg_t * instance, chg_command_t command)
     instance->current_command = command;
     return CHG_OK;
 }
+

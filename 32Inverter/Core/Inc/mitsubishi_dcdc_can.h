@@ -28,7 +28,7 @@ typedef struct {
     bool  battery_error;
     bool  communication_timeout;
 
-
+    int time;
     bool new_frame;         //Set on every write
 
 

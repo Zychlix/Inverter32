@@ -360,6 +360,7 @@ int main(void) {
 
     //Main loop
     while (1) {
+//        HAL_GPIO_WritePin(PUMP_OUT_GPIO_Port,PUMP_OUT_Pin, GPIO_PIN_SET);
 
 
         //Check for incoming serial commands
@@ -374,22 +375,54 @@ int main(void) {
         static float smooth_velocity;
 
         //Velocity filter
-        #define VELOCITY_ALPHA 0.01f
+        #define VELOCITY_ALPHA 0.003f
         smooth_velocity = (VELOCITY_ALPHA *  inv.resolver.derived_electrical_velocity_rad_s) + (1.0f - VELOCITY_ALPHA) * smooth_velocity;
 
 
         if (HAL_GetTick() - last_call >= 100) {
 
-            if(inv.main_status == INV_STATUS_CHARGING)
+            //Check received can transmission
+            if(HAL_GetTick()-charger.last_received_time < CHG_TICK_MAX_TIMEOUT)
+            {
+                if(charger.can_stream_active == false)
+                {
+                    //Issue on activation
+                    env_charger_can_stream_start();
+
+                }
+                charger.can_stream_active = true;
+            } else
+            {
+                if(charger.can_stream_active == true)
+                {
+                    //Issue on deactivation
+                    env_charger_can_stream_stop();
+                }
+                charger.can_stream_active = false;
+
+            }
+
+            if(inv.main_status == INV_STATUS_CHARGE_READY)
             {
                 chg_state_machine_update(&charger);
+
 
                 chg_print_data(&charger);
                 chg_send_data(&charger);
 
+                if((HAL_GetTick() -  charger.last_received_time)<1000 && !charger.telemetry.communication_timeout)
+                {
+                    charger.setpoint.protection = DEZHOU_BATTERY_OPEN_CHARGING;
+                } else
+                {
+                    //charger.setpoint.protection = DEZHOU_BATTERY_PROTECTION;
+
+                }
+
             }
 
             last_call = HAL_GetTick();
+
 
             static vec_t currents;
             static uint32_t res;

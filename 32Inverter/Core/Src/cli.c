@@ -102,11 +102,12 @@ static void parse_command(char* str)
         printf("ok\n");
     } else if(strcmp(str, "chenable") == 0) {
 //        inv_enable(me.inverter,false);
-        inv_command_state_issue(me.inverter, INV_COMMAND_CHARGE);
+        inv_command_state_issue(me.inverter, INV_COMMAND_CHARGE_READY);
         printf("ok\n");
 
     } else if(strcmp(str, "voltage") == 0) {
         printf("voltage: %fV \n", me.inverter->vbus);
+        printf("Aux voltage: %f \r\n", me.inverter->inputs.supply_voltage);
 
     } else if(strcmp(str, "temp") == 0) {
         printf("Transistor A temp: %f C \n",me.inverter->inputs.igbt_A_temperature);
@@ -229,8 +230,8 @@ static void parse_command(char* str)
             case INV_STATUS_IDLE:
                 printf("INV_STATUS_IDLE\r\n");
                 break;
-            case INV_STATUS_CHARGING:
-                printf("INV_STATUS_CHARGING\r\n");
+            case INV_STATUS_CHARGE_READY:
+                printf("INV_STATUS_CHARGE_READY\r\n");
                 break;
             case INV_STATUS_DRIVE:
                 printf("INV_STATUS_DRIVE\r\n");

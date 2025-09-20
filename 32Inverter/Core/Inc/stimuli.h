@@ -4,7 +4,7 @@
 
 //This library contains event handlers
 
-#define INV_MAX_TEMPERATURE_DISABLE 45.f //C
+#define INV_MAX_TEMPERATURE_DISABLE 55.f //C
 #define INV_MAX_TEMPERATURE_ENABLE 45.f //C
 
 #define ENV_MIN_VBUS_VALUE 110.f
@@ -48,4 +48,7 @@ void env_vbus_in_range_handler();
 
 void env_charger_enable();
 void env_charger_disable();
+
+void env_charger_can_stream_start();
+void env_charger_can_stream_stop();
 

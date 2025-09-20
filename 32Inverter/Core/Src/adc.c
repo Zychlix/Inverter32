@@ -83,6 +83,7 @@ void adc4_read(inv_inputs_t * inputs){
 
 
     const float INPUT_12V_VOLTS_PER_BIT = VREF / 4095.f * 11;
+//    const float INPUT_12V_VOLTS_PER_BIT = VREF / 4095.f * 1/0.58f;
     static volatile float lv_voltage_current;
     lv_voltage_current = (float)data[4] * INPUT_12V_VOLTS_PER_BIT;
     exp_filter(&inputs->supply_voltage, lv_voltage_current , INV_SUPPLY_FILTER_ALPHA);
