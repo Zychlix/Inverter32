@@ -623,6 +623,7 @@ inv_ret_val_t inv_connect_supply(inv_t * inverter)
 
         current_time = HAL_GetTick();
         current_voltage = inverter->inputs.bus_voltage;
+
         HAL_Delay(1);
 
     }

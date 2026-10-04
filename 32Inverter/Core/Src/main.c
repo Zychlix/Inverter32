@@ -359,8 +359,8 @@ int main(void) {
     uint32_t last_call = 0;
 
     //Main loop
+    HAL_GPIO_WritePin(PUMP_OUT_GPIO_Port,PUMP_OUT_Pin, GPIO_PIN_SET);
     while (1) {
-//        HAL_GPIO_WritePin(PUMP_OUT_GPIO_Port,PUMP_OUT_Pin, GPIO_PIN_SET);
 
 
         //Check for incoming serial commands
@@ -409,6 +409,9 @@ int main(void) {
 
                 chg_print_data(&charger);
                 chg_send_data(&charger);
+
+                HAL_GPIO_WritePin(PUMP_OUT_GPIO_Port,PUMP_OUT_Pin, GPIO_PIN_RESET);
+
 
                 if((HAL_GetTick() -  charger.last_received_time)<1000 && !charger.telemetry.communication_timeout)
                 {
